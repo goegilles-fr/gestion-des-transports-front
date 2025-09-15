@@ -1,0 +1,263 @@
+/* Conteneur principal */
+.register-container {
+  height: 100vh;
+  background: #0B84A2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+}
+
+/* Card principale */
+.register-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.register-card h2 {
+  text-align: center;
+  margin: 0 0 30px 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Formulaire */
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sections du formulaire */
+.form-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+  align-items: stretch;
+}
+
+.form-section {
+  position: relative;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Headers des sections */
+.section-header {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.section-header h3 {
+  background: #0B84A2;
+  color: white;
+  padding: 8px 16px;
+  margin: 0;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenu des sections */
+.section-content {
+  background: #F3F3F3;
+  border: 2px solid #0B84A2;
+  border-radius: 12px;
+  padding: 45px 20px 20px 20px;
+  margin-top: 8px;
+  flex: 1;
+}
+
+/* Groupes de formulaire */
+.form-group {
+  margin-bottom: 20px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  height: 60px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Largeurs spécifiques pour numéro et rue */
+.numero-width {
+  flex: 0 0 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+.rue-width {
+  flex: 1;
+}
+
+/* Champs de saisie */
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0B84A2;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(11, 132, 162, 0.1);
+}
+
+.form-input.error {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+.form-input::placeholder {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* Messages d'erreur */
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Boutons */
+.form-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 16px 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  min-width: 140px;
+}
+
+.btn-primary {
+  background: #0B84A2;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0a6d87;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11, 132, 162, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
+  .register-card {
+    padding: 30px 25px;
+    max-height: 95vh;
+  }
+
+  .form-sections {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  /* En responsive, les inputs reprennent la largeur normale */
+  .numero-width,
+  .rue-width {
+    flex: 1;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 25px 20px;
+  }
+
+  .section-content {
+    padding: 20px 15px;
+  }
+
+  .section-header h3 {
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+}
