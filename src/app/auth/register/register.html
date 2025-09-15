@@ -1,0 +1,193 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>CRÉATION DE COMPTE</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-sections">
+
+        <!-- Section Civilité -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Civilité</h3>
+          </div>
+          <div class="section-content">
+
+            <!-- Nom -->
+            <div class="form-group">
+              <input
+                type="text"
+                id="nom"
+                formControlName="nom"
+                placeholder="NOM"
+                class="form-input"
+                [class.error]="nom?.invalid && nom?.touched">
+              @if (nom?.invalid && nom?.touched) {
+                <div class="error-message">
+                  @if (nom?.errors?.['required']) {
+                    <span>Le nom est requis</span>
+                  }
+                  @if (nom?.errors?.['minlength']) {
+                    <span>Le nom doit contenir au moins 2 caractères</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Prénom -->
+            <div class="form-group">
+              <input
+                type="text"
+                id="prenom"
+                formControlName="prenom"
+                placeholder="Prénom"
+                class="form-input"
+                [class.error]="prenom?.invalid && prenom?.touched">
+              @if (prenom?.invalid && prenom?.touched) {
+                <div class="error-message">
+                  @if (prenom?.errors?.['required']) {
+                    <span>Le prénom est requis</span>
+                  }
+                  @if (prenom?.errors?.['minlength']) {
+                    <span>Le prénom doit contenir au moins 2 caractères</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="john@exemple.com"
+                class="form-input"
+                [class.error]="email?.invalid && email?.touched">
+              @if (email?.invalid && email?.touched) {
+                <div class="error-message">
+                  @if (email?.errors?.['required']) {
+                    <span>L'adresse email est requise</span>
+                  }
+                  @if (email?.errors?.['email']) {
+                    <span>Veuillez saisir une adresse email valide</span>
+                  }
+                </div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section Adresse -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Adresse</h3>
+          </div>
+          <div class="section-content">
+
+            <!-- Numéro et Rue -->
+            <div class="form-row">
+              <div class="form-group numero-width">
+                <input
+                  type="text"
+                  id="numero"
+                  formControlName="numero"
+                  placeholder="N°"
+                  class="form-input"
+                  [class.error]="numero?.invalid && numero?.touched">
+                @if (numero?.invalid && numero?.touched) {
+                  <div class="error-message">
+                    @if (numero?.errors?.['required']) {
+                      <span>Le numéro est requis</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-group rue-width">
+                <input
+                  type="text"
+                  id="rue"
+                  formControlName="rue"
+                  placeholder="Avenue des lilas"
+                  class="form-input"
+                  [class.error]="rue?.invalid && rue?.touched">
+                @if (rue?.invalid && rue?.touched) {
+                  <div class="error-message">
+                    @if (rue?.errors?.['required']) {
+                      <span>La rue est requise</span>
+                    }
+                    @if (rue?.errors?.['minlength']) {
+                      <span>La rue doit contenir au moins 3 caractères</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Code postal -->
+            <div class="form-group">
+              <input
+                type="text"
+                id="codePostal"
+                formControlName="codePostal"
+                placeholder="34000"
+                class="form-input"
+                [class.error]="codePostal?.invalid && codePostal?.touched">
+              @if (codePostal?.invalid && codePostal?.touched) {
+                <div class="error-message">
+                  @if (codePostal?.errors?.['required']) {
+                    <span>Le code postal est requis</span>
+                  }
+                  @if (codePostal?.errors?.['pattern']) {
+                    <span>Le code postal doit contenir 5 chiffres</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Ville -->
+            <div class="form-group">
+              <input
+                type="text"
+                id="ville"
+                formControlName="ville"
+                placeholder="MONTPELLIER"
+                class="form-input"
+                [class.error]="ville?.invalid && ville?.touched">
+              @if (ville?.invalid && ville?.touched) {
+                <div class="error-message">
+                  @if (ville?.errors?.['required']) {
+                    <span>La ville est requise</span>
+                  }
+                  @if (ville?.errors?.['minlength']) {
+                    <span>La ville doit contenir au moins 2 caractères</span>
+                  }
+                </div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Boutons -->
+      <div class="form-buttons">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="registerForm.invalid">
+          VALIDER
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()">
+          ANNULER
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
