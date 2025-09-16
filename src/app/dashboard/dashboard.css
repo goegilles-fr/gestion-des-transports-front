@@ -1,0 +1,350 @@
+/* Container principal */
+.dashboard-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header/Navbar */
+.dashboard-header {
+  background: #0B84A2;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.logo-container {
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.logo {
+  width: 50px;
+  height: 40px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 0;
+  margin-top: 25px;
+}
+
+.nav-btn {
+  background: #EDEDED;
+  border: none;
+  color: black;
+  padding: 12px 20px;
+  margin-right: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-btn.active {
+  background: #5C5D5E;
+  color: white;
+}
+
+/* Header Right */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Main Content */
+.dashboard-main {
+  flex: 1;
+  padding: 100px 20px 30px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Sections */
+.dashboard-section {
+  margin-bottom: 50px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Action Cards avec style bulle */
+.action-card {
+  background: #F3F3F3;
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #0B84A2;
+  position: relative;
+  padding-top: 12px;
+}
+
+/* Header des cartes en style bulle */
+.card-header {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.card-header h3 {
+  background: #0B84A2;
+  color: white;
+  padding: 8px 16px;
+  margin: 0;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.card-content {
+  padding: 35px 20px 25px 20px;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* État sans données */
+.no-data {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  font-style: italic;
+}
+
+/* Boutons d'action */
+.card-action-btn {
+  background: #0B84A2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-action-btn:hover {
+  background: #0a6d87;
+  transform: translateY(-1px);
+}
+
+/* États avec données */
+.reservation-info,
+.annonce-info,
+.vehicle-info {
+  margin-bottom: 20px;
+}
+
+.date-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.route {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.car-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #0B84A2;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.vehicle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vehicle-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.reservation-period {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Footer */
+.dashboard-footer {
+  background: #0B84A2;
+  color: white;
+  padding: 8px;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1500px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.footer-content i {
+  margin-right: 3px;
+}
+
+.footer-logo {
+  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo img {
+  height: 30px;
+}
+
+/* États conditionnels */
+.empty-state {
+  display: block;
+}
+
+.data-state {
+  display: none;
+}
+
+/* Quand il y a des données, on inverse l'affichage */
+.has-data .empty-state {
+  display: none;
+}
+
+.has-data .data-state {
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .main-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .section-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .dashboard-main {
+    padding: 20px 15px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .card-header h3 {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .card-action-btn {
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+}
