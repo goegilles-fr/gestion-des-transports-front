@@ -1,0 +1,84 @@
+<div class="vehicules-page">
+
+  <!-- MON VEHICULE PERSONNEL -->
+  <section class="panel" *ngIf="monVehicule as v">
+    <h2 class="panel__title">MON VÉHICULE PERSONNEL</h2>
+
+    <div class="card">
+      <table class="table table--vehicule">
+        <thead>
+          <tr>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Immatriculation</th>
+            <th>Nombre de places</th>
+            <th>CO2/km</th>
+            <th>Motorisation</th>
+            <th>Photo</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ v.marque || '—' }}</td>
+            <td>{{ v.modele || '—' }}</td>
+            <td class="immat">{{ v.immatriculation || '—' }}</td>
+            <td>{{ v.nombrePlaces ?? '—' }}</td>
+            <td>{{ v.co2ParKm ?? '—' }}</td>
+            <td>{{ v.motorisation || '—' }}</td>
+            <td class="photo-cell">
+              <img
+                [src]="v.photoUrl || 'https://placehold.co/72x48?text=Photo'"
+                alt="Photo véhicule"
+                class="thumb"
+                loading="lazy"
+              />
+            </td>
+            <td class="actions-col">
+              <!-- Bouton poubelle (placeholder) -->
+              <button type="button" class="icon-btn" title="Supprimer (à implémenter)" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ -->
+  <section class="panel">
+    <h2 class="panel__title">MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ</h2>
+
+    <div class="card">
+      <table class="table table--reservations">
+        <thead>
+          <tr>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Immatriculation</th>
+            <th>Nombre de places</th>
+            <th>CO2/km</th>
+            <th>Motorisation</th>
+            <th>Photo</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Tableau volontairement vide pour l’instant (pas de <tr>) -->
+          <ng-container *ngFor="let _ of reservations"></ng-container>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta">
+    <button type="button" class="btn-primary">RÉSERVER UN VÉHICULE</button>
+  </div>
+
+</div>

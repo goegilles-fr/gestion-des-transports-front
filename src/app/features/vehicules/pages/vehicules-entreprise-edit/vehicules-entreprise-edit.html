@@ -1,0 +1,70 @@
+<div class="modal-backdrop" (click)="onCancel()"></div>
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="vehiculeEditTitle">
+  <form #f="ngForm" (ngSubmit)="submit(f)" class="form">
+    <h3 id="vehiculeEditTitle" class="form__title">{{ title }}</h3>
+
+    <div class="form__grid">
+      <label class="field">
+        <span class="field__label">Marque</span>
+        <input name="marque" [(ngModel)]="model.marque" required />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Modèle</span>
+        <input name="modele" [(ngModel)]="model.modele" required />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Immatriculation</span>
+        <input name="immatriculation" [(ngModel)]="model.immatriculation" required />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Motorisation</span>
+        <select name="motorisation" [(ngModel)]="model.motorisation" required>
+          <option *ngFor="let m of MOTORISATIONS" [ngValue]="m">{{ m }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">CO₂ / km</span>
+        <input type="number" min="0" name="co2ParKm" [(ngModel)]="model.co2ParKm" required />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Nombre de places</span>
+        <input type="number" min="1" name="nombrePlaces" [(ngModel)]="model.nombrePlaces" required />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Catégorie</span>
+        <select name="categorie" [(ngModel)]="model.categorie" required>
+          <option *ngFor="let c of CATEGORIES" [ngValue]="c">{{ c }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Statut</span>
+        <select name="statut" [(ngModel)]="model.statut" required>
+          <option *ngFor="let s of STATUTS" [ngValue]="s">{{ s.replace('_',' ').toLowerCase() | titlecase }}</option>
+        </select>
+      </label>
+
+      <label class="field field--full">
+        <span class="field__label">Photo URL</span>
+        <input name="photoUrl" [(ngModel)]="model.photoUrl" placeholder="https://…" />
+      </label>
+
+      <div class="preview">
+        <img [src]="model.photoUrl || placeholder" alt="Aperçu" />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <button type="submit" class="btn-primary" [disabled]="f.invalid">
+        {{ mode === 'create' ? 'ENREGISTRER LE VÉHICULE' : 'MODIFIER LE VÉHICULE' }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="onCancel()">RETOUR</button>
+    </div>
+  </form>
+</div>

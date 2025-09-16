@@ -1,0 +1,27 @@
+<h1>{{ id() ? 'Modifier' : 'Créer' }} un véhicule personnel</h1>
+
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+    <label>Immatriculation
+      <input name="immatriculation" [(ngModel)]="model.immatriculation" required />
+    </label>
+
+    <label>Marque
+      <input name="marque" [(ngModel)]="model.marque" required />
+    </label>
+
+    <label>Modèle
+      <input name="modele" [(ngModel)]="model.modele" required />
+    </label>
+
+    <label>Places
+      <input type="number" name="nombrePlaces" [(ngModel)]="model.nombrePlaces" required min="1" />
+    </label>
+
+    <label>Utilisateur ID
+      <input type="number" name="utilisateurId" [(ngModel)]="model.utilisateurId" required />
+    </label>
+
+    <div style="margin-top:.75rem;">
+      <button [disabled]="f.invalid || loading()">Enregistrer</button>
+    </div>
+  </form>

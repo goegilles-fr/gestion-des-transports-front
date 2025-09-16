@@ -33,6 +33,7 @@ export class LoginComponent {
 
       // Exemple de redirection après connexion réussie
       // this.router.navigate(['/dashboard']);
+      this.router.navigate(['/vehicules']);
     } else {
       // Marquer tous les champs comme touchés pour afficher les erreurs
       this.markFormGroupTouched();
