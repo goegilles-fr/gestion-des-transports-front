@@ -18,6 +18,12 @@
     <div class="login-card">
       <h3>CONNECTEZ-VOUS</h3>
 
+      @if (errorMessage) {
+      <div class="error-message-container">
+        {{ errorMessage }}
+      </div>
+      }
+
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Champ email -->
         <div class="form-group">
