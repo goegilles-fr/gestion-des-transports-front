@@ -19,7 +19,7 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false]
     });
@@ -27,9 +27,9 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const { email, password, rememberMe } = this.loginForm.value;
+      const { username, password, rememberMe } = this.loginForm.value;
       // TODO: Implémenter l'authentification avec votre API Spring Boot
-      console.log('Login attempt:', { email, password, rememberMe });
+      console.log('Login attempt:', { username, password, rememberMe });
 
       // Exemple de redirection après connexion réussie
       // this.router.navigate(['/dashboard']);
@@ -51,7 +51,7 @@ export class LoginComponent {
   }
 
   // Getters pour faciliter l'accès aux contrôles dans le template
-  get email() { return this.loginForm.get('email'); }
+  get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
   get rememberMe() { return this.loginForm.get('rememberMe'); }
 }
