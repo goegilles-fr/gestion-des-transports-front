@@ -18,20 +18,32 @@
     <div class="login-card">
       <h3>CONNECTEZ-VOUS</h3>
 
+      @if (errorMessage) {
+      <div class="error-message-container">
+        {{ errorMessage }}
+      </div>
+      }
+
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Champ email -->
         <div class="form-group">
           <input
             type="email"
-            id="email"
-            formControlName="email"
+            id="username"
+            formControlName="username"
             placeholder="Adresse email"
             class="form-input"
-            [class.error]="email?.invalid && email?.touched">
-          <div *ngIf="email?.invalid && email?.touched" class="error-message">
-            <span *ngIf="email?.errors?.['required']">L'adresse email est requise</span>
-            <span *ngIf="email?.errors?.['email']">Veuillez saisir une adresse email valide</span>
+            [class.error]="username?.invalid && username?.touched">
+          @if (username?.invalid && username?.touched) {
+          <div class="error-message">
+            @if (username?.errors?.['required']) {
+            <span>L'adresse email est requise</span>
+            }
+            @if (username?.errors?.['email']) {
+            <span>Veuillez saisir une adresse email valide</span>
+            }
           </div>
+          }
         </div>
 
         <!-- Champ mot de passe -->
@@ -52,19 +64,16 @@
               <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
             </button>
           </div>
-          <div *ngIf="password?.invalid && password?.touched" class="error-message">
-            <span *ngIf="password?.errors?.['required']">Le mot de passe est requis</span>
-            <span *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+          @if (password?.invalid && password?.touched) {
+          <div class="error-message">
+            @if (password?.errors?.['required']) {
+            <span>Le mot de passe est requis</span>
+            }
+            @if (password?.errors?.['minlength']) {
+            <span>Le mot de passe doit contenir au moins 6 caractères</span>
+            }
           </div>
-        </div>
-
-        <!-- Se souvenir de moi -->
-        <div class="form-group remember-me">
-          <label class="checkbox-container">
-            <input type="checkbox" formControlName="rememberMe">
-            <span class="checkmark"></span>
-            Se souvenir de moi
-          </label>
+          }
         </div>
 
         <!-- Bouton de validation -->

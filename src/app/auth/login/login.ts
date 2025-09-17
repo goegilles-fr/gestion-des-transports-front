@@ -1,43 +1,91 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { AuthService, LoginRequest } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
 export class LoginComponent {
   loginForm: FormGroup;
   showPassword = false;
+  isLoading = false;
+  errorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+      username: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const { email, password, rememberMe } = this.loginForm.value;
-      // TODO: Implémenter l'authentification avec votre API Spring Boot
-      console.log('Login attempt:', { email, password, rememberMe });
+      this.isLoading = true;
+      this.errorMessage = '';
 
-      // Exemple de redirection après connexion réussie
-      // this.router.navigate(['/dashboard']);
-      this.router.navigate(['/vehicules']);
+      const loginData: LoginRequest = this.loginForm.value;
+
+      this.authService.login(loginData).subscribe({
+        next: (response) => {
+          console.log('Connexion réussie:', response);
+
+          // Écouter les changements du profil utilisateur
+          const userSub = this.authService.currentUser$.subscribe(user => {
+            if (user) {
+              // Profil chargé (même si c'est un utilisateur "fantôme" non vérifié)
+              if (!user.estVerifie) {
+                // Utilisateur non vérifié - afficher le message d'erreur
+                this.errorMessage = 'Votre compte n\'a pas encore été activé. Veuillez contacter l\'administrateur.';
+                this.authService.logout();
+                this.isLoading = false;
+              } else {
+                // Utilisateur vérifié - redirection vers dashboard
+                this.router.navigate(['/dashboard']);
+              }
+
+              // Se désabonner une fois traité
+              userSub.unsubscribe();
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Erreur lors de la connexion:', error);
+
+          // Gérer spécifiquement l'erreur 500 qui peut être un compte non vérifié
+          if (error.status === 500) {
+            this.errorMessage = 'Votre compte n\'a pas encore été activé. Veuillez contacter l\'administrateur.';
+          } else {
+            this.errorMessage = this.getErrorMessage(error);
+          }
+
+          this.isLoading = false;
+        }
+      });
     } else {
-      // Marquer tous les champs comme touchés pour afficher les erreurs
       this.markFormGroupTouched();
     }
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.status === 401) {
+      return 'Email ou mot de passe incorrect.';
+    }
+    if (error.status === 403) {
+      return 'Accès refusé. Votre compte est peut-être suspendu.';
+    }
+    if (error.status === 0) {
+      return 'Impossible de se connecter au serveur. Vérifiez votre connexion.';
+    }
+    return 'Une erreur est survenue lors de la connexion.';
   }
 
   togglePasswordVisibility() {
@@ -52,7 +100,6 @@ export class LoginComponent {
   }
 
   // Getters pour faciliter l'accès aux contrôles dans le template
-  get email() { return this.loginForm.get('email'); }
+  get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
-  get rememberMe() { return this.loginForm.get('rememberMe'); }
 }

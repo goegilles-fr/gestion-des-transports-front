@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService, RegisterRequest } from '../../services/auth';
 
 @Component({
   selector: 'app-register',
@@ -11,43 +12,99 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  isLoading = false;
+  errorMessage = '';
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.registerForm = this.formBuilder.group({
       // Civilité
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255)]],
 
       // Adresse
       numero: ['', [Validators.required]],
-      rue: ['', [Validators.required, Validators.minLength(3)]],
+      libelle: ['', [Validators.required, Validators.minLength(3)]], // Changé de "rue" à "libelle"
       codePostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
       ville: ['', [Validators.required, Validators.minLength(2)]]
     });
   }
 
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
   onSubmit() {
     if (this.registerForm.valid) {
-      const userData = this.registerForm.value;
-      // TODO: Implémenter l'enregistrement avec votre API Spring Boot
-      console.log('Données utilisateur:', userData);
+      this.isLoading = true;
+      this.errorMessage = '';
 
-      // Exemple de redirection après inscription réussie
-      // this.router.navigate(['/login']);
+      const formValue = this.registerForm.value;
+
+      // Transformation pour correspondre à l'API backend
+      const registerData: RegisterRequest = {
+        nom: formValue.nom,
+        prenom: formValue.prenom,
+        email: formValue.email,
+        password: formValue.password,
+        adresse: {
+          numero: parseInt(formValue.numero), // Conversion en number
+          libelle: formValue.libelle,
+          codePostal: formValue.codePostal,
+          ville: formValue.ville
+        }
+      };
+
+      this.authService.register(registerData).subscribe({
+        next: (response) => {
+          console.log('Inscription réussie:', response);
+          // Redirection vers la page de login
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'inscription:', error);
+          this.errorMessage = this.getErrorMessage(error);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
     } else {
       // Marquer tous les champs comme touchés pour afficher les erreurs
       this.markFormGroupTouched();
     }
   }
 
+  private getErrorMessage(error: any): string {
+    // Gestion des erreurs de validation détaillées du serveur
+    if (error.status === 400 && error.error) {
+      const errorMessages = [];
+
+      // Parcourir tous les messages d'erreur retournés par le serveur
+      for (const [field, message] of Object.entries(error.error)) {
+        errorMessages.push(message as string);
+      }
+
+      return errorMessages.join(', ');
+    }
+
+    if (error.status === 409) {
+      return 'Cette adresse email existe déjà.';
+    }
+
+    return 'Une erreur est survenue. Veuillez réessayer.';
+  }
+
   onCancel() {
     // Retour à la page de login ou page précédente
     this.router.navigate(['/login']);
-    // Ou : window.history.back();
   }
 
   private markFormGroupTouched() {
@@ -61,8 +118,9 @@ export class RegisterComponent {
   get nom() { return this.registerForm.get('nom'); }
   get prenom() { return this.registerForm.get('prenom'); }
   get email() { return this.registerForm.get('email'); }
+  get password() { return this.registerForm.get('password'); }
   get numero() { return this.registerForm.get('numero'); }
-  get rue() { return this.registerForm.get('rue'); }
+  get libelle() { return this.registerForm.get('libelle'); }
   get codePostal() { return this.registerForm.get('codePostal'); }
   get ville() { return this.registerForm.get('ville'); }
 }
