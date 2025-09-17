@@ -6,12 +6,15 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { App } from './app/app';
+import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth';
 
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
+    provideHttpClient(),
+    importProvidersFrom(FormsModule)
     provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(ReactiveFormsModule),
     {

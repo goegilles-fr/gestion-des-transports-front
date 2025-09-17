@@ -7,6 +7,13 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+
+  {
+    path: 'vehicules',
+    loadChildren: () =>
+      import('./features/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
+  },
+    
   { path: 'dashboard', component: DashboardComponent },
   { path: '**', redirectTo: '/login' } // Route wildcard
 ];
