@@ -14,4 +14,9 @@ export const routes: Routes = [
     //anActivate: [AuthGuard]
   },
   { path: '**', redirectTo: '/login' } // wildcard vers login
+  {
+    path: 'vehicules',
+    loadChildren: () =>
+      import('./features/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
+  },
 ];
