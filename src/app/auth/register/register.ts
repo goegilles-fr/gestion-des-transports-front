@@ -30,7 +30,7 @@ export class RegisterComponent {
 
       // Adresse
       numero: ['', [Validators.required]],
-      libelle: ['', [Validators.required, Validators.minLength(3)]], // Changé de "rue" à "libelle"
+      libelle: ['', [Validators.required, Validators.minLength(3)]],
       codePostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
       ville: ['', [Validators.required, Validators.minLength(2)]]
     });
@@ -51,6 +51,7 @@ export class RegisterComponent {
       const registerData: RegisterRequest = {
         nom: formValue.nom,
         prenom: formValue.prenom,
+        username: this.registerForm.value.email,
         email: formValue.email,
         password: formValue.password,
         adresse: {

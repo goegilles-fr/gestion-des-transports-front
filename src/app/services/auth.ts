@@ -1,41 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
 
-// Interfaces pour typer vos données
 export interface LoginRequest {
   username: string;
   password: string;
 }
 
 export interface RegisterRequest {
-  nom: string;
-  prenom: string;
+  username: string; // Sera mappé depuis email côté front
   email: string;
   password: string;
-  adresse: {
-    numero: number;
-    libelle: string;
-    codePostal: string;
-    ville: string;
-  };
-}
-
-export interface AuthResponse {
-  jwt: string;
-}
-
-export interface User {
-  id: number;
   nom: string;
   prenom: string;
-  email: string;
-  role: string;
-  estBanni: boolean;
-  estVerifie: boolean;
-  estSupprime: boolean;
-  adresse: {
-    id: number;
+  adresse?: {
     numero: number;
     libelle: string;
     codePostal: string;
@@ -44,131 +23,205 @@ export interface User {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'https://dev.goegilles.fr/api';
-  private readonly TOKEN_KEY = 'jwt_token';
-
-  // BehaviorSubject pour maintenir l'état de connexion
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private baseUrl = 'https://dev.goegilles.fr';
+  private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Si un token existe au démarrage, on pourrait récupérer le profil utilisateur
-    if (this.hasValidToken()) {
-      this.loadUserProfile();
+    // Vérifier si un token existe au démarrage
+    this.checkExistingToken();
+  }
+
+  private checkExistingToken(): void {
+    const token = sessionStorage.getItem('token'); // CHANGÉ: sessionStorage
+    if (token) {
+      const userInfo = this.decodeToken(token);
+      if (userInfo && this.isTokenValid(userInfo)) {
+        // Token valide, récupérer le profil complet
+        this.loadUserProfile().subscribe({
+          next: (fullProfile: any) => {
+            const completeUserInfo = {
+              ...userInfo,
+              ...fullProfile
+            };
+            this.currentUserSubject.next(completeUserInfo);
+          },
+          error: (error: any) => {
+            console.error('Erreur lors de la récupération du profil au démarrage:', error);
+            // Token peut-être invalide, on déconnecte
+            this.logout();
+          }
+        });
+      } else {
+        this.logout();
+      }
     }
   }
 
-  login(loginData: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, loginData).pipe(
-      tap(response => {
-        if (response.jwt) {
-          // Stocker le JWT dans SessionStorage
-          sessionStorage.setItem(this.TOKEN_KEY, response.jwt);
-          this.isAuthenticatedSubject.next(true);
+  login(credentials: LoginRequest): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/auth/login`, credentials)
+      .pipe(
+        tap((response: any) => {
+          if (response && response.jwt) {
+            sessionStorage.setItem('token', response.jwt);
 
-          // Récupérer le profil utilisateur après connexion réussie
-          this.loadUserProfile();
-        }
+            // D'abord, on met les infos de base du JWT (pour l'email)
+            const userInfo = this.decodeToken(response.jwt);
+            this.currentUserSubject.next(userInfo);
+
+            // Ensuite, on récupère le profil complet avec prénom/nom
+            this.getUserProfile().subscribe({
+              next: (profile) => {
+                console.log('Profil complet récupéré:', profile);
+                // On remplace par le profil complet qui contient prénom/nom
+                this.currentUserSubject.next(profile);
+              },
+              error: (error) => {
+                console.error('Erreur profil:', error);
+                // On garde userInfo si l'API profile échoue
+                console.log('Utilisation des données JWT de base');
+              }
+            });
+
+            console.log('Connexion réussie:', response);
+          }
+        }),
+        catchError((error: any) => {
+          let errorMessage = 'Erreur de connexion';
+          let errorCode = 'UNKNOWN_ERROR';
+
+          if (error.status === 401) {
+            errorCode = error.error || 'UNAUTHORIZED';
+
+            switch (error.error) {
+              case 'BANNED':
+                errorMessage = 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.';
+                break;
+              case 'DELETED':
+                errorMessage = 'Ce compte n\'existe plus. Veuillez vous inscrire à nouveau.';
+                break;
+              case 'NON_VERIFIED':
+                errorMessage = 'Votre compte n\'est pas encore activé. Veuillez contacter l\'administrateur.';
+                break;
+              case 'BAD_CREDENTIALS':
+                errorMessage = 'Email ou mot de passe incorrect.';
+                break;
+              default:
+                errorMessage = 'Identifiants invalides.';
+            }
+          } else if (error.status === 500) {
+            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+            errorCode = 'SERVER_ERROR';
+          } else if (error.status === 0) {
+            errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+            errorCode = 'NETWORK_ERROR';
+          }
+
+          console.error('Erreur de connexion:', error);
+          return throwError(() => ({
+            message: errorMessage,
+            code: errorCode,
+            originalError: error
+          }));
+        })
+      );
+  }
+
+  register(userData: RegisterRequest): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/auth/register`, userData)
+      .pipe(
+        catchError((error: any) => {
+          let errorMessage = 'Erreur lors de l\'inscription';
+
+          if (error.status === 400) {
+            errorMessage = 'Données invalides. Vérifiez les informations saisies.';
+          } else if (error.status === 409) {
+            errorMessage = 'Un compte avec cet email existe déjà.';
+          } else if (error.status === 500) {
+            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          }
+
+          console.error('Erreur d\'inscription:', error);
+          return throwError(() => ({ message: errorMessage, originalError: error }));
+        })
+      );
+  }
+
+  /**
+   * Récupère le profil utilisateur complet
+   */
+  loadUserProfile(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profil`).pipe(
+      map((profile: any) => {
+        console.log('Profil API reçu:', profile);
+        return {
+          id: profile.id,
+          email: profile.email,
+          username: profile.email,
+          nom: profile.nom,
+          prenom: profile.prenom,
+          role: profile.role,
+          adresse: profile.adresse
+        };
+      }),
+      catchError((error: any) => {
+        console.error('Erreur lors de la récupération du profil:', error);
+        return throwError(() => error);
       })
     );
   }
 
-  register(registerData: RegisterRequest): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/auth/register`, registerData);
+  logout(): void {
+    console.log('Déconnexion en cours...');
+    sessionStorage.removeItem('token'); // CHANGÉ: sessionStorage
+    sessionStorage.clear(); // Nettoyer tout le sessionStorage
+    this.currentUserSubject.next(null);
+    console.log('Utilisateur déconnecté');
   }
 
-  // Récupérer le profil utilisateur
-  private loadUserProfile(): void {
-    this.getUserProfile().subscribe({
-      next: (user) => {
-        this.currentUserSubject.next(user);
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement du profil:', error);
-
-        // Si erreur 403 ou 500, cela peut être un utilisateur non vérifié
-        if (error.status === 403 || error.status === 500) {
-          // Créer un utilisateur "fantôme" avec estVerifie = false
-          const unverifiedUser: User = {
-            id: 0,
-            nom: 'Non vérifié',
-            prenom: 'Utilisateur',
-            email: 'unknown@email.com',
-            role: 'ROLE_USER',
-            estBanni: false,
-            estVerifie: false,
-            estSupprime: false,
-            adresse: {
-              id: 0,
-              numero: 0,
-              libelle: '',
-              codePostal: '',
-              ville: ''
-            }
-          };
-          this.currentUserSubject.next(unverifiedUser);
-        } else {
-          // Autres erreurs (token invalide, etc.) → déconnexion
-          this.logout();
-        }
-      }
-    });
-  }
-
-  getUserProfile(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/utilisateurs/profile`);
-  }
-
-  // Vérifier si l'utilisateur est connecté
-  isAuthenticated(): boolean {
-    return this.hasValidToken();
-  }
-
-  // Récupérer le token stocké
-  getToken(): string | null {
-    return sessionStorage.getItem(this.TOKEN_KEY);
-  }
-
-  // Vérifier si un token valide existe
-  private hasValidToken(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-
-    // TODO: Optionnel - vérifier l'expiration du token JWT
-    // Pour l'instant on considère que le token est valide s'il existe
-    return true;
-  }
-
-  // Récupérer l'utilisateur actuel
-  getCurrentUser(): User | null {
+  getCurrentUser(): any {
     return this.currentUserSubject.value;
   }
 
-  // Déconnexion
-  logout(): void {
-    // Supprimer le token
-    sessionStorage.removeItem(this.TOKEN_KEY);
-
-    // Mettre à jour les observables
-    this.isAuthenticatedSubject.next(false);
-    this.currentUserSubject.next(null);
+  getUserProfile(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profile`);
   }
 
-  // Vérifier si l'utilisateur est admin
-  isAdmin(): boolean {
+  isAuthenticated(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'ROLE_ADMIN';
+    return user != null && this.isTokenValid(user);
   }
 
-  // Vérifier si l'utilisateur est vérifié
-  isUserVerified(): boolean {
-    const user = this.getCurrentUser();
-    return user?.estVerifie === true;
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = atob(payload);
+      const parsedPayload = JSON.parse(decodedPayload);
+
+      console.log('JWT payload:', parsedPayload); // Pour debug
+
+      return {
+        id: parsedPayload.userId || parsedPayload.id || parsedPayload.sub,
+        email: parsedPayload.sub || parsedPayload.email || parsedPayload.username,
+        username: parsedPayload.username || parsedPayload.sub,
+        nom: parsedPayload.nom || parsedPayload.lastName || parsedPayload.family_name,
+        prenom: parsedPayload.prenom || parsedPayload.firstName || parsedPayload.given_name,
+        roles: parsedPayload.roles || parsedPayload.authorities || [],
+        exp: parsedPayload.exp
+      };
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+      return null;
+    }
+  }
+
+  private isTokenValid(userInfo: any): boolean {
+    if (!userInfo || !userInfo.exp) return false;
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    return userInfo.exp > currentTime;
   }
 }
