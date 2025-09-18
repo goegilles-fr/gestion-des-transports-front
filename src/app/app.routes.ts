@@ -13,7 +13,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     //anActivate: [AuthGuard]
   },
-  { path: '**', redirectTo: '/login' } // wildcard vers login
+  { path: '**', redirectTo: '/login' }, // wildcard vers login
   {
     path: 'vehicules',
     loadChildren: () =>
