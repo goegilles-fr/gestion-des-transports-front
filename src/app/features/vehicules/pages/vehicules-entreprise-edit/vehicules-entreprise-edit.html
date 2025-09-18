@@ -33,7 +33,7 @@
 
       <label class="field">
         <span class="field__label">Nombre de places</span>
-        <input type="number" min="1" name="nombrePlaces" [(ngModel)]="model.nombrePlaces" required />
+        <input type="number" min="1" name="nombrePlaces" [(ngModel)]="model.nbPlaces" required />
       </label>
 
       <label class="field">
@@ -52,11 +52,11 @@
 
       <label class="field field--full">
         <span class="field__label">Photo URL</span>
-        <input name="photoUrl" [(ngModel)]="model.photoUrl" placeholder="https://…" />
+        <input name="photoUrl" [(ngModel)]="model.photo" placeholder="https://…" />
       </label>
 
       <div class="preview">
-        <img [src]="model.photoUrl || placeholder" alt="Aperçu" />
+        <img [src]="model.photo || placeholder" alt="Aperçu" />
       </div>
     </div>
 

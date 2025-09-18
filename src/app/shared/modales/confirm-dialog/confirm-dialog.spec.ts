@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VehiculeEntrepriseList } from './vehicules-entreprise-list';
+import { ConfirmDialog } from './confirm-dialog';
 
-describe('VehiculesEntrepriseList', () => {
-  let component: VehiculeEntrepriseList;
-  let fixture: ComponentFixture<VehiculeEntrepriseList>;
+describe('ConfirmDialog', () => {
+  let component: ConfirmDialog;
+  let fixture: ComponentFixture<ConfirmDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VehiculeEntrepriseList]
+      imports: [ConfirmDialog]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VehiculeEntrepriseList);
+    fixture = TestBed.createComponent(ConfirmDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

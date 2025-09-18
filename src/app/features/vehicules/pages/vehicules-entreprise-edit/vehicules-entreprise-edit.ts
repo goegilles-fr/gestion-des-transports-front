@@ -33,9 +33,9 @@ export class VehiculesEntrepriseEdit {
 
   private defaultModel(): VehiculeDTO {
     return {
-      type: 'ENTREPRISE',marque: '', modele: '', immatriculation: '',
-      motorisation: 'Thermique', co2ParKm: 0, nombrePlaces: 4,
-      categorie: 'Berline', statut: 'EN_SERVICE', photoUrl: ''
+      marque: '', modele: '', immatriculation: '',
+      motorisation: 'Thermique', co2ParKm: 0, nbPlaces: 4,
+      categorie: 'Berline', statut: 'EN_SERVICE', photo: ''
     };
   }
 
@@ -44,16 +44,15 @@ export class VehiculesEntrepriseEdit {
     // Nettoyage basique
     const cleaned: VehiculeDTO = {
       ...(this.model.id ? { id: this.model.id } : {}),
-      type: this.model.type,
       marque: this.model.marque.trim(),
       modele: this.model.modele.trim(),
       immatriculation: this.model.immatriculation.trim().toUpperCase(),
       motorisation: this.model.motorisation,
       co2ParKm: Number(this.model.co2ParKm),
-      nombrePlaces: Number(this.model.nombrePlaces),
+      nbPlaces: Number(this.model.nbPlaces),
       categorie: this.model.categorie,
       statut: this.model.statut,
-      photoUrl: (this.model.photoUrl ?? '').trim() || null
+      photo: (this.model.photo ?? '').trim() || null
     };
     this.save.emit(cleaned);
   }

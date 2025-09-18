@@ -18,15 +18,15 @@ export class VehiculeEntrepriseList {
   // Jeu de données fictif
   vehicules = signal<VehiculeDTO[]>([
     {
-      id: 501, type: 'ENTREPRISE', marque: 'Renault', modele: 'Mégane', immatriculation: 'QW-123-QW',
-      nombrePlaces: 4, co2ParKm: 129, motorisation: 'Thermique',
-      photoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/2016_Renault_M%C3%A9gane_DCi_110.jpg/320px-2016_Renault_M%C3%A9gane_DCi_110.jpg',
+      id: 501, marque: 'Renault', modele: 'Mégane', immatriculation: 'QW-123-QW',
+      nbPlaces: 4, co2ParKm: 129, motorisation: 'Thermique',
+      photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/2016_Renault_M%C3%A9gane_DCi_110.jpg/320px-2016_Renault_M%C3%A9gane_DCi_110.jpg',
       statut: 'EN_REPARATION'
     },
     {
-      id: 502, type: 'ENTREPRISE', marque: 'Renault', modele: 'Clio', immatriculation: 'TY-888-QW',
-      nombrePlaces: 4, co2ParKm: 116, motorisation: 'Thermique',
-      photoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg/320px-2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg',
+      id: 502, marque: 'Renault', modele: 'Clio', immatriculation: 'TY-888-QW',
+      nbPlaces: 4, co2ParKm: 116, motorisation: 'Thermique',
+      photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg/320px-2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg',
       statut: 'EN_SERVICE'
     }
   ]);

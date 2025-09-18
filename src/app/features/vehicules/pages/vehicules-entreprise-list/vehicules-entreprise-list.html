@@ -38,11 +38,11 @@
             <td>{{ vehicule.marque }}</td>
             <td>{{ vehicule.modele }}</td>
             <td class="immat">{{ vehicule.immatriculation }}</td>
-            <td>{{ vehicule.nombrePlaces }}</td>
+            <td>{{ vehicule.nbPlaces }}</td>
             <td>{{ vehicule.co2ParKm }}</td>
             <td>{{ vehicule.motorisation }}</td>
             <td class="photo-cell">
-              <img [src]="vehicule.photoUrl || 'https://placehold.co/72x48?text=Photo'"
+              <img [src]="vehicule.photo || 'https://placehold.co/72x48?text=Photo'"
                    alt="Photo véhicule"
                    class="thumb" loading="lazy">
             </td>

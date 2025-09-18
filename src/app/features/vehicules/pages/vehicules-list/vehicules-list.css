@@ -22,7 +22,7 @@
 .panel {
   margin-bottom: 28px;
 
-  &__title {
+  :is(__title) {
     text-align: center;
     font-weight: 800;
     letter-spacing: .04em;
@@ -123,13 +123,17 @@
   border-radius: 10px;
   background: transparent;
   padding: 8px;
-  cursor: not-allowed; /* désactivé pour le moment */
+  cursor: pointer;  
   svg {
     width: 20px;
     height: 20px;
     fill: var(--ink-500);
     opacity: .55;
   }
+}
+.icon-btn:disabled {
+  cursor: not-allowed;
+  opacity: .6;
 }
 
 /* CTA */

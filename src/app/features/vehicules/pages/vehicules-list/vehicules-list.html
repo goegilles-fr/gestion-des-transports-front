@@ -1,7 +1,8 @@
 <div class="vehicules-page">
 
   <!-- MON VEHICULE PERSONNEL -->
-  <section class="panel" *ngIf="monVehicule as v">
+  @if(vehiculePerso() != null) {
+  <section class="panel">
     <h2 class="panel__title">MON VÉHICULE PERSONNEL</h2>
 
     <div class="card">
@@ -20,25 +21,21 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ v.marque || '—' }}</td>
-            <td>{{ v.modele || '—' }}</td>
-            <td class="immat">{{ v.immatriculation || '—' }}</td>
-            <td>{{ v.nombrePlaces ?? '—' }}</td>
-            <td>{{ v.co2ParKm ?? '—' }}</td>
-            <td>{{ v.motorisation || '—' }}</td>
+            <td>{{ vehiculePerso()?.marque || '—' }}</td>
+            <td>{{ vehiculePerso()?.modele || '—' }}</td>
+            <td class="immat">{{ vehiculePerso()?.immatriculation || '—' }}</td>
+            <td>{{ vehiculePerso()?.nbPlaces || '—' }}</td>
+            <td>{{ vehiculePerso()?.co2ParKm || '—' }}</td>
+            <td>{{ vehiculePerso()?.motorisation || '—' }}</td>
             <td class="photo-cell">
-              <img
-                [src]="v.photoUrl || 'https://placehold.co/72x48?text=Photo'"
-                alt="Photo véhicule"
-                class="thumb"
-                loading="lazy"
-              />
+              <img [src]="vehiculePerso()?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
+                class="thumb" loading="lazy" />
             </td>
             <td class="actions-col">
               <!-- Bouton poubelle (placeholder) -->
               <button type="button" class="icon-btn" title="Supprimer (à implémenter)" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"/>
+                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
                 </svg>
               </button>
             </td>
@@ -47,6 +44,8 @@
       </table>
     </div>
   </section>
+  }
+
 
   <!-- MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ -->
   <section class="panel">
@@ -69,8 +68,38 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Tableau volontairement vide pour l’instant (pas de <tr>) -->
-          <ng-container *ngFor="let _ of reservations"></ng-container>
+          @for(row of reservationRows(); track row.id ?? $index){
+          <tr>
+            <td>{{ row.vehicule?.marque ?? '—' }}</td>
+            <td>{{ row.vehicule?.modele ?? '—' }}</td>
+            <td class="immat">{{ row.vehicule?.immatriculation ?? '—' }}</td>
+            <td>{{ row.vehicule?.nbPlaces ?? '—' }}</td>
+            <td>{{ row.vehicule?.co2ParKm ?? '—' }}</td>
+            <td>{{ row.vehicule?.motorisation ?? '—' }}</td>
+            <td class="photo-cell">
+              <img
+                [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'"
+                alt="Photo véhicule" class="thumb" loading="lazy" />
+            </td>
+            <td>
+              <time [attr.datetime]="row.dateDebut">{{ row.dateDebut | date:'dd/MM/yyyy HH:mm' }}</time>
+            </td>
+            <td>
+              <time [attr.datetime]="row.dateFin">{{ row.dateFin | date:'dd/MM/yyyy HH:mm' }}</time>
+            </td>
+            <td class="actions-col">
+              <button type="button" class="icon-btn" title="Annuler la réservation" (click)="openAnnulation(row)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="10" class="empty">Aucune réservation.</td>
+          </tr>
+          }
         </tbody>
       </table>
     </div>
@@ -82,3 +111,19 @@
   </div>
 
 </div>
+
+<app-confirm-dialog
+  [open]="!!reservationToDelete()"
+  [title]="'Annuler la réservation'"
+  [message]="
+    selectedVehiculeForDelete()
+      ? ('Voulez-vous annuler la réservation du véhicule ' +
+         (selectedVehiculeForDelete()?.marque || '') + ' ' +
+         (selectedVehiculeForDelete()?.modele || '') + ' ?')
+      : 'Voulez-vous annuler cette réservation ?'
+  "
+  confirmLabel="Supprimer"
+  cancelLabel="Annuler"
+  (confirm)="confirmAnnulation()"
+  (cancel)="cancelAnnulation()"
+></app-confirm-dialog>
