@@ -1,105 +1,112 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { filter, take } from 'rxjs/operators';
 import { AuthService, LoginRequest } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent {
-  loginForm: FormGroup;
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
+  loading = false;
+  error: string | null = null;
   showPassword = false;
-  isLoading = false;
-  errorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router,
-    private authService: AuthService
-  ) {
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
-  onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const loginData: LoginRequest = this.loginForm.value;
-
-      this.authService.login(loginData).subscribe({
-        next: (response) => {
-          console.log('Connexion réussie:', response);
-
-          // Écouter les changements du profil utilisateur
-          const userSub = this.authService.currentUser$.subscribe(user => {
-            if (user) {
-              // Profil chargé (même si c'est un utilisateur "fantôme" non vérifié)
-              if (!user.estVerifie) {
-                // Utilisateur non vérifié - afficher le message d'erreur
-                this.errorMessage = 'Votre compte n\'a pas encore été activé. Veuillez contacter l\'administrateur.';
-                this.authService.logout();
-                this.isLoading = false;
-              } else {
-                // Utilisateur vérifié - redirection vers dashboard
-                this.router.navigate(['/dashboard']);
-              }
-
-              // Se désabonner une fois traité
-              userSub.unsubscribe();
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Erreur lors de la connexion:', error);
-
-          // Gérer spécifiquement l'erreur 500 qui peut être un compte non vérifié
-          if (error.status === 500) {
-            this.errorMessage = 'Votre compte n\'a pas encore été activé. Veuillez contacter l\'administrateur.';
-          } else {
-            this.errorMessage = this.getErrorMessage(error);
-          }
-
-          this.isLoading = false;
-        }
-      });
-    } else {
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
       this.markFormGroupTouched();
+      return;
     }
-  }
 
-  private getErrorMessage(error: any): string {
-    if (error.status === 401) {
-      return 'Email ou mot de passe incorrect.';
-    }
-    if (error.status === 403) {
-      return 'Accès refusé. Votre compte est peut-être suspendu.';
-    }
-    if (error.status === 0) {
-      return 'Impossible de se connecter au serveur. Vérifiez votre connexion.';
-    }
-    return 'Une erreur est survenue lors de la connexion.';
-  }
+    this.loading = true;
+    this.error = null;
 
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
+    const credentials: LoginRequest = this.loginForm.value;
 
-  private markFormGroupTouched() {
-    Object.keys(this.loginForm.controls).forEach(key => {
-      const control = this.loginForm.get(key);
-      control?.markAsTouched();
+    this.authService.login(credentials).subscribe({
+      next: (response: any) => {
+        console.log('Connexion réussie:', response);
+
+        // Attend le premier utilisateur valide puis se désabonne automatiquement
+        this.authService.currentUser$.pipe(
+          filter((user: any) => !!user), // Attend qu'un utilisateur existe
+          take(1) // Prend seulement la première valeur
+        ).subscribe((user: any) => {
+          this.loading = false;
+          this.router.navigate(['/dashboard']);
+        });
+      },
+      error: (error: any) => {
+        console.error('Erreur de connexion:', error);
+        this.error = error.message || 'Erreur de connexion';
+        this.loading = false;
+      }
     });
   }
 
-  // Getters pour faciliter l'accès aux contrôles dans le template
-  get username() { return this.loginForm.get('username'); }
-  get password() { return this.loginForm.get('password'); }
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  private markFormGroupTouched(): void {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      this.loginForm.get(key)?.markAsTouched();
+    });
+  }
+
+  getFieldError(fieldName: string): string | null {
+    const field = this.loginForm.get(fieldName);
+    if (field?.touched && field?.errors) {
+      if (field.errors['required']) {
+        return `Le champ ${fieldName} est requis.`;
+      }
+      if (field.errors['email']) {
+        return 'Veuillez entrer une adresse email valide.';
+      }
+      if (field.errors['minlength']) {
+        return `Le mot de passe doit contenir au moins ${field.errors['minlength'].requiredLength} caractères.`;
+      }
+    }
+    return null;
+  }
+
+  goToRegister(): void {
+    this.router.navigate(['/register']);
+  }
+
+  // Getters pour le template
+  get errorMessage(): string | null {
+    return this.error;
+  }
+
+  get username() {
+    return this.loginForm.get('username');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
 }

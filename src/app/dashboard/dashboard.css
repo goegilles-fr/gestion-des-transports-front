@@ -297,6 +297,340 @@
   display: block;
 }
 
+/* États de chargement et d'erreur */
+.loading-container, .error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-spinner i {
+  font-size: 2rem;
+  color: #007bff;
+}
+
+.loading-spinner p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #f5c6cb;
+  max-width: 500px;
+}
+
+.error-message h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  margin-bottom: 1rem;
+}
+
+.retry-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #c82333;
+}
+
+/* Status badges */
+.user-status {
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 0.25rem;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge.verified {
+  color: #28a745;
+}
+
+.status-badge.unverified {
+  color: #ffc107;
+}
+
+.status-badge i {
+  font-size: 1rem;
+}
+
+/* Bouton de rafraîchissement */
+.refresh-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-btn:disabled:hover {
+  background: none;
+}
+
+/* Avertissement de vérification */
+.verification-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 1rem;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verification-warning i {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Debug panel */
+.debug-panel {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.debug-panel h4 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+}
+
+.debug-btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.debug-btn:hover {
+  background: #5a6268;
+}
+
+.debug-info {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.debug-info p {
+  margin: 0.25rem 0;
+}
+
+/* Actions rapides */
+.quick-actions {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.quick-actions h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #495057;
+}
+
+.quick-action-btn:hover {
+  background: #e9ecef;
+  border-color: #007bff;
+  color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quick-action-btn i {
+  font-size: 1.5rem;
+}
+
+.quick-action-btn span {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-right {
+    gap: 0.25rem;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .quick-action-btn {
+    padding: 1rem;
+  }
+
+  .verification-warning {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .debug-panel {
+    padding: 0.75rem;
+  }
+
+  .loading-container, .error-container {
+    min-height: 300px;
+    padding: 1rem;
+  }
+}
+
+/* Améliorations des états data-state et empty-state */
+.data-state {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.empty-state {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Amélioration des informations de réservation */
+.reservation-info, .annonce-info, .vehicle-info {
+  margin-bottom: 1rem;
+}
+
+.date-time, .route, .car-info, .vehicle-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.date-time i, .car-info i {
+  color: #007bff;
+  width: 16px;
+  text-align: center;
+}
+
+.route {
+  font-weight: 600;
+  color: #333;
+}
+
+.vehicle-name {
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.reservation-period {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Spin animation pour le refresh */
+.fa-spin {
+  animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-header {
