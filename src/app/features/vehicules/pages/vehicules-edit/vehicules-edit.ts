@@ -46,7 +46,7 @@ export class VehiculesEdit {
     this.loading.set(true);
     try {
       if (this.id()) {
-        await firstValueFrom(this.vehiculeService.updatePerso(this.id()!, this.model));
+        await firstValueFrom(this.vehiculeService.updatePerso(this.model));
       } else {
         await firstValueFrom(this.vehiculeService.createPerso(this.model));
       }

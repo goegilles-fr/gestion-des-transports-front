@@ -5,29 +5,37 @@ import { VehiculeDTO } from '../../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto';
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { ConfirmDialog } from '../../../../shared/modales/confirm-dialog/confirm-dialog';
+import { VehiculeEdit } from "../../modales/vehicule-edit/vehicule-edit";
+import { DashboardComponent } from '../../../../dashboard/dashboard';
 
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
 
 @Component({
   selector: 'app-vehicules-list',
   standalone: true,
-  imports: [CommonModule, ConfirmDialog],
+  imports: [CommonModule, ConfirmDialog, VehiculeEdit, DashboardComponent],
   templateUrl: './vehicules-list.html',
   styleUrl: './vehicules-list.css'
 })
 export class VehiculesList implements OnInit {
   private vehiculeService = inject(Vehicules);
 
-  vehiculePerso = signal<VehiculeDTO | null>(null);
+  vehiculePersoList = signal<VehiculeDTO[]>([]);
   reservations = signal<ReservationVehiculeDto[]>([]);
   reservationRows = signal<ReservationRow[]>([]);
   // Cache des véhicules entreprise par id
   vehiculeEntrepriseById = signal<Map<number, VehiculeDTO>>(new Map());
 
   // État de la modale de suppression
-  showDeleteModal = signal(false);
   reservationToDelete = signal<ReservationVehiculeDto | null>(null);
-  isDeleting = signal(false);
+  vehiculePersoToDelete = signal<VehiculeDTO | null>(null);
+  deleteTitle = signal<string>('');
+  deleteContent = signal<string>('');
+
+  // État de la modale d'édition
+  vehiculeToEdit = signal<VehiculeDTO | null>(null);
+  reservationToEdit = signal<ReservationVehiculeDto | null>(null);
+  editTitle = signal<string>('');
 
   // Pour afficher les infos véhicule dans la modale
   selectedVehiculeForDelete = computed<VehiculeDTO | null>(() => {
@@ -56,7 +64,7 @@ export class VehiculesList implements OnInit {
 
   ngOnInit(): void {
     this.vehiculeService.getPersoByUserId().subscribe({
-      next: vehicule => this.vehiculePerso.set(vehicule),
+      next: list => this.vehiculePersoList.set(list ?? []),
       error: e => console.error(e)
     });
 
@@ -90,31 +98,85 @@ export class VehiculesList implements OnInit {
   }
 
   openAnnulation(row: ReservationRow) {
+    this.deleteTitle.set("Annuler la reservation");
+    this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous annuler la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous annuler cette réservation ?');
     this.reservationToDelete.set(row);
   }
 
-  cancelAnnulation() {
-    this.reservationToDelete.set(null);
+  openSuppression(vehicule: VehiculeDTO) {
+    this.deleteTitle.set("Supprimer votre vehicule personnel");
+    this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous supprimer votre vehicule ' + (this.vehiculePersoToDelete()?.marque || '') + ' ' + (this.vehiculePersoToDelete()?.modele || '') + ' ?') : 'Voulez-vous supprimer votre vehicule personnel ?');
+    this.vehiculePersoToDelete.set(vehicule);
   }
 
-  confirmAnnulation() {
+  openEditVehicule(vehicule: VehiculeDTO) {
+    this.editTitle.set("Modifier votre vehicule personnel");
+    this.vehiculeToEdit.set(vehicule);
+  }
+
+  closeModale() {
+    this.reservationToDelete.set(null);
+    this.vehiculePersoToDelete.set(null);
+  }
+
+  closeEdit() {
+    this.vehiculeToEdit.set(null);
+  }
+
+  confirmModale() {
     const reservation = this.reservationToDelete();
     if (!reservation?.id) {
       this.reservationToDelete.set(null);
-      return;
+    }
+    else {
+      this.vehiculeService.deleteReservation(reservation.id).subscribe({
+        next: () => {
+          // retire localement
+          this.reservations.update(list => list.filter(x => x.id !== reservation.id));
+          this.reservationRows.update(rows => rows.filter(x => x.id !== reservation.id));
+          this.reservationToDelete.set(null);
+        },
+        error: (e) => {
+          console.error(e);
+          this.reservationToDelete.set(null);
+        }
+      });
     }
 
-    this.vehiculeService.deleteReservation(reservation.id).subscribe({
-      next: () => {
-        // retire localement
-        this.reservations.update(list => list.filter(x => x.id !== reservation.id));
-        this.reservationRows.update(rows => rows.filter(x => x.id !== reservation.id));
-        this.reservationToDelete.set(null);
-      },
-      error: (e) => {
-        console.error(e);
-        this.reservationToDelete.set(null);
-      }
-    });
+    const vehicule = this.vehiculePersoToDelete();
+    if(!vehicule?.id){
+      this.vehiculePersoToDelete.set(null);
+    }
+    else {
+      this.vehiculeService.deletePerso().subscribe({
+        next: () => {
+          this.vehiculePersoList.update(list => list.filter(x => x.id !== vehicule.id));
+          this.vehiculePersoToDelete.set(null);
+        },
+        error: (e) => {
+          console.error(e);
+          this.vehiculePersoToDelete.set(null);
+        }
+      })
+    }
+  }
+
+  onSaveEdit(vehicule: VehiculeDTO){
+    const oldVehicule = this.vehiculeToEdit();
+    if(!oldVehicule?.id || oldVehicule == vehicule) {
+      this.vehiculeToEdit.set(null);
+    }
+    else {
+      this.vehiculeService.updatePerso(vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehiculePersoList.set([vehicule]);
+          this.vehiculeToEdit.set(null);
+        },
+        error: (e) => {
+          console.error(e);
+          this.vehiculeToEdit.set(null);
+        }
+      })
+    }
   }
 }

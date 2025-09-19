@@ -1,7 +1,9 @@
+<!-- <app-dashboard></app-dashboard> -->
+
 <div class="vehicules-page">
 
   <!-- MON VEHICULE PERSONNEL -->
-  @if(vehiculePerso() != null) {
+  @if(vehiculePersoList() != null) {
   <section class="panel">
     <h2 class="panel__title">MON VÉHICULE PERSONNEL</h2>
 
@@ -20,26 +22,33 @@
           </tr>
         </thead>
         <tbody>
+          @for(vehiculePerso of vehiculePersoList(); track vehiculePerso.id ?? $index) {
           <tr>
-            <td>{{ vehiculePerso()?.marque || '—' }}</td>
-            <td>{{ vehiculePerso()?.modele || '—' }}</td>
-            <td class="immat">{{ vehiculePerso()?.immatriculation || '—' }}</td>
-            <td>{{ vehiculePerso()?.nbPlaces || '—' }}</td>
-            <td>{{ vehiculePerso()?.co2ParKm || '—' }}</td>
-            <td>{{ vehiculePerso()?.motorisation || '—' }}</td>
+            <td>{{ vehiculePerso?.marque || '—' }}</td>
+            <td>{{ vehiculePerso?.modele || '—' }}</td>
+            <td class="immat">{{ vehiculePerso?.immatriculation || '—' }}</td>
+            <td>{{ vehiculePerso?.nbPlaces || '—' }}</td>
+            <td>{{ vehiculePerso?.co2ParKm || '—' }}</td>
+            <td>{{ vehiculePerso?.motorisation || '—' }}</td>
             <td class="photo-cell">
-              <img [src]="vehiculePerso()?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
+              <img [src]="vehiculePerso?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
                 class="thumb" loading="lazy" />
             </td>
             <td class="actions-col">
-              <!-- Bouton poubelle (placeholder) -->
-              <button type="button" class="icon-btn" title="Supprimer (à implémenter)" disabled>
+              <button type="button" class="icon-btn" title="modifier" (click)="openEditVehicule(vehiculePerso)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75 1.83-1.83z" />
+                </svg>
+              </button>
+              <button type="button" class="icon-btn" title="Supprimer" (click)="openSuppression(vehiculePerso)">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
                 </svg>
               </button>
             </td>
           </tr>
+          }
         </tbody>
       </table>
     </div>
@@ -77,9 +86,8 @@
             <td>{{ row.vehicule?.co2ParKm ?? '—' }}</td>
             <td>{{ row.vehicule?.motorisation ?? '—' }}</td>
             <td class="photo-cell">
-              <img
-                [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'"
-                alt="Photo véhicule" class="thumb" loading="lazy" />
+              <img [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
+                class="thumb" loading="lazy" />
             </td>
             <td>
               <time [attr.datetime]="row.dateDebut">{{ row.dateDebut | date:'dd/MM/yyyy HH:mm' }}</time>
@@ -88,6 +96,12 @@
               <time [attr.datetime]="row.dateFin">{{ row.dateFin | date:'dd/MM/yyyy HH:mm' }}</time>
             </td>
             <td class="actions-col">
+              <button type="button" class="icon-btn" title="modifier la réservation">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75 1.83-1.83z" />
+                </svg>
+              </button>
               <button type="button" class="icon-btn" title="Annuler la réservation" (click)="openAnnulation(row)">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
@@ -112,18 +126,11 @@
 
 </div>
 
-<app-confirm-dialog
-  [open]="!!reservationToDelete()"
-  [title]="'Annuler la réservation'"
-  [message]="
-    selectedVehiculeForDelete()
-      ? ('Voulez-vous annuler la réservation du véhicule ' +
-         (selectedVehiculeForDelete()?.marque || '') + ' ' +
-         (selectedVehiculeForDelete()?.modele || '') + ' ?')
-      : 'Voulez-vous annuler cette réservation ?'
-  "
-  confirmLabel="Supprimer"
-  cancelLabel="Annuler"
-  (confirm)="confirmAnnulation()"
-  (cancel)="cancelAnnulation()"
-></app-confirm-dialog>
+<app-confirm-dialog [open]="!!reservationToDelete() || !! vehiculePersoToDelete()" [title]="deleteTitle()"
+  [message]="deleteContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
+  (cancel)="closeModale()"></app-confirm-dialog>
+
+@if(vehiculeToEdit(); as editing) {
+<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="editTitle()" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
+}

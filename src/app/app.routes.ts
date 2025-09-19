@@ -13,10 +13,10 @@ export const routes: Routes = [
     component: DashboardComponent,
     //anActivate: [AuthGuard]
   },
-  { path: '**', redirectTo: '/login' }, // wildcard vers login
   {
     path: 'vehicules',
     loadChildren: () =>
       import('./features/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
   },
+  { path: '**', redirectTo: '/login' } // wildcard vers login
 ];

@@ -27,20 +27,20 @@ export class Vehicules {
     return this.http.get<VehiculeDTO>(`${this.urlPerso}/${id}`);
   }
 
-  getPersoByUserId(): Observable<VehiculeDTO> {
-    return this.http.get<VehiculeDTO>(`${this.urlPerso}/utilisateur`);
+  getPersoByUserId(): Observable<VehiculeDTO[]> {
+    return this.http.get<VehiculeDTO[]>(`${this.urlPerso}/utilisateur`);
   }
 
   createPerso(payload: Omit<VehiculeDTO, 'id' | 'utilisateurId'>): Observable<VehiculeDTO> {
     return this.http.post<VehiculeDTO>(`${this.urlPerso}`, payload);
   }
 
-  updatePerso(id: number, payload: Partial<VehiculeDTO>): Observable<VehiculeDTO> {
-    return this.http.put<VehiculeDTO>(`${this.urlPerso}/${id}`, payload);
+  updatePerso(payload: Partial<VehiculeDTO>): Observable<VehiculeDTO> {
+    return this.http.put<VehiculeDTO>(`${this.urlPerso}`, payload);
   }
 
-  deletePerso(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.urlPerso}/${id}`);
+  deletePerso(): Observable<void> {
+    return this.http.delete<void>(`${this.urlPerso}`);
   }
 
   // ========================= ENTREPRISE ===========================
