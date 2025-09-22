@@ -1,13 +1,249 @@
-.page { padding: 1rem; }
-.header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; }
-.muted { color: #6b7280; }
-.error { color: #b91c1c; }
+:host {
+  --teal-700: #0b6f7b;
+  --teal-600: #0f7f8d;
+  --teal-500: #1292a3;
+  --teal-200: #1fb0c4;
+  --teal-100: #e6f7fa;
+  --ink-900: #16323a;
+  --ink-700: #28515c;
+  --ink-500: #4c6f78;
+  --muted: #6b7f85;
+  --white: #fff;
+  display: block;
+}
 
-.table-wrap { overflow:auto; }
-.table { width:100%; border-collapse: collapse; background:#fff; }
-.table th, .table td { padding: .5rem .75rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
-.table thead th { background:#f9fafb; font-weight:600; font-size:.9rem; }
-.immat { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.photo-cell { width: 96px; }
-.thumb { width: 96px; height: 64px; object-fit: cover; border-radius: .5rem; border:1px solid #e5e7eb; background:#f3f4f6; }
-.empty { text-align:center; padding: 1rem; color:#6b7280; }
+/* Page + Titre */
+.header {
+  text-align: center;
+}
+
+.page {
+  padding: 18px clamp(12px, 4vw, 28px);
+  background: linear-gradient(180deg, #f7fbfc 0%, #f2fafb 100%);
+}
+.header h1 {
+  margin: 0 0 16px;
+  color: var(--ink-900);
+  font-size: clamp(1.35rem, 1rem + 1.2vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: .02em;
+  justify-self: center;
+}
+
+/* Filtres (dates/heures) */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 12px 18px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+.field {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px 10px;
+  align-items: center;
+}
+.field > span:first-child {
+  grid-column: 1 / -1;
+  font-weight: 700;
+  color: var(--ink-700);
+}
+.field .label {
+  justify-self: end;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.filters input[type="date"],
+.filters select {
+  padding: 8px 10px;
+  border: 1px solid #d9edf0;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink-700);
+  outline: none;
+}
+.warn {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  color: #9b2c2c;
+  background: #fde8e8;
+  border: 1px solid #f9d3d3;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.muted { color: var(--muted); }
+
+/* Swiper container (Web Component) */
+swiper-container {
+  display: block;
+  width: 100%;
+  padding: 8px 0 12px;
+  /* couleurs des contrôles */
+  --swiper-navigation-color: #1f2a2e;
+  --swiper-pagination-color: #1f2a2e;
+
+  position: relative;
+  /* variables utilitaires pour calculer la position des flèches */
+  --card-max: 900px;
+  --card-w: min(var(--card-max), 75vw);
+  --card-half: calc(var(--card-w) / 2);
+  --button-offset: 12px;   /* distance entre la carte et la flèche */
+  --button-size: 44px;     /* doit matcher la taille définie plus haut */
+}
+
+/* Boutons de navigation Swiper Elements (Shadow Parts) */
+swiper-container::part(button-prev),
+swiper-container::part(button-next) {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--teal-600);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(9,72,82,.16);
+  border: 1px solid var(--teal-600);
+  display: grid;
+  place-items: center;
+  opacity: 1;              /* assure visibilité */
+  pointer-events: auto;    /* clickable */
+}
+swiper-container::part(button-prev):hover,
+swiper-container::part(button-next):hover {
+  background: var(--teal-200);
+}
+
+/* Bouton précédent à gauche de la carte */
+swiper-container::part(button-prev) {
+  position: absolute;
+  left: calc(50% - var(--card-half) - var(--button-offset) - (var(--button-size) / 2));
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Bouton suivant à droite de la carte */
+swiper-container::part(button-next) {
+  position: absolute;
+  left: calc(50% + var(--card-half) + var(--button-offset) + (var(--button-size) / 2));
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+swiper-container::part(pagination) {
+  position: relative;
+  margin-top: 10px;
+}
+
+/* Slide -> centre la carte et limite la largeur à ~75% */
+swiper-slide {
+  display: grid;
+  place-items: center;
+  padding: 8px 0 16px;
+}
+.card {
+  width: min(900px, 75vw);
+  background: var(--white);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(9, 72, 82, 0.12);
+  border: 1px solid #e8f4f6;
+  overflow: hidden;
+}
+
+/* En-tête de carte */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, var(--teal-600), var(--teal-700));
+  color: #fff;
+}
+.card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.immat {
+  font-weight: 700;
+  opacity: .95;
+}
+
+/* Corps de carte */
+.card-body {
+  display: grid;
+  gap: 10px 16px;
+  padding: 14px 16px 6px;
+}
+.photo {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* format paysage homogène */
+  object-fit: cover;    /* léger crop contrôlé */
+  display: block;
+  background: var(--teal-100);
+  border: 1px solid #e7f4f6;
+  border-radius: 12px;
+}
+.props {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 12px;
+  color: var(--ink-700);
+}
+.props li strong {
+  color: var(--ink-900);
+}
+
+/* Pied de carte */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 16px 16px;
+}
+
+/* Bouton principal */
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 18px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--teal-500), var(--teal-700));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(18,146,163,0.25);
+  transition: transform .08s ease, box-shadow .08s ease, filter .08s ease;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(1.02); box-shadow: 0 10px 24px rgba(18,146,163,0.32); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Slide vide */
+.empty {
+  width: min(900px, 75vw);
+  margin: 0 auto;
+  text-align: center;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed #cfe5ea;
+  padding: 36px 16px;
+  border-radius: 16px;
+}
+
+/* Responsive */
+@media (max-width: 920px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+  .card { width: 88vw; }
+  .props { grid-template-columns: 1fr; }
+  swiper-container {
+    --button-offset: 8px;
+  }
+}
