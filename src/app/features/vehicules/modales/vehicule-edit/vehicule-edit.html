@@ -1,0 +1,70 @@
+@if (open) {
+<div class="modal-backdrop" (click)="onCancel()" aria-hidden="true"></div>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="vehiculeEditTitle">
+
+    <form class="form" (ngSubmit)="onSave()">
+        <h3 id="vehiculeEditTitle" class="form-title">{{ title }}</h3>
+        <div class="form-grid">
+            <label class="form-field">
+                <span class="field-label">Marque</span>
+                <input name="marque" [(ngModel)]="vehicule().marque" autocomplete="off" />
+            </label>
+
+            <label class="form-field">
+                <span class="field-label">Modèle</span>
+                <input name="modele" [(ngModel)]="vehicule().modele" autocomplete="off" />
+            </label>
+
+            <label class="form-field">
+                <span class="field-label">Immatriculation</span>
+                <input name="immatriculation" [(ngModel)]="vehicule().immatriculation" autocomplete="off" />
+            </label>
+
+            <label class="form-field">
+                <span class="field-label">Places</span>
+                <input type="number" name="nbPlaces" [(ngModel)]="vehicule().nbPlaces" min="1" />
+            </label>
+
+            <label class="form-field">
+                <span class="field-label">CO₂ / km</span>
+                <input type="number" name="co2ParKm" [(ngModel)]="vehicule().co2ParKm" min="0" />
+            </label>
+
+            <label class="form-field">
+                <span class="label">Motorisation</span>
+                <select name="motorisation" [(ngModel)]="vehicule().motorisation" required>
+                    @for(motorisation of MOTORISATIONS; track $index) {
+                    <option [ngValue]="motorisation">{{ motorisation }}</option>
+                    }
+                </select>
+            </label>
+
+            <label class="form-field">
+                <span class="field-label">URL photo</span>
+                <input name="photo" [(ngModel)]="vehicule().photo" placeholder="https://…" />
+            </label>
+
+            <label class="field">
+                <span class="field__label">Catégorie</span>
+                <select name="categorie" [(ngModel)]="vehicule().categorie" required>
+                    @for(category of CATEGORIES; track $index) {
+                    <option [ngValue]="category">{{ category }}</option>
+                    }
+                </select>
+            </label>
+
+            @if(vehicule().photo) {
+            <div class="preview form-field">
+                <img [src]="vehicule().photo" alt="Aperçu du véhicule" />
+            </div>
+            }
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">Annuler</button>
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+    </form>
+</div>
+}

@@ -1,0 +1,13 @@
+.page { padding: 1rem; }
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; }
+.muted { color: #6b7280; }
+.error { color: #b91c1c; }
+
+.table-wrap { overflow:auto; }
+.table { width:100%; border-collapse: collapse; background:#fff; }
+.table th, .table td { padding: .5rem .75rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
+.table thead th { background:#f9fafb; font-weight:600; font-size:.9rem; }
+.immat { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.photo-cell { width: 96px; }
+.thumb { width: 96px; height: 64px; object-fit: cover; border-radius: .5rem; border:1px solid #e5e7eb; background:#f3f4f6; }
+.empty { text-align:center; padding: 1rem; color:#6b7280; }
