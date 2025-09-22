@@ -1,34 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-// Interfaces pour les données du dashboard
-export interface Adresse {
-  id: number;
-  numero: number;
-  libelle: string;
-  codePostal: string;
-  ville: string;
-}
-
-export interface Annonce {
-  id: number;
-  heureDepart: string;
-  dureeTrajet: number;
-  distance: number;
-  adresseDepart: Adresse;
-  adresseArrivee: Adresse;
-  vehiculeServiceId: number;
-}
-
-export interface CovoiturageInfo {
-  annonce: Annonce;
-  placesTotales: number;
-  placesOccupees: number;
-}
-
-export interface ReservationVehicule {
+// Interfaces
+export interface Reservation {
   id: number;
   utilisateurId: number;
   vehiculeId: number;
@@ -38,36 +14,45 @@ export interface ReservationVehicule {
 
 export interface Vehicule {
   id: number;
-  categorie: string;
-  co2_par_km: number;
   immatriculation: string;
   marque: string;
   modele: string;
+  nbPlaces: number;
   motorisation: string;
-  nb_places: number;
-  photo?: string;
+  co2ParKm: number;
+  photo: string;
+  categorie: string;
   statut: string;
+  utilisateurId?: number;
 }
 
-export interface ReservationCovoiturage {
+export interface ReservationAvecVehicule {
+  reservation: Reservation;
+  vehicule: Vehicule;
+}
+
+export interface Adresse {
   id: number;
-  covoiturageId: number;
-  utilisateurId: number;
-  dateReservation: string;
-  statut: string;
-  nombrePlaces?: number;
+  numero: number;
+  libelle: string;
+  codePostal: string;
+  ville: string;
 }
 
-export interface DashboardData {
-  prochaineReservationCovoiturage: {
-    reservation: ReservationCovoiturage | null;
-    covoiturage: CovoiturageInfo | null;
-  };
-  prochaineAnnonce: CovoiturageInfo | null;
-  reservationVehicule: {
-    reservation: ReservationVehicule | null;
-    vehicule: Vehicule | null;
-  };
+export interface AnnonceCovoiturage {
+  id: number;
+  heureDepart: string;
+  dureeTrajet: number;
+  distance: number;
+  adresseDepart: Adresse;
+  adresseArrivee: Adresse;
+  vehiculeServiceId: number | null;
+}
+
+export interface Covoiturage {
+  annonce: AnnonceCovoiturage;
+  placesTotales: number;
+  placesOccupees: number;
 }
 
 @Injectable({
@@ -78,255 +63,224 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  getDashboardData(): Observable<DashboardData> {
-    return forkJoin({
-      reservationsVehicules: this.getReservationsVehicules(),
-      reservationsCovoiturage: this.getReservationsCovoiturageSafe(),
-      annoncesUtilisateur: this.getAnnoncesUtilisateurSafe()
-    }).pipe(
-      map(data => this.formatDashboardData(data)),
-      catchError(error => {
-        console.error('Erreur lors de la récupération des données dashboard:', error);
-        return of(this.getEmptyDashboardData());
-      })
-    );
+  /**
+   * Récupère toutes les réservations de l'utilisateur connecté
+   */
+  getReservationsUtilisateur(): Observable<Reservation[]> {
+    return this.http.get<Reservation[]>(`${this.baseUrl}/api/reservations-vehicules/utilisateur`);
   }
 
-  getDashboardDataWithDetails(): Observable<DashboardData> {
-    return this.getDashboardData().pipe(
-      switchMap(dashboardData => {
-        const requests: Observable<any>[] = [];
+  /**
+   * Récupère les détails d'un véhicule par son ID
+   */
+  getVehiculeDetails(vehiculeId: number): Observable<Vehicule> {
+    return this.http.get<Vehicule>(`${this.baseUrl}/api/vehicules-entreprise/${vehiculeId}`);
+  }
 
-        if (dashboardData.reservationVehicule.reservation) {
-          console.log('Loading vehicle details for:', dashboardData.reservationVehicule.reservation.vehiculeId);
-          requests.push(
-            this.getVehicule(dashboardData.reservationVehicule.reservation.vehiculeId).pipe(
-              map(vehicule => ({ type: 'vehicule', data: vehicule })),
-              catchError(error => {
-                console.error('Erreur récupération véhicule:', error);
-                return of({ type: 'vehicule', data: null });
-              })
-            )
-          );
+  /**
+   * Récupère les réservations avec les détails des véhicules
+   */
+  getReservationsAvecVehicules(): Observable<ReservationAvecVehicule[]> {
+    return this.getReservationsUtilisateur().pipe(
+      switchMap((reservations: Reservation[]) => {
+        if (!reservations || reservations.length === 0) {
+          return new Observable<ReservationAvecVehicule[]>(observer => {
+            observer.next([]);
+            observer.complete();
+          });
         }
 
-        if (dashboardData.prochaineReservationCovoiturage.reservation) {
-          requests.push(
-            this.getCovoiturage(dashboardData.prochaineReservationCovoiturage.reservation.covoiturageId).pipe(
-              map(covoiturage => ({ type: 'covoiturage', data: covoiturage })),
-              catchError(error => {
-                console.error('Erreur récupération covoiturage:', error);
-                return of({ type: 'covoiturage', data: null });
-              })
-            )
-          );
-        }
-
-        if (requests.length === 0) {
-          return of(dashboardData);
-        }
-
-        return forkJoin(requests).pipe(
-          map(results => {
-            results.forEach(result => {
-              if (result.type === 'vehicule' && result.data) {
-                dashboardData.reservationVehicule.vehicule = result.data;
-              } else if (result.type === 'covoiturage' && result.data) {
-                dashboardData.prochaineReservationCovoiturage.covoiturage = result.data;
-              }
-            });
-            return dashboardData;
-          })
+        // Pour chaque réservation, on récupère les détails du véhicule
+        const vehiculeRequests = reservations.map(reservation =>
+          this.getVehiculeDetails(reservation.vehiculeId).pipe(
+            switchMap(vehicule => new Observable<ReservationAvecVehicule>(observer => {
+              observer.next({ reservation, vehicule });
+              observer.complete();
+            }))
+          )
         );
+
+        // On attend que toutes les requêtes se terminent
+        return forkJoin(vehiculeRequests);
       })
     );
   }
 
-  getReservationsVehicules(): Observable<ReservationVehicule[]> {
-    return this.http.get<ReservationVehicule[]>(
-      `${this.baseUrl}/api/reservations-vehicules/utilisateur`
-    ).pipe(
-      catchError(error => {
-        console.error('Erreur réservations véhicules:', error);
-        return of([]);
-      })
-    );
+  /**
+   * Récupère les annonces de covoiturage de l'utilisateur connecté
+   */
+  getAnnoncesCovoiturage(): Observable<Covoiturage[]> {
+    return this.http.get<Covoiturage[]>(`${this.baseUrl}/api/covoit/`);
   }
 
-  private getReservationsCovoiturageSafe(): Observable<ReservationCovoiturage[]> {
-    return this.http.get<ReservationCovoiturage[]>(
-      `${this.baseUrl}/api/reservations-covoiturage/utilisateur`
-    ).pipe(
-      catchError(error => {
-        console.error('Erreur réservations covoiturage:', error);
-        return of([]);
-      })
-    );
+  /**
+   * Récupère les véhicules personnels de l'utilisateur connecté
+   */
+  getVehiculesPersonnels(): Observable<Vehicule[]> {
+    return this.http.get<Vehicule[]>(`${this.baseUrl}/api/vehicules-personnels/utilisateur`);
   }
 
-  private getAnnoncesUtilisateurSafe(): Observable<CovoiturageInfo[]> {
-    return this.http.get<CovoiturageInfo[]>(
-      `${this.baseUrl}/api/annonces/utilisateur`
-    ).pipe(
-      catchError(error => {
-        console.error('Erreur annonces utilisateur:', error);
-        return of([]);
-      })
-    );
+  /**
+   * Récupère les réservations de covoiturage de l'utilisateur connecté (en tant que passager)
+   */
+  getReservationsCovoiturage(): Observable<Covoiturage[]> {
+    return this.http.get<Covoiturage[]>(`${this.baseUrl}/api/covoit/mes-reservations`);
   }
 
-  getVehicule(vehiculeId: number): Observable<Vehicule | null> {
-    return this.http.get<Vehicule>(`${this.baseUrl}/api/vehicules/${vehiculeId}`).pipe(
-      catchError(error => {
-        console.error('Erreur récupération véhicule:', error);
-        return of(null);
-      })
-    );
-  }
+  /**
+   * Récupère les annonces de covoiturage avec les détails des véhicules
+   */
+  getAnnoncesCovoiturageAvecVehicules(): Observable<any[]> {
+    return forkJoin({
+      covoiturages: this.getAnnoncesCovoiturage(),
+      vehiculesPersonnels: this.getVehiculesPersonnels()
+    }).pipe(
+      switchMap(({ covoiturages, vehiculesPersonnels }) => {
+        const annoncesAvecVehicules = covoiturages.map(covoiturage => {
+          let vehiculeInfo = 'Véhicule de service';
 
-  getCovoiturage(covoiturageId: number): Observable<CovoiturageInfo | null> {
-    return this.http.get<CovoiturageInfo>(`${this.baseUrl}/api/covoit/${covoiturageId}`).pipe(
-      catchError(error => {
-        console.error('Erreur récupération covoiturage:', error);
-        return of(null);
-      })
-    );
-  }
+          // Si c'est un véhicule personnel
+          if (!covoiturage.annonce.vehiculeServiceId && vehiculesPersonnels.length > 0) {
+            const vehicule = vehiculesPersonnels[0]; // Premier véhicule personnel
+            vehiculeInfo = `${vehicule.marque} ${vehicule.modele} ${vehicule.immatriculation}`;
+          }
 
-  private formatDashboardData(data: any): DashboardData {
-    const dashboardData: DashboardData = {
-      prochaineReservationCovoiturage: {
-        reservation: null,
-        covoiturage: null
-      },
-      prochaineAnnonce: null,
-      reservationVehicule: {
-        reservation: null,
-        vehicule: null
-      }
-    };
-
-    if (data.reservationsVehicules && data.reservationsVehicules.length > 0) {
-      const prochaineReservation = this.getNextReservation(data.reservationsVehicules);
-      if (prochaineReservation) {
-        dashboardData.reservationVehicule.reservation = prochaineReservation;
-      }
-    }
-
-    if (data.reservationsCovoiturage && data.reservationsCovoiturage.length > 0) {
-      const prochaineReservationCovoiturage = this.getNextReservationCovoiturage(data.reservationsCovoiturage);
-      if (prochaineReservationCovoiturage) {
-        dashboardData.prochaineReservationCovoiturage.reservation = prochaineReservationCovoiturage;
-      }
-    }
-
-    if (data.annoncesUtilisateur && data.annoncesUtilisateur.length > 0) {
-      const prochaineAnnonce = this.getNextAnnonce(data.annoncesUtilisateur);
-      dashboardData.prochaineAnnonce = prochaineAnnonce;
-    }
-
-    return dashboardData;
-  }
-
-  private getNextReservation(reservations: ReservationVehicule[]): ReservationVehicule | null {
-    if (!reservations || reservations.length === 0) return null;
-
-    const now = new Date();
-    const futureReservations = reservations
-      .filter((r: ReservationVehicule) => r && r.dateDebut && new Date(r.dateDebut) > now)
-      .sort((a: ReservationVehicule, b: ReservationVehicule) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime());
-
-    return futureReservations.length > 0 ? futureReservations[0] : null;
-  }
-
-  private getNextReservationCovoiturage(reservations: ReservationCovoiturage[]): ReservationCovoiturage | null {
-    if (!reservations || reservations.length === 0) return null;
-
-    const activeReservations = reservations
-      .filter((r: ReservationCovoiturage) => r && (r.statut === 'CONFIRMEE' || r.statut === 'EN_ATTENTE'))
-      .sort((a: ReservationCovoiturage, b: ReservationCovoiturage) => new Date(a.dateReservation).getTime() - new Date(b.dateReservation).getTime());
-
-    return activeReservations.length > 0 ? activeReservations[0] : null;
-  }
-
-  private getNextAnnonce(annonces: CovoiturageInfo[]): CovoiturageInfo | null {
-    if (!annonces || annonces.length === 0) return null;
-
-    const now = new Date();
-    const futureAnnonces = annonces
-      .filter((a: CovoiturageInfo) => a && a.annonce && a.annonce.heureDepart && new Date(a.annonce.heureDepart) > now)
-      .sort((a: CovoiturageInfo, b: CovoiturageInfo) => new Date(a.annonce.heureDepart).getTime() - new Date(b.annonce.heureDepart).getTime());
-
-    return futureAnnonces.length > 0 ? futureAnnonces[0] : null;
-  }
-
-  private getEmptyDashboardData(): DashboardData {
-    return {
-      prochaineReservationCovoiturage: {
-        reservation: null,
-        covoiturage: null
-      },
-      prochaineAnnonce: null,
-      reservationVehicule: {
-        reservation: null,
-        vehicule: null
-      }
-    };
-  }
-
-  formatDate(dateString: string): string {
-    if (!dateString) return '';
-
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '';
-
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-
-      if (date.toDateString() === today.toDateString()) {
-        return `Aujourd'hui ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
-      } else if (date.toDateString() === tomorrow.toDateString()) {
-        return `Demain ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
-      } else {
-        return date.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          return {
+            ...covoiturage,
+            vehiculeInfo
+          };
         });
-      }
-    } catch (error) {
-      console.error('Erreur formatage date:', error);
-      return '';
-    }
+
+        return new Observable<any[]>(observer => {
+          observer.next(annoncesAvecVehicules);
+          observer.complete();
+        });
+      })
+    );
   }
 
+  /**
+   * Formate une date pour l'affichage
+   */
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Formate la date et l'heure pour l'affichage
+   */
+  formatDateHeure(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /**
+   * Calcule le nombre de jours d'une réservation
+   */
+  calculerDureeReservation(dateDebut: string, dateFin: string): number {
+    const debut = new Date(dateDebut);
+    const fin = new Date(dateFin);
+    const diffTime = Math.abs(fin.getTime() - debut.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  /**
+   * Détermine le statut d'une réservation
+   */
+  getStatutReservation(dateDebut: string, dateFin: string): 'active' | 'future' | 'past' {
+    const now = new Date();
+    const debut = new Date(dateDebut);
+    const fin = new Date(dateFin);
+
+    if (now < debut) return 'future';
+    if (now > fin) return 'past';
+    return 'active';
+  }
+
+  /**
+   * Retourne la prochaine réservation
+   */
+  getProchaineReservation(reservations: ReservationAvecVehicule[]): ReservationAvecVehicule | null {
+    const now = new Date();
+
+    const reservationsFutures = reservations
+      .filter((r: any) => {
+        const dateDebut = new Date(r.reservation.dateDebut);
+        return !isNaN(dateDebut.getTime()) && dateDebut > now;
+      })
+      .sort((a: any, b: any) =>
+        new Date(a.reservation.dateDebut).getTime() - new Date(b.reservation.dateDebut).getTime()
+      );
+
+    return reservationsFutures.length > 0 ? reservationsFutures[0] : null;
+  }
+
+  /**
+   * Retourne la prochaine annonce de covoiturage
+   */
+  getProchaineAnnonceCovoiturage(covoiturages: Covoiturage[]): Covoiturage | null {
+    const now = new Date();
+
+    const covoituragesFuturs = covoiturages
+      .filter((c: any) => new Date(c.annonce.heureDepart) > now)
+      .sort((a: any, b: any) =>
+        new Date(a.annonce.heureDepart).getTime() - new Date(b.annonce.heureDepart).getTime()
+      );
+
+    return covoituragesFuturs.length > 0 ? covoituragesFuturs[0] : null;
+  }
+
+  /**
+   * Retourne la prochaine réservation de covoiturage
+   */
+  getProchaineReservationCovoiturage(reservations: Covoiturage[]): Covoiturage | null {
+    const now = new Date();
+
+    const reservationsFutures = reservations
+      .filter((r: any) => new Date(r.annonce.heureDepart) > now)
+      .sort((a: any, b: any) =>
+        new Date(a.annonce.heureDepart).getTime() - new Date(b.annonce.heureDepart).getTime()
+      );
+
+    return reservationsFutures.length > 0 ? reservationsFutures[0] : null;
+  }
+
+  /**
+   * Retourne la réservation en cours
+   */
+  getReservationEnCours(reservations: ReservationAvecVehicule[]): ReservationAvecVehicule | null {
+    const now = new Date();
+
+    return reservations.find((r: any) => {
+      const debut = new Date(r.reservation.dateDebut);
+      const fin = new Date(r.reservation.dateFin);
+      return now >= debut && now <= fin;
+    }) || null;
+  }
+
+  /**
+   * Formate une adresse pour l'affichage
+   */
   formatAdresse(adresse: Adresse): string {
     if (!adresse) return '';
-    return `${adresse.numero || ''} ${adresse.libelle || ''}, ${adresse.codePostal || ''} ${adresse.ville || ''}`.trim();
+    return adresse.ville || `${adresse.numero} ${adresse.libelle}`;
   }
 
-  getPlacesDisponibles(covoiturage: CovoiturageInfo): number {
-    if (!covoiturage) return 0;
-    return Math.max(0, (covoiturage.placesTotales || 0) - (covoiturage.placesOccupees || 0));
-  }
-
-  isReservationProche(dateString: string): boolean {
-    if (!dateString) return false;
-
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return false;
-
-      const now = new Date();
-      const diff = date.getTime() - now.getTime();
-      const heures = diff / (1000 * 60 * 60);
-      return heures <= 24 && heures > 0;
-    } catch (error) {
-      return false;
-    }
+  /**
+   * Calcule les places libres
+   */
+  getPlacesLibres(covoiturage: Covoiturage): number {
+    return covoiturage.placesTotales - covoiturage.placesOccupees;
   }
 }

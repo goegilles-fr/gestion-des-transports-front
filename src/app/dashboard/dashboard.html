@@ -80,22 +80,25 @@
           <div class="card-content">
 
             <!-- Version sans données -->
-            <div class="empty-state" *ngIf="!hasReservationCovoiturage">
-              <p class="no-data">Vous n'avez pas encore réservé de trajets</p>
+            <div *ngIf="!hasReservationCovoiturage">
+              <p class="no-data">Vous n'avez pas encore réservé de covoiturage</p>
               <button class="card-action-btn" (click)="rechercherCovoiturage()">
                 RECHERCHER UN COVOITURAGE
               </button>
             </div>
 
             <!-- Version avec données -->
-            <div class="data-state" *ngIf="hasReservationCovoiturage">
+            <div *ngIf="hasReservationCovoiturage">
               <div class="reservation-info">
                 <div class="date-time">
                   <i class="fas fa-calendar"></i>
-                  <span>{{ reservationCovoiturageInfo?.date }}</span>
+                  <span>{{ reservationCovoiturageInfo?.dateHeure }}</span>
                 </div>
                 <div class="route">
                   <span>{{ reservationCovoiturageInfo?.route }}</span>
+                </div>
+                <div class="trip-details">
+                  <span>{{ reservationCovoiturageInfo?.dureeTrajet }} - {{ reservationCovoiturageInfo?.distance }}</span>
                 </div>
               </div>
               <button class="card-action-btn" (click)="rechercherCovoiturage()">
@@ -113,7 +116,7 @@
           <div class="card-content">
 
             <!-- Version sans données -->
-            <div class="empty-state" *ngIf="!hasAnnonce">
+            <div *ngIf="!hasAnnonce">
               <p class="no-data">Vous n'avez pas encore fait d'annonces</p>
               <button class="card-action-btn" (click)="posterAnnonce()">
                 POSTER UNE ANNONCE
@@ -121,11 +124,11 @@
             </div>
 
             <!-- Version avec données -->
-            <div class="data-state" *ngIf="hasAnnonce">
+            <div *ngIf="hasAnnonce">
               <div class="annonce-info">
                 <div class="date-time">
                   <i class="fas fa-calendar"></i>
-                  <span>{{ annonceInfo?.date }}</span>
+                  <span>{{ annonceInfo?.dateHeure }}</span>
                 </div>
                 <div class="route">
                   <span>{{ annonceInfo?.route }}</span>
@@ -133,6 +136,9 @@
                 <div class="car-info">
                   <i class="fas fa-car"></i>
                   <span>{{ annonceInfo?.vehicule }}</span>
+                </div>
+                <div class="places-info">
+                  <span>Places libres: {{ annonceInfo?.places }}</span>
                 </div>
               </div>
               <button class="card-action-btn" (click)="posterAnnonce()">
@@ -142,50 +148,56 @@
           </div>
         </div>
 
-        <!-- Card Véhicule -->
-        <div class="action-card">
-          <div class="card-header">
-            <h3>Ma réservation de véhicule</h3>
+      <!-- Card Véhicule -->
+      <div class="action-card">
+        <div class="card-header">
+          <h3>Ma réservation de véhicule</h3>
+        </div>
+        <div class="card-content">
+
+          <!-- Version sans données -->
+          <div *ngIf="!hasReservationVehicule">
+            <p class="no-data">Vous n'avez pas encore réservé de véhicule de société</p>
+            <button class="card-action-btn" (click)="reserverVehicule()">
+              RÉSERVER UN VÉHICULE DE SOCIÉTÉ
+            </button>
           </div>
-          <div class="card-content">
 
-            <!-- Version sans données -->
-            <div class="empty-state" *ngIf="!hasReservationVehicule">
-              <p class="no-data">Vous n'avez pas encore réservé de véhicule de société</p>
-              <button class="card-action-btn" (click)="reserverVehicule()">
-                RÉSERVER UN VÉHICULE DE SOCIÉTÉ
-              </button>
-            </div>
-
-            <!-- Version avec données -->
-            <div class="data-state" *ngIf="hasReservationVehicule">
-              <div class="vehicle-info">
-                <div class="vehicle-details">
-                  <span class="vehicle-name">{{ reservationVehiculeInfo?.vehicule }}</span>
-                  <span class="reservation-period">{{ reservationVehiculeInfo?.periode }}</span>
-                </div>
+          <!-- Version avec données -->
+          <div *ngIf="hasReservationVehicule">
+            <div class="vehicle-info">
+              <div class="vehicle-details">
+                <span class="vehicle-name">{{ reservationVehiculeInfo?.vehicule }}</span>
+                <span class="vehicle-plate">{{ reservationVehiculeInfo?.immatriculation }}</span>
+                <span class="reservation-period">{{ reservationVehiculeInfo?.periode }}</span>
+                <span
+                  *ngIf="reservationVehiculeInfo?.afficherJoursRestants"
+                  class="days-remaining"
+                  [style.color]="'red'">{{ reservationVehiculeInfo?.joursRestants }}j restant(s)
+                  </span>
               </div>
-              <button class="card-action-btn" (click)="reserverVehicule()">
-                RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
-              </button>
             </div>
+            <button class="card-action-btn" (click)="reserverVehicule()">
+              RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
+            </button>
           </div>
         </div>
-
       </div>
-    </section>
 
-  </main>
+</div>
+</section>
 
-  <!-- Footer -->
-  <footer class="dashboard-footer">
-    <div class="footer-content">
-      <div class="footer-logo">
-        <span>Site réalisé par Goégiles</span>
-        <img src="images/covoit-logo.png" alt="Goégiles">
-      </div>
-      <span>Copyright - Tous droits réservés</span>
+</main>
+
+<!-- Footer -->
+<footer class="dashboard-footer">
+  <div class="footer-content">
+    <div class="footer-logo">
+      <span>Site réalisé par Goégiles</span>
+      <img src="images/covoit-logo.png" alt="Goégiles">
     </div>
-  </footer>
+    <span>Copyright - Tous droits réservés</span>
+  </div>
+</footer>
 
 </div>
