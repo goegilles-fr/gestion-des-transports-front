@@ -54,7 +54,11 @@ export class Vehicules {
   }
 
   getEntrepriseByStatut(statut: StatutVehicule): Observable<VehiculeDTO[]> {
-    return this.http.get<VehiculeDTO[]>(`${this.urlEntreprise}/${statut}`);
+    return this.http.get<VehiculeDTO[]>(`${this.urlEntreprise}/statut/${statut}`);
+  }
+
+  getEntrepriseByDate(dateDebut: string, dateFin: string): Observable<VehiculeDTO[]> {
+    return this.http.get<VehiculeDTO[]>(`${this.urlEntreprise}/dispo?dateDebut=${dateDebut}&dateFin=${dateFin}`);
   }
 
   createEntreprise(payload: Omit<VehiculeDTO, 'id' | 'utilisateurId'>): Observable<VehiculeDTO> {

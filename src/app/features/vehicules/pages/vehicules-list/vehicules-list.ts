@@ -6,19 +6,20 @@ import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto'
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { ConfirmDialog } from '../../../../shared/modales/confirm-dialog/confirm-dialog';
 import { VehiculeEdit } from "../../modales/vehicule-edit/vehicule-edit";
-import { DashboardComponent } from '../../../../dashboard/dashboard';
+import { Router } from '@angular/router';
 
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
 
 @Component({
   selector: 'app-vehicules-list',
   standalone: true,
-  imports: [CommonModule, ConfirmDialog, VehiculeEdit, DashboardComponent],
+  imports: [CommonModule, ConfirmDialog, VehiculeEdit],
   templateUrl: './vehicules-list.html',
   styleUrl: './vehicules-list.css'
 })
 export class VehiculesList implements OnInit {
   private vehiculeService = inject(Vehicules);
+  private router = inject(Router);
 
   vehiculePersoList = signal<VehiculeDTO[]>([]);
   reservations = signal<ReservationVehiculeDto[]>([]);
@@ -178,5 +179,9 @@ export class VehiculesList implements OnInit {
         }
       })
     }
+  }
+
+  goToReservation() {
+    this.router.navigate(['/vehicules/reservation']);
   }
 }

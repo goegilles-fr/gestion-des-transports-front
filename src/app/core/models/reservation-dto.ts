@@ -1,7 +1,7 @@
 export interface ReservationVehiculeDto {
     id?: number;
-    dateDebut: Date;
-    dateFin: Date;
+    dateDebut: string;
+    dateFin: string;
     utilisateurId?: number | null;
     vehiculeId: number;
 }
