@@ -1,0 +1,96 @@
+<div class="vehicules-page">
+
+  <section class="panel">
+    <h2 class="panel__title">VÉHICULES D'ENTREPRISE</h2>
+
+    <!-- Barre de filtre -->
+    <div class="filters">
+      <label class="filter">
+        <span>Statut&nbsp;:</span>
+        <select [(ngModel)]="selected"
+                (ngModelChange)="selected.set($event)"
+                aria-label="Filtrer par statut">
+          <option [ngValue]="'ALL'">Tous</option>
+          <option *ngFor="let s of STATUTS" [ngValue]="s">{{ s.replace('_',' ').toLowerCase() | titlecase }}</option>
+        </select>
+        <button type="button" class="link-reset" (click)="resetFilter()">réinitialiser</button>
+      </label>
+    </div>
+
+    <!-- Tableau -->
+    <div class="card">
+      <table class="table table--entreprise">
+        <thead>
+          <tr>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Immatriculation</th>
+            <th>Nombre de places</th>
+            <th>CO₂/km</th>
+            <th>Motorisation</th>
+            <th>Photo</th>
+            <th class="actions-col">Actions</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vehicule of filtered()">
+            <td>{{ vehicule.marque }}</td>
+            <td>{{ vehicule.modele }}</td>
+            <td class="immat">{{ vehicule.immatriculation }}</td>
+            <td>{{ vehicule.nbPlaces }}</td>
+            <td>{{ vehicule.co2ParKm }}</td>
+            <td>{{ vehicule.motorisation }}</td>
+            <td class="photo-cell">
+              <img [src]="vehicule.photo || 'https://placehold.co/72x48?text=Photo'"
+                   alt="Photo véhicule"
+                   class="thumb" loading="lazy">
+            </td>
+            <td class="actions-col">
+                @if (vehicule.id != null) {
+                    <button class="icon-btn" title="Modifier" (click)="openEdit(vehicule)">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 17.25v21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                      </svg>
+                    </button>
+                    <button class="icon-btn" title="Supprimer" (click)="onDelete(vehicule.id)">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 3h6l1 2h4v2H4v5h4l1-2zm1 6h2v9h-2v9zm4 0h2v9h-2v9zM7 9h2v9H7v9z"/>
+                      </svg>
+                    </button>
+                }
+            </td>
+            <td>
+              <span class="badge"
+                    [class.badge--ok]="vehicule.statut==='EN_SERVICE'"
+                    [class.badge--warn]="vehicule.statut==='EN_REPARATION'"
+                    [class.badge--off]="vehicule.statut==='HORS_SERVICE'">
+                {{ (vehicule.statut ?? 'INCONNU').replace('_',' ').toLowerCase() | titlecase }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="filtered().length === 0">
+            <td colspan="9" class="empty">Aucun véhicule pour ce filtre.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta">
+    <button type="button" class="btn-primary" (click)="openCreate()">
+      ENREGISTRER UN NOUVEAU VÉHICULE
+    </button>
+  </div>
+
+</div>
+
+<app-vehicules-entreprise-edit
+  *ngIf="modalOpen()"
+  [title]="mode()==='create' ? 'ENREGISTRER UN VÉHICULE DE SOCIÉTÉ' : 'MODIFIER LE VÉHICULE DE SOCIÉTÉ'"
+  [data]="current()"
+  [mode]="mode()"
+  (save)="onModalSave($event)"
+  (cancel)="onModalCancel()"
+/>
