@@ -9,7 +9,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  username: string; // Sera mappé depuis email côté front
+  username: string;
   email: string;
   password: string;
   nom: string;
@@ -31,16 +31,14 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Vérifier si un token existe au démarrage
     this.checkExistingToken();
   }
 
   private checkExistingToken(): void {
-    const token = sessionStorage.getItem('token'); // CHANGÉ: sessionStorage
+    const token = sessionStorage.getItem('token');
     if (token) {
       const userInfo = this.decodeToken(token);
       if (userInfo && this.isTokenValid(userInfo)) {
-        // Token valide, récupérer le profil complet
         this.loadUserProfile().subscribe({
           next: (fullProfile: any) => {
             const completeUserInfo = {
@@ -51,7 +49,6 @@ export class AuthService {
           },
           error: (error: any) => {
             console.error('Erreur lors de la récupération du profil au démarrage:', error);
-            // Token peut-être invalide, on déconnecte
             this.logout();
           }
         });
@@ -68,20 +65,16 @@ export class AuthService {
           if (response && response.jwt) {
             sessionStorage.setItem('token', response.jwt);
 
-            // D'abord, on met les infos de base du JWT (pour l'email)
             const userInfo = this.decodeToken(response.jwt);
             this.currentUserSubject.next(userInfo);
 
-            // Ensuite, on récupère le profil complet avec prénom/nom
             this.getUserProfile().subscribe({
               next: (profile) => {
                 console.log('Profil complet récupéré:', profile);
-                // On remplace par le profil complet qui contient prénom/nom
                 this.currentUserSubject.next(profile);
               },
               error: (error) => {
                 console.error('Erreur profil:', error);
-                // On garde userInfo si l'API profile échoue
                 console.log('Utilisation des données JWT de base');
               }
             });
@@ -176,8 +169,8 @@ export class AuthService {
 
   logout(): void {
     console.log('Déconnexion en cours...');
-    sessionStorage.removeItem('token'); // CHANGÉ: sessionStorage
-    sessionStorage.clear(); // Nettoyer tout le sessionStorage
+    sessionStorage.removeItem('token');
+    sessionStorage.clear();
     this.currentUserSubject.next(null);
     console.log('Utilisateur déconnecté');
   }
@@ -190,9 +183,38 @@ export class AuthService {
     return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profile`);
   }
 
+  /**
+   * Rafraîchit le profil utilisateur après une modification
+   * Met à jour automatiquement le currentUserSubject
+   */
+  refreshUserProfile(): Observable<any> {
+    return this.getUserProfile().pipe(
+      tap((profile) => {
+        console.log('Profil rafraîchi:', profile);
+        this.currentUserSubject.next(profile);
+      }),
+      catchError((error: any) => {
+        console.error('Erreur rafraîchissement profil:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   isAuthenticated(): boolean {
-    const user = this.getCurrentUser();
-    return user != null && this.isTokenValid(user);
+    const token = sessionStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = atob(payload);
+      const parsedPayload = JSON.parse(decodedPayload);
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      return parsedPayload.exp && parsedPayload.exp > currentTime;
+    } catch (error) {
+      console.error('Token invalide:', error);
+      return false;
+    }
   }
 
   private decodeToken(token: string): any {
@@ -201,7 +223,7 @@ export class AuthService {
       const decodedPayload = atob(payload);
       const parsedPayload = JSON.parse(decodedPayload);
 
-      console.log('JWT payload:', parsedPayload); // Pour debug
+      console.log('JWT payload:', parsedPayload);
 
       return {
         id: parsedPayload.userId || parsedPayload.id || parsedPayload.sub,
