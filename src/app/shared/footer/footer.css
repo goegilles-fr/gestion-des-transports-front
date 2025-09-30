@@ -1,0 +1,32 @@
+/* Footer */
+.dashboard-footer {
+  background: #0B84A2;
+  color: white;
+  padding: 8px;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1500px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.footer-content i {
+  margin-right: 3px;
+}
+
+.footer-logo {
+  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo img {
+  height: 30px;
+}

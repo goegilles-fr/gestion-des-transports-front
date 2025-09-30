@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
-import { Vehicules } from '../../../../services/vehicules';
+import { Vehicules } from '../../../../services/vehicules/vehicules';
 
 @Component({
   selector: 'app-vehicules-detail',

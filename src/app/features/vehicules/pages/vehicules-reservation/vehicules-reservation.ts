@@ -1,5 +1,5 @@
 import { Component, signal, computed, effect } from '@angular/core';
-import { Vehicules } from '../../../../services/vehicules';
+import { Vehicules } from '../../../../services/vehicules/vehicules';
 import { VehiculeDTO } from '../../../../core/models/vehicule-dto';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialog } from '../../../../shared/modales/confirm-dialog/confirm-dialog';

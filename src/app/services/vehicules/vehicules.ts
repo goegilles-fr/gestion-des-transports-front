@@ -1,9 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { StatutVehicule, VehiculeDTO } from '../core/models/vehicule-dto';
+import { StatutVehicule, VehiculeDTO } from '../../core/models/vehicule-dto';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { ReservationVehiculeDto } from '../core/models/reservation-dto';
+import { environment } from '../../../environments/environment';
+import { ReservationVehiculeDto } from '../../core/models/reservation-dto';
 
 @Injectable({
   providedIn: 'root'

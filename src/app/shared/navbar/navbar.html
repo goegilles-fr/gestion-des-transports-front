@@ -1,0 +1,26 @@
+<header class="dashboard-header">
+  <div class="header-left">
+    <div class="logo-container">
+      <img src="images/covoit-logo.png" alt="Logo" class="logo">
+    </div>
+
+    <nav class="main-nav">
+      <button class="nav-btn" routerLink="/dashboard" routerLinkActive="active">Accueil</button>
+      <button class="nav-btn" routerLink="/reservations" routerLinkActive="active">Réservations</button>
+      <button class="nav-btn" routerLink="/annonces" routerLinkActive="active">Annonces</button>
+      <button class="nav-btn" routerLink="/vehicules" routerLinkActive="active">Véhicules</button>
+    </nav>
+  </div>
+
+  <div class="header-right">
+    <div class="user-info" *ngIf="currentUser$ | async as user">
+      <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+      <button class="user-avatar" routerLink="/profil">
+        <i class="fas fa-user"></i>
+      </button>
+      <button class="logout-btn" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+</header>
