@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AuthService } from '../services/auth';
-import { DashboardService, Covoiturage } from '../services/dashboard/dashboard';
+import { AuthService } from '../../services/auth/auth';
+import { NavbarComponent } from '../../shared/navbar/navbar';
+import { FooterComponent } from '../../shared/footer/footer';
+import { DashboardService, Covoiturage } from '../../services/dashboard/dashboard';
 
 // Interfaces pour les données
 interface Reservation {
@@ -37,7 +39,12 @@ interface ReservationAvecVehicule {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    NavbarComponent,
+    FooterComponent
+    ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })

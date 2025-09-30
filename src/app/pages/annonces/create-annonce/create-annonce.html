@@ -1,0 +1,345 @@
+<header class="create-annonce-header">
+  <app-navbar></app-navbar>
+</header>
+
+<div class="page-container">
+  <div class="create-annonce-container">
+    <h1 class="page-title">Poster une annonce</h1>
+
+    <!-- Messages -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="annonceForm" (ngSubmit)="onSubmit()" class="annonce-form">
+
+      <!-- Section Date et Heure -->
+      <div class="form-section">
+        <h2 class="section-title">Quand partez-vous ?</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dateDepart">Date de départ *</label>
+            <input
+              type="date"
+              id="dateDepart"
+              formControlName="dateDepart"
+              class="form-control"
+              [class.error]="annonceForm.get('dateDepart')?.invalid && annonceForm.get('dateDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('dateDepart')?.invalid && annonceForm.get('dateDepart')?.touched">
+              La date est requise
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="heureDepart">Heure de départ *</label>
+            <input
+              type="time"
+              id="heureDepart"
+              formControlName="heureDepart"
+              class="form-control"
+              [class.error]="annonceForm.get('heureDepart')?.invalid && annonceForm.get('heureDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('heureDepart')?.invalid && annonceForm.get('heureDepart')?.touched">
+              L'heure est requise
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dureeTrajet">Durée du trajet *</label>
+            <div class="input-with-suffix">
+              <input
+                type="number"
+                id="dureeTrajet"
+                formControlName="dureeTrajet"
+                class="form-control"
+                placeholder="Ex: 30"
+                [class.error]="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
+              <span class="suffix">minutes</span>
+            </div>
+            <span class="error-message"
+                  *ngIf="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
+              La durée est requise (min. 1 minute)
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="distance">Distance *</label>
+            <div class="input-with-suffix">
+              <input
+                type="number"
+                id="distance"
+                formControlName="distance"
+                class="form-control"
+                placeholder="Ex: 25"
+                [class.error]="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
+              <span class="suffix">kilomètres</span>
+            </div>
+            <span class="error-message"
+                  *ngIf="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
+              La distance est requise (min. 1 km)
+            </span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>Temps estimé :</strong> <span class="placeholder-text">(calculé automatiquement plus tard)</span></p>
+        </div>
+      </div>
+
+      <!-- Section Adresse de départ -->
+      <div class="form-section">
+        <h2 class="section-title">D'où partez-vous ?</h2>
+
+        <div class="form-row">
+          <div class="form-group small">
+            <label for="numeroDepart">N° *</label>
+            <input
+              type="number"
+              id="numeroDepart"
+              formControlName="numeroDepart"
+              class="form-control"
+              placeholder="12"
+              [class.error]="annonceForm.get('numeroDepart')?.invalid && annonceForm.get('numeroDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('numeroDepart')?.invalid && annonceForm.get('numeroDepart')?.touched">
+              Requis
+            </span>
+          </div>
+
+          <div class="form-group large">
+            <label for="libelleDepart">Rue *</label>
+            <input
+              type="text"
+              id="libelleDepart"
+              formControlName="libelleDepart"
+              class="form-control"
+              placeholder="Rue de la République"
+              [class.error]="annonceForm.get('libelleDepart')?.invalid && annonceForm.get('libelleDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('libelleDepart')?.invalid && annonceForm.get('libelleDepart')?.touched">
+              L'adresse est requise
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="codePostalDepart">Code postal *</label>
+            <input
+              type="text"
+              id="codePostalDepart"
+              formControlName="codePostalDepart"
+              class="form-control"
+              placeholder="34000"
+              maxlength="5"
+              [class.error]="annonceForm.get('codePostalDepart')?.invalid && annonceForm.get('codePostalDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('codePostalDepart')?.invalid && annonceForm.get('codePostalDepart')?.touched">
+              Code postal invalide (5 chiffres)
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="villeDepart">Ville *</label>
+            <input
+              type="text"
+              id="villeDepart"
+              formControlName="villeDepart"
+              class="form-control"
+              placeholder="Montpellier"
+              [class.error]="annonceForm.get('villeDepart')?.invalid && annonceForm.get('villeDepart')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('villeDepart')?.invalid && annonceForm.get('villeDepart')?.touched">
+              La ville est requise
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Adresse d'arrivée -->
+      <div class="form-section">
+        <h2 class="section-title">Où allez-vous ?</h2>
+
+        <div class="form-row">
+          <div class="form-group small">
+            <label for="numeroArrivee">N° *</label>
+            <input
+              type="number"
+              id="numeroArrivee"
+              formControlName="numeroArrivee"
+              class="form-control"
+              placeholder="5"
+              [class.error]="annonceForm.get('numeroArrivee')?.invalid && annonceForm.get('numeroArrivee')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('numeroArrivee')?.invalid && annonceForm.get('numeroArrivee')?.touched">
+              Requis
+            </span>
+          </div>
+
+          <div class="form-group large">
+            <label for="libelleArrivee">Rue *</label>
+            <input
+              type="text"
+              id="libelleArrivee"
+              formControlName="libelleArrivee"
+              class="form-control"
+              placeholder="Avenue de la Liberté"
+              [class.error]="annonceForm.get('libelleArrivee')?.invalid && annonceForm.get('libelleArrivee')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('libelleArrivee')?.invalid && annonceForm.get('libelleArrivee')?.touched">
+              L'adresse est requise
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="codePostalArrivee">Code postal *</label>
+            <input
+              type="text"
+              id="codePostalArrivee"
+              formControlName="codePostalArrivee"
+              class="form-control"
+              placeholder="34090"
+              maxlength="5"
+              [class.error]="annonceForm.get('codePostalArrivee')?.invalid && annonceForm.get('codePostalArrivee')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('codePostalArrivee')?.invalid && annonceForm.get('codePostalArrivee')?.touched">
+              Code postal invalide (5 chiffres)
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="villeArrivee">Ville *</label>
+            <input
+              type="text"
+              id="villeArrivee"
+              formControlName="villeArrivee"
+              class="form-control"
+              placeholder="Nîmes"
+              [class.error]="annonceForm.get('villeArrivee')?.invalid && annonceForm.get('villeArrivee')?.touched">
+            <span class="error-message"
+                  *ngIf="annonceForm.get('villeArrivee')?.invalid && annonceForm.get('villeArrivee')?.touched">
+              La ville est requise
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Véhicule -->
+      <div class="form-section">
+        <h2 class="section-title">Avec quel véhicule ?</h2>
+
+        <div class="loading-spinner" *ngIf="loadingVehicules">
+          Chargement des véhicules...
+        </div>
+
+        <div class="vehicules-container" *ngIf="!loadingVehicules">
+
+          <!-- Véhicule Personnel -->
+          <div class="vehicule-card"
+               *ngIf="hasVehiculePersonnel"
+               [class.selected]="useVehiculePersonnel"
+               (click)="selectVehicule('personnel')">
+            <div class="vehicule-header">
+              <h3>Mon véhicule personnel</h3>
+              <input
+                type="checkbox"
+                [checked]="useVehiculePersonnel"
+                (change)="selectVehicule('personnel')"
+                class="vehicule-checkbox">
+            </div>
+            <div class="vehicule-details" *ngIf="vehiculePersonnel">
+              <img [src]="vehiculePersonnel.photo"
+                   [alt]="vehiculePersonnel.marque + ' ' + vehiculePersonnel.modele"
+                   class="vehicule-photo">
+              <div class="vehicule-info">
+                <p class="vehicule-name">{{ vehiculePersonnel.marque }} {{ vehiculePersonnel.modele }}</p>
+                <p class="vehicule-immat">{{ vehiculePersonnel.immatriculation }}</p>
+                <p class="vehicule-specs">
+                  {{ vehiculePersonnel.nbPlaces }} places - {{ vehiculePersonnel.motorisation }}
+                </p>
+                <p class="vehicule-co2">CO₂: {{ vehiculePersonnel.co2ParKm }} g/km</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-vehicule" *ngIf="!hasVehiculePersonnel">
+            <p>Vous n'avez pas de véhicule personnel déclaré</p>
+            <button type="button" class="btn-secondary" routerLink="/vehicules/personnel">
+              Déclarer mon véhicule
+            </button>
+          </div>
+
+          <!-- Véhicule Entreprise -->
+          <div class="vehicule-card"
+               *ngIf="hasVehiculeEntreprise"
+               [class.selected]="useVehiculeEntreprise"
+               (click)="selectVehicule('entreprise')">
+            <div class="vehicule-header">
+              <h3>Véhicule de société</h3>
+              <input
+                type="checkbox"
+                [checked]="useVehiculeEntreprise"
+                (change)="selectVehicule('entreprise')"
+                class="vehicule-checkbox">
+            </div>
+            <div class="vehicule-details" *ngIf="vehiculeEntreprise">
+              <img [src]="vehiculeEntreprise.photo"
+                   [alt]="vehiculeEntreprise.marque + ' ' + vehiculeEntreprise.modele"
+                   class="vehicule-photo">
+              <div class="vehicule-info">
+                <p class="vehicule-name">{{ vehiculeEntreprise.marque }} {{ vehiculeEntreprise.modele }}</p>
+                <p class="vehicule-immat">{{ vehiculeEntreprise.immatriculation }}</p>
+                <p class="vehicule-specs">
+                  {{ vehiculeEntreprise.nbPlaces }} places - {{ vehiculeEntreprise.motorisation }}
+                </p>
+                <p class="vehicule-co2">CO₂: {{ vehiculeEntreprise.co2ParKm }} g/km</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box" *ngIf="!hasVehiculeEntreprise && annonceForm.get('dateDepart')?.value">
+            <p>Aucun véhicule de société disponible pour cette date</p>
+            <p class="hint">Le véhicule d'entreprise s'affiche si vous avez une réservation active pour la date de l'annonce</p>
+          </div>
+
+        </div>
+
+        <div class="error-message" *ngIf="!useVehiculePersonnel && !useVehiculeEntreprise && annonceForm.touched">
+          Veuillez sélectionner un véhicule
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="onCancel()"
+          [disabled]="loading">
+          ANNULER
+        </button>
+
+        <button
+          type="submit"
+          class="btn-submit"
+          [class.active]="isFormValid()"
+          [disabled]="!isFormValid() || loading">
+          {{ loading ? 'CRÉATION EN COURS...' : 'CRÉER UN COVOIT' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- footer -->
+<app-footer></app-footer>

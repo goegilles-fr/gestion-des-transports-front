@@ -1,0 +1,225 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NavbarComponent } from '../../../shared/navbar/navbar';
+import { FooterComponent } from '../../../shared/footer/footer';
+import {
+  CreateAnnonceService,
+  VehiculePersonnel,
+  ReservationVehicule,
+  VehiculeEntreprise,
+  AnnonceRequest
+} from '../../../services/annonces/create-annonce/create-annonce';
+
+@Component({
+  selector: 'app-create-annonce',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NavbarComponent,
+    FooterComponent
+  ],
+  templateUrl: './create-annonce.html',
+  styleUrls: ['./create-annonce.css']
+})
+export class CreateAnnonceComponent implements OnInit {
+  annonceForm!: FormGroup;
+
+  // Véhicules
+  vehiculePersonnel: VehiculePersonnel | null = null;
+  vehiculeEntreprise: VehiculeEntreprise | null = null;
+  hasVehiculePersonnel = false;
+  hasVehiculeEntreprise = false;
+
+  // Choix utilisateur
+  useVehiculePersonnel = false;
+  useVehiculeEntreprise = false;
+
+  // États
+  loading = false;
+  loadingVehicules = true;
+  errorMessage = '';
+  successMessage = '';
+
+  constructor(
+    private fb: FormBuilder,
+    private createAnnonceService: CreateAnnonceService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
+    this.loadVehiculePersonnel();
+  }
+
+  initForm(): void {
+    this.annonceForm = this.fb.group({
+      dateDepart: ['', Validators.required],
+      heureDepart: ['', Validators.required],
+      dureeTrajet: ['', [Validators.required, Validators.min(1)]],
+      distance: ['', [Validators.required, Validators.min(1)]],
+
+      // Adresse départ
+      numeroDepart: ['', [Validators.required, Validators.min(1)]],
+      libelleDepart: ['', Validators.required],
+      codePostalDepart: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
+      villeDepart: ['', Validators.required],
+
+      // Adresse arrivée
+      numeroArrivee: ['', [Validators.required, Validators.min(1)]],
+      libelleArrivee: ['', Validators.required],
+      codePostalArrivee: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
+      villeArrivee: ['', Validators.required]
+    });
+
+    // Surveiller les changements de date pour chercher véhicule entreprise
+    this.annonceForm.get('dateDepart')?.valueChanges.subscribe(() => {
+      this.checkVehiculeEntreprise();
+    });
+
+    this.annonceForm.get('heureDepart')?.valueChanges.subscribe(() => {
+      this.checkVehiculeEntreprise();
+    });
+  }
+
+  loadVehiculePersonnel(): void {
+    this.createAnnonceService.getVehiculePersonnel().subscribe({
+      next: (vehicule) => {
+        this.vehiculePersonnel = vehicule;
+        this.hasVehiculePersonnel = true;
+        this.useVehiculePersonnel = true; // Sélectionné par défaut
+        this.loadingVehicules = false;
+      },
+      error: (error) => {
+        console.log('Pas de véhicule personnel trouvé:', error);
+        this.hasVehiculePersonnel = false;
+        this.loadingVehicules = false;
+      }
+    });
+  }
+
+  checkVehiculeEntreprise(): void {
+    const dateDepart = this.annonceForm.get('dateDepart')?.value;
+    const heureDepart = this.annonceForm.get('heureDepart')?.value;
+
+    if (!dateDepart || !heureDepart) {
+      return;
+    }
+
+    const dateTimeDepart = new Date(`${dateDepart}T${heureDepart}`);
+
+    this.createAnnonceService.getReservationsVehicules().subscribe({
+      next: (reservations: ReservationVehicule[]) => {
+        // Filtrer les réservations qui englobent la date de l'annonce
+        const reservationValide = reservations.find(res => {
+          const debut = new Date(res.dateDebut);
+          const fin = new Date(res.dateFin);
+          return dateTimeDepart >= debut && dateTimeDepart <= fin;
+        });
+
+        if (reservationValide) {
+          // Charger les détails du véhicule d'entreprise
+          this.loadVehiculeEntreprise(reservationValide.vehiculeId);
+        } else {
+          this.vehiculeEntreprise = null;
+          this.hasVehiculeEntreprise = false;
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la récupération des réservations:', error);
+        this.vehiculeEntreprise = null;
+        this.hasVehiculeEntreprise = false;
+      }
+    });
+  }
+
+  loadVehiculeEntreprise(vehiculeId: number): void {
+    this.createAnnonceService.getVehiculeEntreprise(vehiculeId).subscribe({
+      next: (vehicule) => {
+        this.vehiculeEntreprise = vehicule;
+        this.hasVehiculeEntreprise = true;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du véhicule entreprise:', error);
+        this.vehiculeEntreprise = null;
+        this.hasVehiculeEntreprise = false;
+      }
+    });
+  }
+
+  selectVehicule(type: 'personnel' | 'entreprise'): void {
+    if (type === 'personnel') {
+      this.useVehiculePersonnel = true;
+      this.useVehiculeEntreprise = false;
+    } else {
+      this.useVehiculePersonnel = false;
+      this.useVehiculeEntreprise = true;
+    }
+  }
+
+  isFormValid(): boolean {
+    return this.annonceForm.valid &&
+           (this.useVehiculePersonnel || this.useVehiculeEntreprise);
+  }
+
+  onSubmit(): void {
+    if (!this.isFormValid()) {
+      this.errorMessage = 'Veuillez remplir tous les champs et sélectionner un véhicule';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const formValue = this.annonceForm.value;
+    const dateTimeDepart = `${formValue.dateDepart}T${formValue.heureDepart}:00.000Z`;
+
+    const annonceRequest: AnnonceRequest = {
+      id: 0,
+      heureDepart: dateTimeDepart,
+      dureeTrajet: Number(formValue.dureeTrajet),
+      distance: Number(formValue.distance),
+      adresseDepart: {
+        id: 0,
+        numero: Number(formValue.numeroDepart),
+        libelle: formValue.libelleDepart,
+        codePostal: formValue.codePostalDepart,
+        ville: formValue.villeDepart
+      },
+      adresseArrivee: {
+        id: 0,
+        numero: Number(formValue.numeroArrivee),
+        libelle: formValue.libelleArrivee,
+        codePostal: formValue.codePostalArrivee,
+        ville: formValue.villeArrivee
+      },
+      vehiculeServiceId: this.useVehiculeEntreprise && this.vehiculeEntreprise
+        ? this.vehiculeEntreprise.id
+        : null
+    };
+
+    this.createAnnonceService.creerAnnonce(annonceRequest).subscribe({
+      next: (response) => {
+        this.successMessage = 'Annonce créée avec succès !';
+        this.loading = false;
+
+        // Redirection après 2 secondes
+        setTimeout(() => {
+          this.router.navigate(['/covoiturages']);
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la création de l\'annonce:', error);
+        this.errorMessage = 'Erreur lors de la création de l\'annonce. Veuillez réessayer.';
+        this.loading = false;
+      }
+    });
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/dashboard']);
+  }
+}

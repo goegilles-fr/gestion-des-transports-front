@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Vehicules } from '../../../../services/vehicules';
+import { Vehicules } from '../../../../services/vehicules/vehicules';
 import { VehiculeDTO } from '../../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto';
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';

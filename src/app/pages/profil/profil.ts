@@ -4,13 +4,20 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AuthService } from '../services/auth';
-import { ProfilService, UserProfil, ProfilUpdateRequest } from '../services/profil/profil';
+import { AuthService } from '../../services/auth/auth';
+import { NavbarComponent } from '../../shared/navbar/navbar';
+import { FooterComponent } from '../../shared/footer/footer';
+import { ProfilService, UserProfil, ProfilUpdateRequest } from '../../services/profil/profil';
 
 @Component({
   selector: 'app-profil',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NavbarComponent,
+    FooterComponent
+  ],
   templateUrl: './profil.html',
   styleUrls: ['./profil.css']
 })

@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './auth/login/login';
-import { RegisterComponent } from './auth/register/register';
-import { DashboardComponent } from './dashboard/dashboard';
-import { ProfilComponent } from './profil/profil';
-import { AuthGuard } from './guards/auth-guard';
+import { LoginComponent } from './pages/auth/login/login';
+import { RegisterComponent } from './pages/auth/register/register';
+import { DashboardComponent } from './pages/dashboard/dashboard';
+import { ProfilComponent } from './pages/profil/profil';
+import { CreateAnnonceComponent } from './pages/annonces/create-annonce/create-annonce';
+import { AuthGuard } from './guards/auth/auth-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -17,6 +18,11 @@ export const routes: Routes = [
   {
     path: 'profil',
     component: ProfilComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'annonces/create',
+    component: CreateAnnonceComponent,
     canActivate: [AuthGuard]
   },
   {

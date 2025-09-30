@@ -1,51 +1,5 @@
 <div class="dashboard-container">
-  <!-- Header/Navbar -->
-  <header class="dashboard-header">
-    <div class="header-left">
-      <div class="logo-container">
-        <img src="images/covoit-logo.png" alt="Covoit" class="logo">
-      </div>
-      <nav class="main-nav">
-        <button
-          class="nav-btn"
-          [class.active]="activeTab === 'accueil'"
-          (click)="setActiveTab('accueil')">
-          Accueil
-        </button>
-        <button
-          class="nav-btn"
-          [class.active]="activeTab === 'reservations'"
-          (click)="setActiveTab('reservations')">
-          Réservations
-        </button>
-        <button
-          class="nav-btn"
-          [class.active]="activeTab === 'annonces'"
-          (click)="setActiveTab('annonces')">
-          Annonces
-        </button>
-        <button
-          class="nav-btn"
-          [class.active]="activeTab === 'vehicules'"
-          (click)="setActiveTab('vehicules')">
-          Véhicules
-        </button>
-      </nav>
-    </div>
-
-    <div class="header-right">
-      <div class="user-info" [routerLink]="['/profil']" style="cursor: pointer;">
-        <span class="user-name">{{ getUserDisplayName() }}</span>
-        <div class="user-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-      </div>
-
-      <button class="logout-btn" (click)="logout()">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
-    </div>
-  </header>
+    <app-navbar></app-navbar>
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
@@ -190,14 +144,6 @@
 </main>
 
 <!-- Footer -->
-<footer class="dashboard-footer">
-  <div class="footer-content">
-    <div class="footer-logo">
-      <span>Site réalisé par Goégiles</span>
-      <img src="images/covoit-logo.png" alt="Goégiles">
-    </div>
-    <span>Copyright - Tous droits réservés</span>
-  </div>
-</footer>
+<app-footer></app-footer>
 
 </div>
