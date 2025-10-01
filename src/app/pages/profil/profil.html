@@ -1,0 +1,195 @@
+<div class="profil-container">
+  <!-- Header/Navbar -->
+  <header class="dashboard-header">
+    <app-navbar></app-navbar>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement de votre profil...</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="profil-main" *ngIf="!isLoading">
+    <div class="page-title">
+      <h1>MON PROFIL</h1>
+    </div>
+
+    <!-- Messages d'erreur/succès -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- Formulaire Profil -->
+    <form [formGroup]="profilForm" (ngSubmit)="onSubmit()" class="profil-form">
+
+      <div class="form-sections">
+
+        <!-- Section Civilité -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Civilité</h3>
+          </div>
+          <div class="section-content">
+
+            <div class="form-group">
+              <label for="nom">NOM</label>
+              <input
+                type="text"
+                id="nom"
+                formControlName="nom"
+                [class.error]="nom?.invalid && nom?.touched"
+                placeholder="Votre nom">
+              <div *ngIf="nom?.invalid && nom?.touched" class="field-error">
+                <span *ngIf="nom?.errors?.['required']">Le nom est obligatoire</span>
+                <span *ngIf="nom?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prenom">PRÉNOM</label>
+              <input
+                type="text"
+                id="prenom"
+                formControlName="prenom"
+                [class.error]="prenom?.invalid && prenom?.touched"
+                placeholder="Votre prénom">
+              <div *ngIf="prenom?.invalid && prenom?.touched" class="field-error">
+                <span *ngIf="prenom?.errors?.['required']">Le prénom est obligatoire</span>
+                <span *ngIf="prenom?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">ADRESSE EMAIL</label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                readonly
+                placeholder="Email d'entreprise non modifiable">
+              <div class="field-info">
+                <span>L'adresse email d'entreprise ne peut pas être modifiée</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section Adresse -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Adresse</h3>
+          </div>
+          <div class="section-content" formGroupName="adresse">
+
+            <div class="form-row">
+              <div class="form-group form-group-small">
+                <label for="numero">NUMÉRO</label>
+                <input
+                  type="number"
+                  id="numero"
+                  formControlName="numero"
+                  [class.error]="numero?.invalid && numero?.touched"
+                  placeholder="123">
+                <div *ngIf="numero?.invalid && numero?.touched" class="field-error">
+                  <span *ngIf="numero?.errors?.['required']">Le numéro est obligatoire</span>
+                  <span *ngIf="numero?.errors?.['min']">Le numéro doit être supérieur à 0</span>
+                </div>
+              </div>
+
+              <div class="form-group form-group-large">
+                <label for="libelle">LIBELLÉ</label>
+                <input
+                  type="text"
+                  id="libelle"
+                  formControlName="libelle"
+                  [class.error]="libelle?.invalid && libelle?.touched"
+                  placeholder="Rue des Exemples">
+                <div *ngIf="libelle?.invalid && libelle?.touched" class="field-error">
+                  <span *ngIf="libelle?.errors?.['required']">Le libellé est obligatoire</span>
+                  <span *ngIf="libelle?.errors?.['minlength']">Le libellé doit contenir au moins 3 caractères</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="codePostal">CODE POSTAL</label>
+              <input
+                type="text"
+                id="codePostal"
+                formControlName="codePostal"
+                [class.error]="codePostal?.invalid && codePostal?.touched"
+                placeholder="34000"
+                maxlength="5">
+              <div *ngIf="codePostal?.invalid && codePostal?.touched" class="field-error">
+                <span *ngIf="codePostal?.errors?.['required']">Le code postal est obligatoire</span>
+                <span *ngIf="codePostal?.errors?.['pattern']">Le code postal doit contenir 5 chiffres</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="ville">VILLE</label>
+              <input
+                type="text"
+                id="ville"
+                formControlName="ville"
+                [class.error]="ville?.invalid && ville?.touched"
+                placeholder="Montpellier">
+              <div *ngIf="ville?.invalid && ville?.touched" class="field-error">
+                <span *ngIf="ville?.errors?.['required']">La ville est obligatoire</span>
+                <span *ngIf="ville?.errors?.['minlength']">La ville doit contenir au moins 2 caractères</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bouton Véhicule Personnel -->
+      <div class="vehicle-declaration">
+        <button
+          type="button"
+          class="btn btn-vehicle"
+          (click)="onDeclareVehicle()">
+          DÉCLARER MON VÉHICULE PERSONNEL
+        </button>
+      </div>
+
+      <!-- Boutons Actions -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSaving || profilForm.invalid">
+          <i *ngIf="isSaving" class="fas fa-spinner fa-spin"></i>
+          {{ isSaving ? 'VALIDATION...' : 'VALIDER' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()"
+          [disabled]="isSaving">
+          ANNULER
+        </button>
+      </div>
+
+    </form>
+
+  </main>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+
+</div>

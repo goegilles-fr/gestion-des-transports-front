@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Vehicules } from '../../../../services/vehicules';
+import { Vehicules } from '../../../../services/vehicules/vehicules';
 import { firstValueFrom, switchMap, of } from 'rxjs';
 
 @Component({
