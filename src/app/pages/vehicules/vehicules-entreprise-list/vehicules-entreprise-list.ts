@@ -1,9 +1,9 @@
 import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StatutVehicule, VehiculeDTO } from '../../../../core/models/vehicule-dto';
+import { StatutVehicule, VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { VehiculesEntrepriseEdit } from '../vehicules-entreprise-edit/vehicules-entreprise-edit';
-import { Vehicules } from '../../../../services/vehicules';
+import { Vehicules } from '../../../services/vehicules/vehicules';
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
