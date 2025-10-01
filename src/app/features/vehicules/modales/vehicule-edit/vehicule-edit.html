@@ -8,17 +8,17 @@
         <div class="form-grid">
             <label class="form-field">
                 <span class="field-label">Marque</span>
-                <input name="marque" [(ngModel)]="vehicule().marque" autocomplete="off" />
+                <input name="marque" [(ngModel)]="vehicule().marque" autocomplete="off" required />
             </label>
 
             <label class="form-field">
                 <span class="field-label">Modèle</span>
-                <input name="modele" [(ngModel)]="vehicule().modele" autocomplete="off" />
+                <input name="modele" [(ngModel)]="vehicule().modele" autocomplete="off" required />
             </label>
 
             <label class="form-field">
                 <span class="field-label">Immatriculation</span>
-                <input name="immatriculation" [(ngModel)]="vehicule().immatriculation" autocomplete="off" />
+                <input name="immatriculation" [(ngModel)]="vehicule().immatriculation" autocomplete="off" required />
             </label>
 
             <label class="form-field">
@@ -63,7 +63,11 @@
 
         <div class="modal-actions">
             <button type="button" class="btn btn-secondary" (click)="onCancel()">Annuler</button>
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!vehicule()?.marque?.trim()
+                                                                        || !vehicule()?.modele?.trim()
+                                                                        || !vehicule()?.immatriculation?.trim()
+                                                                        || !vehicule()?.nbPlaces
+                                                                        ">Enregistrer</button>
         </div>
     </form>
 </div>
