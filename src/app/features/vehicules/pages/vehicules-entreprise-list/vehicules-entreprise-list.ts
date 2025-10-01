@@ -1,11 +1,9 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StatutVehicule, VehiculeDTO } from '../../../../core/models/vehicule-dto';
 import { VehiculesEntrepriseEdit } from '../vehicules-entreprise-edit/vehicules-entreprise-edit';
-
-let _nextId = 9000;
-const genId = () => ++_nextId;
+import { Vehicules } from '../../../../services/vehicules';
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
@@ -15,21 +13,17 @@ const genId = () => ++_nextId;
   styleUrls: ['./vehicules-entreprise-list.css']
 })
 export class VehiculeEntrepriseList {
-  // Jeu de données fictif
-  vehicules = signal<VehiculeDTO[]>([
-    {
-      id: 501, marque: 'Renault', modele: 'Mégane', immatriculation: 'QW-123-QW',
-      nbPlaces: 4, co2ParKm: 129, motorisation: 'Thermique',
-      photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/2016_Renault_M%C3%A9gane_DCi_110.jpg/320px-2016_Renault_M%C3%A9gane_DCi_110.jpg',
-      statut: 'EN_REPARATION'
-    },
-    {
-      id: 502, marque: 'Renault', modele: 'Clio', immatriculation: 'TY-888-QW',
-      nbPlaces: 4, co2ParKm: 116, motorisation: 'Thermique',
-      photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg/320px-2019_Renault_Clio_RS_Line_TCe_100_1.0_Front.jpg',
-      statut: 'EN_SERVICE'
-    }
-  ]);
+  constructor(private vehiculeService: Vehicules) {
+    this.vehiculeService.listEntreprise().subscribe({
+        next: vehicules => {
+          this.vehicules.set(vehicules);
+        },
+        error: (e) => {
+          console.error(e);// en cas d’erreur, retomber sur la base list
+        },
+      });
+  }
+  vehicules = signal<VehiculeDTO[]>([]);
 
   // Filtre statut
   STATUTS: StatutVehicule[] = ['EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'];
@@ -45,7 +39,7 @@ export class VehiculeEntrepriseList {
 
   // Modale
   modalOpen = signal(false);
-  mode = signal<'create'|'edit'>('create');
+  mode = signal<'create' | 'edit'>('create');
   current = signal<VehiculeDTO | null>(null);
 
   openCreate() {
@@ -56,30 +50,38 @@ export class VehiculeEntrepriseList {
 
   openEdit(v: VehiculeDTO) {
     this.mode.set('edit');
-    // on clone pour éviter de muter la liste avant sauvegarde
     this.current.set({ ...v });
     this.modalOpen.set(true);
   }
 
   onModalCancel() { this.modalOpen.set(false); }
 
-  onModalSave(payload: VehiculeDTO) {
-    if (this.mode() === 'edit' && payload.id != null) {
-      const list = [...this.vehicules()];
-      const idx = list.findIndex(x => x.id === payload.id);
-      if (idx >= 0) {
-        list[idx] = { ...list[idx], ...payload } as VehiculeDTO;
-        this.vehicules.set(list);
+  async onModalSave(payload: VehiculeDTO) {
+    try {
+      if (this.mode() === 'create') {
+        await this.vehiculeService.createEntreprise(payload).toPromise();
+      } else {
+        if (!payload.id) throw new Error('ID manquant pour la mise à jour');
+        await this.vehiculeService.updateEntreprise(payload.id, payload).toPromise();
       }
-    } else {
-      const created: VehiculeDTO = { id: genId(), ...(payload as any) };
-      this.vehicules.set([...this.vehicules(), created]);
+      // TODO Recharge la liste (simple tic)
+
+      this.onModalCancel();
+    } catch (e) {
+      console.error('Erreur save véhicule', e);
+      alert('Impossible d’enregistrer le véhicule.');
     }
-    this.modalOpen.set(false);
   }
 
-  onDelete(id: number) {
+  async onDelete(id?: number) {
+    if (id == null) return;
     if (!confirm('Supprimer ce véhicule ?')) return;
-    this.vehicules.set(this.vehicules().filter(v => v.id !== id));
+    try {
+      await this.vehiculeService.deleteEntreprise(id);
+      // TODO Recharge la liste (simple tic)
+    } catch (e) {
+      console.error('Erreur suppression véhicule', e);
+      alert('Suppression impossible.');
+    }
   }
 }

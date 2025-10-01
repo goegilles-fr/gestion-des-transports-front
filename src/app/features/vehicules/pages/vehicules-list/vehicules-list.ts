@@ -30,13 +30,13 @@ export class VehiculesList implements OnInit {
   // État de la modale de suppression
   reservationToDelete = signal<ReservationVehiculeDto | null>(null);
   vehiculePersoToDelete = signal<VehiculeDTO | null>(null);
-  deleteTitle = signal<string>('');
   deleteContent = signal<string>('');
 
   // État de la modale d'édition
   vehiculeToEdit = signal<VehiculeDTO | null>(null);
+  creationVehicule = signal<boolean>(false);
   reservationToEdit = signal<ReservationVehiculeDto | null>(null);
-  editTitle = signal<string>('');
+  modaleTitle = signal<string>('');
 
   // Pour afficher les infos véhicule dans la modale
   selectedVehiculeForDelete = computed<VehiculeDTO | null>(() => {
@@ -99,20 +99,25 @@ export class VehiculesList implements OnInit {
   }
 
   openAnnulation(row: ReservationRow) {
-    this.deleteTitle.set("Annuler la reservation");
+    this.modaleTitle.set("Annuler la reservation");
     this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous annuler la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous annuler cette réservation ?');
     this.reservationToDelete.set(row);
   }
 
   openSuppression(vehicule: VehiculeDTO) {
-    this.deleteTitle.set("Supprimer votre vehicule personnel");
+    this.modaleTitle.set("Supprimer votre vehicule personnel");
     this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous supprimer votre vehicule ' + (this.vehiculePersoToDelete()?.marque || '') + ' ' + (this.vehiculePersoToDelete()?.modele || '') + ' ?') : 'Voulez-vous supprimer votre vehicule personnel ?');
     this.vehiculePersoToDelete.set(vehicule);
   }
 
   openEditVehicule(vehicule: VehiculeDTO) {
-    this.editTitle.set("Modifier votre vehicule personnel");
+    this.modaleTitle.set("Modifier votre vehicule personnel");
     this.vehiculeToEdit.set(vehicule);
+  }
+
+  openCreationVehicule() {
+    this.modaleTitle.set("Ajouter un vehicule personnel");
+    this.creationVehicule.set(true);
   }
 
   closeModale() {
@@ -122,6 +127,7 @@ export class VehiculesList implements OnInit {
 
   closeEdit() {
     this.vehiculeToEdit.set(null);
+    this.creationVehicule.set(false);
   }
 
   confirmModale() {
@@ -164,7 +170,22 @@ export class VehiculesList implements OnInit {
 
   onSaveEdit(vehicule: VehiculeDTO){
     const oldVehicule = this.vehiculeToEdit();
-    if(!oldVehicule?.id || oldVehicule == vehicule) {
+    if (this.creationVehicule()) {
+      if('id' in vehicule) {
+        delete vehicule.id;
+      }
+      this.vehiculeService.createPerso(vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehiculePersoList.set([vehicule]);
+          this.creationVehicule.set(false);
+        },
+        error: (e) => {
+          console.error(e);
+          this.creationVehicule.set(false);
+        }
+      })
+    }
+    else if(!oldVehicule?.id || oldVehicule == vehicule) {
       this.vehiculeToEdit.set(null);
     }
     else {

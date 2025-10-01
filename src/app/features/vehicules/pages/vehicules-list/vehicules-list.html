@@ -3,10 +3,10 @@
 <div class="vehicules-page">
 
   <!-- MON VEHICULE PERSONNEL -->
-  @if(vehiculePersoList() != null) {
   <section class="panel">
     <h2 class="panel__title">MON VÉHICULE PERSONNEL</h2>
 
+    @if(vehiculePersoList() != null && vehiculePersoList().length > 0) {
     <div class="card">
       <table class="table table--vehicule">
         <thead>
@@ -52,8 +52,17 @@
         </tbody>
       </table>
     </div>
+      } @else {
+      <div class="card empty-personal">
+        <p>Vous n’avez pas encore de véhicule personnel.</p>
+        <div class="cta">
+          <button type="button" class="btn-primary" (click)="openCreationVehicule()">
+            Ajouter mon véhicule
+          </button>
+        </div>
+      </div>
+    }
   </section>
-  }
 
 
   <!-- MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ -->
@@ -126,11 +135,15 @@
 
 </div>
 
-<app-confirm-dialog [open]="!!reservationToDelete() || !! vehiculePersoToDelete()" [title]="deleteTitle()"
+<app-confirm-dialog [open]="!!reservationToDelete() || !! vehiculePersoToDelete()" [title]="modaleTitle()"
   [message]="deleteContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
   (cancel)="closeModale()"></app-confirm-dialog>
 
 @if(vehiculeToEdit(); as editing) {
-<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="editTitle()" (confirm)="onSaveEdit($event)"
+<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="modaleTitle()" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
+} 
+@if(creationVehicule()) {
+<app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" (confirm)="onSaveEdit($event)"
   (cancel)="closeEdit()"></app-vehicule-edit>
 }
