@@ -1,16 +1,19 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Vehicules } from '../../../../services/vehicules';
 import { VehiculeDTO } from '../../../../core/models/vehicule-dto';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialog } from '../../../../shared/modales/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
 import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto';
+import 'swiper/element/bundle';
 
 @Component({
   selector: 'app-vehicules-reservation',
+  standalone: true,
   imports: [CommonModule, ConfirmDialog],
   templateUrl: './vehicules-reservation.html',
-  styleUrl: './vehicules-reservation.css'
+  styleUrl: './vehicules-reservation.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class VehiculesReservation {
   constructor(private vehiculeService: Vehicules, private router: Router) {
@@ -31,8 +34,6 @@ export class VehiculesReservation {
 
       const startIso = this.combineDateTime(this.dateDebutStr(), this.timeDebutStr());
       const endIso = this.combineDateTime(this.dateFinStr(), this.timeFinStr());
-      // Debug utile pour voir la requête exacte
-      console.debug('[DISPO] debut=', startIso, 'fin=', endIso);
 
       this.loading.set(true);
       this.vehiculeService.getEntrepriseByDate(startIso, endIso).subscribe({

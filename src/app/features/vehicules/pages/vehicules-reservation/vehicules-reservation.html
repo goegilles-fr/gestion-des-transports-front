@@ -8,7 +8,7 @@
             <span>Date début :</span>
             <input type="date" [value]="dateDebutStr()" (change)="dateDebutStr.set($event.target.value)">
 
-            <span class="label">Heure début :</span>
+            <span class="label">Heure de début :</span>
             <select #tdeb [value]="timeDebutStr()" (change)="timeDebutStr.set(tdeb.value)">
                 @for(heure of HEURES; track $index) {
                 <option [value]="heure" [selected]="heure === timeDebutStr()">{{ heure }}</option>
@@ -20,7 +20,7 @@
             <span>Date fin</span>
             <input type="date" [value]="dateFinStr()" (change)="dateFinStr.set($event.target.value)">
 
-            <span class="label">Heure début :</span>
+            <span class="label">Heure de fin :</span>
             <select #tfin [value]="timeFinStr()" (change)="timeFinStr.set(tfin.value)">
                 @for(heure of HEURES; track $index) {
                 <option [value]="heure" [selected]="heure === timeFinStr()">{{ heure }}</option>
@@ -35,48 +35,39 @@
     @if (loading()) {
     <p class="muted">Chargement…</p>
     } @else {
-    <div class="table-wrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Marque</th>
-                    <th>Modèle</th>
-                    <th class="immat">Immatriculation</th>
-                    <th>Places</th>
-                    <th>CO₂ (g/km)</th>
-                    <th>Motorisation</th>
-                    <th>Photo</th>
-                    <th>Reserver</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (vehicule of vehiculesDisponible(); track vehicule.id ?? $index) {
-                <tr>
-                    <td>{{ vehicule.marque || '—' }}</td>
-                    <td>{{ vehicule.modele || '—' }}</td>
-                    <td class="immat">{{ vehicule.immatriculation || '—' }}</td>
-                    <td>{{ vehicule.nbPlaces}}</td>
-                    <td>{{ vehicule.co2ParKm ?? '—' }}</td>
-                    <td>{{ vehicule.motorisation || '—' }}</td>
-                    <td class="photo-cell">
-                        <img [src]="vehicule.photo" alt="Photo véhicule" class="thumb" loading="lazy">
-                    </td>
-                    <td class="actions-col">
-                        <button type="button" class="btn-reserver" [disabled]="!canReserve()"
-                            (click)="openConfirmReserve(vehicule)">
-                            Réserver
-                        </button>
-                    </td>
+    <swiper-container navigation="true" pagination="true" keyboard="true" space-between="16" slides-per-view="1"
+        style="--swiper-navigation-color:#222; --swiper-pagination-color:#222; width:100%; height:auto;">
+        @for (vehicule of vehiculesDisponible(); track vehicule.id ?? $index) {
+        <swiper-slide>
+            <article class="card">
+                <header class="card-header">
+                    <h3>{{ vehicule.marque }} {{ vehicule.modele }}</h3>
+                    <span class="immat">{{ vehicule.immatriculation }}</span>
+                </header>
 
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="7" class="empty">Aucun véhicule d’entreprise disponible.</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                <div class="card-body">
+                    <img class="photo" [src]="vehicule.photo || 'https://placehold.co/640x360?text=Photo'"
+                        alt="Photo du véhicule" loading="lazy">
+                    <ul class="props">
+                        <li><strong>Places :</strong> {{ vehicule.nbPlaces }}</li>
+                        <li><strong>Motorisation :</strong> {{ vehicule.motorisation ?? '—' }}</li>
+                        <li><strong>CO₂ :</strong> {{ vehicule.co2ParKm ?? '—' }}</li>
+                    </ul>
+                </div>
+
+                <footer class="card-footer">
+                    <button type="button" class="btn" [disabled]="!canReserve()" (click)="openConfirmReserve(vehicule)">
+                        Réserver
+                    </button>
+                </footer>
+            </article>
+        </swiper-slide>
+        } @empty {
+        <swiper-slide>
+            <div class="empty">Aucun véhicule disponible pour ces dates.</div>
+        </swiper-slide>
+        }
+    </swiper-container>
     }
 </section>
 
