@@ -1,3 +1,5 @@
+<app-navbar></app-navbar>
+
 <div class="vehicules-page">
 
   <section class="panel">
@@ -94,3 +96,5 @@
   [title]="mode()==='create' ? 'ENREGISTRER UN VÉHICULE DE SOCIÉTÉ' : 'MODIFIER LE VÉHICULE DE SOCIÉTÉ'"
   [data]="current()" [mode]="mode()" (save)="onModalSave($event)" (cancel)="onModalCancel()" />
 }
+
+<app-footer></app-footer>

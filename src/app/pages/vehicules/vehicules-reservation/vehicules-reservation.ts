@@ -6,11 +6,13 @@ import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-di
 import { Router } from '@angular/router';
 import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import 'swiper/element/bundle';
+import { NavbarComponent } from '../../../shared/navbar/navbar';
+import { FooterComponent } from '../../../shared/footer/footer';
 
 @Component({
   selector: 'app-vehicules-reservation',
   standalone: true,
-  imports: [CommonModule, ConfirmDialog],
+  imports: [CommonModule, ConfirmDialog, NavbarComponent, FooterComponent],
   templateUrl: './vehicules-reservation.html',
   styleUrl: './vehicules-reservation.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -106,7 +108,6 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
   // =================================================================
 
   loading = signal<boolean>(false);
-  private debounceHandle: any;
 
   dateDebutStr = signal<string>('');
   dateFinStr = signal<string>('');
