@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { VehiculeDTO, StatutVehicule } from '../../../../core/models/vehicule-dto';
+import { VehiculeDTO, StatutVehicule } from '../../../core/models/vehicule-dto';
 
 @Component({
   selector: 'app-vehicules-entreprise-edit',

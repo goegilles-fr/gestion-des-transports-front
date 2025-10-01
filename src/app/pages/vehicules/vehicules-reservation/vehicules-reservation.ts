@@ -1,10 +1,10 @@
-import { Component, signal, computed, effect } from '@angular/core';
-import { Vehicules } from '../../../../services/vehicules/vehicules';
-import { VehiculeDTO } from '../../../../core/models/vehicule-dto';
+import { Component, signal, computed, effect, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Vehicules } from '../../../services/vehicules/vehicules';
+import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { CommonModule } from '@angular/common';
-import { ConfirmDialog } from '../../../../shared/modales/confirm-dialog/confirm-dialog';
+import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
-import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto';
+import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import 'swiper/element/bundle';
 
 @Component({
