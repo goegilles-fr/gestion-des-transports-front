@@ -63,10 +63,10 @@
 
         <div class="modal-actions">
             <button type="button" class="btn btn-secondary" (click)="onCancel()">Annuler</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!vehicule()?.marque?.trim()
-                                                                        || !vehicule()?.modele?.trim()
-                                                                        || !vehicule()?.immatriculation?.trim()
-                                                                        || !vehicule()?.nbPlaces
+            <button type="submit" class="btn btn-primary" [disabled]="!vehicule().marque.trim()
+                                                                        || !vehicule().modele.trim()
+                                                                        || !vehicule().immatriculation.trim()
+                                                                        || !vehicule().nbPlaces
                                                                         ">Enregistrer</button>
         </div>
     </form>
