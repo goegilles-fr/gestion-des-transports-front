@@ -1,13 +1,14 @@
 /* Container principal */
 .dashboard-container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #EDEDED;
   display: flex;
   flex-direction: column;
 }
 
 /* Main Content */
 .dashboard-main {
+  background: #EDEDED;
   flex: 1;
   padding: 100px 20px 30px 20px;
   max-width: 1200px;
@@ -28,7 +29,7 @@
 
 /* Action Cards avec style bulle */
 .action-card {
-  background: #F3F3F3;
+  background: white;
   border-radius: 12px;
   overflow: visible;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

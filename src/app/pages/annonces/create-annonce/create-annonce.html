@@ -18,7 +18,7 @@
 
       <!-- Section Date et Heure -->
       <div class="form-section">
-        <h2 class="section-title">Quand partez-vous ?</h2>
+        <h3 class="section-title">Annonce</h3>
 
         <div class="form-row">
           <div class="form-group">
@@ -87,15 +87,11 @@
             </span>
           </div>
         </div>
-
-        <div class="info-box">
-          <p><strong>Temps estimé :</strong> <span class="placeholder-text">(calculé automatiquement plus tard)</span></p>
-        </div>
       </div>
 
       <!-- Section Adresse de départ -->
       <div class="form-section">
-        <h2 class="section-title">D'où partez-vous ?</h2>
+        <h3 class="section-title">Adresse de départ</h3>
 
         <div class="form-row">
           <div class="form-group small">
@@ -165,7 +161,7 @@
 
       <!-- Section Adresse d'arrivée -->
       <div class="form-section">
-        <h2 class="section-title">Où allez-vous ?</h2>
+        <h3 class="section-title">Adresse d'arrivée</h3>
 
         <div class="form-row">
           <div class="form-group small">
@@ -235,86 +231,67 @@
 
       <!-- Section Véhicule -->
       <div class="form-section">
-        <h2 class="section-title">Avec quel véhicule ?</h2>
+        <h3 class="section-title">Véhicules</h3>
 
         <div class="loading-spinner" *ngIf="loadingVehicules">
           Chargement des véhicules...
         </div>
 
         <div class="vehicules-container" *ngIf="!loadingVehicules">
+          <h4 class="vehicule-subtitle">Choisissez votre véhicule</h4>
 
-          <!-- Véhicule Personnel -->
-          <div class="vehicule-card"
-               *ngIf="hasVehiculePersonnel"
-               [class.selected]="useVehiculePersonnel"
-               (click)="selectVehicule('personnel')">
-            <div class="vehicule-header">
-              <h3>Mon véhicule personnel</h3>
+          <!-- Ligne Véhicule Personnel -->
+          <div class="vehicule-row">
+            <label class="vehicule-label">Votre véhicule personnel :</label>
+
+            <div class="vehicule-content" *ngIf="hasVehiculePersonnel">
+              <img [src]="vehiculePersonnel!.photo"
+                   [alt]="vehiculePersonnel!.marque"
+                   class="vehicule-photo-inline">
+              <span class="vehicule-text">{{ vehiculePersonnel!.marque }} {{ vehiculePersonnel!.modele }}</span>
+              <span class="vehicule-immat-inline">{{ vehiculePersonnel!.immatriculation }}</span>
               <input
                 type="checkbox"
                 [checked]="useVehiculePersonnel"
                 (change)="selectVehicule('personnel')"
-                class="vehicule-checkbox">
+                class="vehicule-checkbox-inline">
             </div>
-            <div class="vehicule-details" *ngIf="vehiculePersonnel">
-              <img [src]="vehiculePersonnel.photo"
-                   [alt]="vehiculePersonnel.marque + ' ' + vehiculePersonnel.modele"
-                   class="vehicule-photo">
-              <div class="vehicule-info">
-                <p class="vehicule-name">{{ vehiculePersonnel.marque }} {{ vehiculePersonnel.modele }}</p>
-                <p class="vehicule-immat">{{ vehiculePersonnel.immatriculation }}</p>
-                <p class="vehicule-specs">
-                  {{ vehiculePersonnel.nbPlaces }} places - {{ vehiculePersonnel.motorisation }}
-                </p>
-                <p class="vehicule-co2">CO₂: {{ vehiculePersonnel.co2ParKm }} g/km</p>
-              </div>
+
+            <div class="vehicule-content" *ngIf="!hasVehiculePersonnel">
+              <span class="no-vehicule-inline">Pas de véhicule déclaré</span>
             </div>
           </div>
 
-          <div class="no-vehicule" *ngIf="!hasVehiculePersonnel">
-            <p>Vous n'avez pas de véhicule personnel déclaré</p>
-            <button type="button" class="btn-secondary" routerLink="/vehicules/personnel">
-              Déclarer mon véhicule
-            </button>
-          </div>
+          <!-- Ligne Véhicule Entreprise -->
+          <div class="vehicule-row">
+            <label class="vehicule-label">Véhicule de société :</label>
 
-          <!-- Véhicule Entreprise -->
-          <div class="vehicule-card"
-               *ngIf="hasVehiculeEntreprise"
-               [class.selected]="useVehiculeEntreprise"
-               (click)="selectVehicule('entreprise')">
-            <div class="vehicule-header">
-              <h3>Véhicule de société</h3>
+            <div class="vehicule-content" *ngIf="hasVehiculeEntreprise">
+              <img [src]="vehiculeEntreprise!.photo"
+                   [alt]="vehiculeEntreprise!.marque"
+                   class="vehicule-photo-inline">
+              <span class="vehicule-text">{{ vehiculeEntreprise!.marque }} {{ vehiculeEntreprise!.modele }}</span>
+              <span class="vehicule-immat-inline">{{ vehiculeEntreprise!.immatriculation }}</span>
               <input
                 type="checkbox"
                 [checked]="useVehiculeEntreprise"
                 (change)="selectVehicule('entreprise')"
-                class="vehicule-checkbox">
+                class="vehicule-checkbox-inline">
             </div>
-            <div class="vehicule-details" *ngIf="vehiculeEntreprise">
-              <img [src]="vehiculeEntreprise.photo"
-                   [alt]="vehiculeEntreprise.marque + ' ' + vehiculeEntreprise.modele"
-                   class="vehicule-photo">
-              <div class="vehicule-info">
-                <p class="vehicule-name">{{ vehiculeEntreprise.marque }} {{ vehiculeEntreprise.modele }}</p>
-                <p class="vehicule-immat">{{ vehiculeEntreprise.immatriculation }}</p>
-                <p class="vehicule-specs">
-                  {{ vehiculeEntreprise.nbPlaces }} places - {{ vehiculeEntreprise.motorisation }}
-                </p>
-                <p class="vehicule-co2">CO₂: {{ vehiculeEntreprise.co2ParKm }} g/km</p>
-              </div>
+
+            <div class="vehicule-content" *ngIf="!hasVehiculeEntreprise">
+              <span class="no-vehicule-inline">Aucun véhicule disponible pour cette date</span>
             </div>
           </div>
 
-          <div class="info-box" *ngIf="!hasVehiculeEntreprise && annonceForm.get('dateDepart')?.value">
-            <p>Aucun véhicule de société disponible pour cette date</p>
-            <p class="hint">Le véhicule d'entreprise s'affiche si vous avez une réservation active pour la date de l'annonce</p>
+          <!-- Bouton réserver -->
+          <button type="button" class="btn-reserver" routerLink="/vehicules/reservation">
+            RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
+          </button>
+
+          <div class="error-message" *ngIf="!useVehiculePersonnel && !useVehiculeEntreprise && annonceForm.touched">
+            Veuillez sélectionner un véhicule
           </div>
-
-        </div>
-
-        <div class="error-message" *ngIf="!useVehiculePersonnel && !useVehiculeEntreprise && annonceForm.touched">
-          Veuillez sélectionner un véhicule
         </div>
       </div>
 
@@ -333,7 +310,7 @@
           class="btn-submit"
           [class.active]="isFormValid()"
           [disabled]="!isFormValid() || loading">
-          {{ loading ? 'CRÉATION EN COURS...' : 'CRÉER UN COVOIT' }}
+          {{ loading ? 'CRÉATION EN COURS...' : 'CRÉER L\'ANNONCE' }}
         </button>
       </div>
 
