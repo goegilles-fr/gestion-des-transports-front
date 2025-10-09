@@ -1,5 +1,11 @@
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .page-container {
-  min-height: calc(100vh - 140px);
+  flex: 1;
   background: #EDEDED;
 }
 
@@ -7,7 +13,7 @@
   max-width: 1200px;
   margin: 0 auto;
   background: #EDEDED;
-  padding: 1rem 2rem 0.8rem 2rem;
+  padding: 1rem 2rem 1rem 2rem;
 }
 
 .page-title {
@@ -45,7 +51,7 @@
 .annonce-form {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.7rem;
+  gap: 2rem;
 }
 
 .form-section {
@@ -53,7 +59,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   overflow: visible;
-  padding: 18px 24px 0 24px;
+  padding: 24px 24px 0 24px;
   position: relative;
   background: white;
 }
