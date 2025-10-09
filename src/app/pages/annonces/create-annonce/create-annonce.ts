@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import {
@@ -19,6 +19,7 @@ import {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     NavbarComponent,
     FooterComponent
   ],
