@@ -281,7 +281,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   reserverVehicule(): void {
-    this.router.navigate(['/vehicules']);
+    this.router.navigate(['/vehicules/reservation']);
   }
 
   refreshData(): void {
