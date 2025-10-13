@@ -1,0 +1,73 @@
+<div class="reset-container">
+  <!-- Header avec logo et titre -->
+  <header class="reset-header">
+    <div class="logo-container">
+      <img src="images/covoit-logo.png" alt="Covoit" class="logo">
+    </div>
+    <div class="header-text">
+      <h1>RÉINITIALISATION DU MOT DE PASSE</h1>
+      <h2>COVOIT - COVOITURAGE ÉCOLOGIQUE</h2>
+    </div>
+    <div class="logo-container">
+      <img src="images/covoit-logo.png" alt="Covoit" class="logo">
+    </div>
+  </header>
+
+  <!-- Contenu principal -->
+  <div class="reset-content-container">
+    <div class="reset-card">
+      
+      <!-- Chargement en cours -->
+      @if (chargement) {
+        <div class="loading-container">
+          <i class="fas fa-spinner fa-spin loading-icon"></i>
+          <h3>Réinitialisation en cours...</h3>
+          <p>Veuillez patienter pendant que nous traitons votre demande.</p>
+        </div>
+      }
+
+      <!-- Succès -->
+      @if (succes && !chargement) {
+        <div class="success-container">
+          <div class="success-icon-container">
+            <i class="fas fa-check-circle success-icon"></i>
+          </div>
+          <h3>Mot de passe réinitialisé !</h3>
+          <div class="success-message">
+            {{ messageSucces }}
+          </div>
+          <div class="action-buttons">
+            <button class="btn-primary" (click)="allerConnexion()">
+              <i class="fas fa-sign-in-alt"></i>
+              Se connecter
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Erreur -->
+      @if (messageErreur && !chargement) {
+        <div class="error-container">
+          <div class="error-icon-container">
+            <i class="fas fa-exclamation-triangle error-icon"></i>
+          </div>
+          <h3>Erreur de réinitialisation</h3>
+          <div class="error-message">
+            {{ messageErreur }}
+          </div>
+          <div class="action-buttons">
+            <button class="btn-secondary" routerLink="/mdp">
+              <i class="fas fa-redo"></i>
+              Faire une nouvelle demande
+            </button>
+            <button class="btn-primary" (click)="allerConnexion()">
+              <i class="fas fa-arrow-left"></i>
+              Retour à la connexion
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

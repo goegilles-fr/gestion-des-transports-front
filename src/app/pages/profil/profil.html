@@ -156,13 +156,21 @@
 
       </div>
 
-      <!-- Bouton Véhicule Personnel -->
+     <!-- Boutons Véhicule Personnel et Mot de passe -->
       <div class="vehicle-declaration">
         <button
           type="button"
           class="btn btn-vehicle"
           (click)="onDeclareVehicle()">
           DÉCLARER MON VÉHICULE PERSONNEL
+        </button>
+        
+        <button
+          type="button"
+          class="btn btn-password"
+          (click)="navigateTo('/mdp-change')">
+          <i class="fas fa-lock"></i>
+          CHANGER MON MOT DE PASSE
         </button>
       </div>
 

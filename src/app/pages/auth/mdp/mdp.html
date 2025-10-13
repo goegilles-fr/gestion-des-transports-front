@@ -1,0 +1,93 @@
+<div class="mdp-container">
+  <!-- Header avec logo et titre -->
+  <header class="mdp-header">
+    <div class="logo-container">
+      <img src="images/covoit-logo.png" alt="Covoit" class="logo">
+    </div>
+    <div class="header-text">
+      <h1>RÉINITIALISATION DU MOT DE PASSE</h1>
+      <h2>RÉCUPÉREZ L'ACCÈS À VOTRE COMPTE</h2>
+    </div>
+    <div class="logo-container">
+      <img src="images/covoit-logo.png" alt="Covoit" class="logo">
+    </div>
+  </header>
+
+  <!-- Formulaire de réinitialisation -->
+  <div class="mdp-form-container">
+    <div class="mdp-card">
+      <h3>MOT DE PASSE OUBLIÉ ?</h3>
+
+      @if (messageSucces) {
+        <div class="success-message-container">
+          <i class="fas fa-check-circle"></i>
+          {{ messageSucces }}
+        </div>
+      }
+
+      @if (messageErreur) {
+        <div class="error-message-container">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ messageErreur }}
+        </div>
+      }
+
+      @if (!messageSucces) {
+        <p class="instruction-text">
+          Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+        </p>
+
+        <form [formGroup]="formulaireEmail" (ngSubmit)="soumettre()" class="mdp-form">
+          <!-- Champ email -->
+          <div class="form-group">
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="Adresse email"
+              class="form-input"
+              [class.error]="email?.invalid && email?.touched"
+              [disabled]="chargement">
+            @if (email?.invalid && email?.touched) {
+              <div class="error-message">
+                @if (email?.errors?.['required']) {
+                  <span>L'adresse email est requise</span>
+                }
+                @if (email?.errors?.['email']) {
+                  <span>Veuillez saisir une adresse email valide</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Bouton de validation -->
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="formulaireEmail.invalid || chargement">
+            @if (chargement) {
+              <i class="fas fa-spinner fa-spin"></i> Envoi en cours...
+            } @else {
+              ENVOYER LE LIEN
+            }
+          </button>
+
+          <!-- Lien retour -->
+          <div class="form-links">
+            <a (click)="retourConnexion()" class="link" style="cursor: pointer;">
+              <i class="fas fa-arrow-left"></i> Retour à la connexion
+            </a>
+          </div>
+        </form>
+      }
+
+      @if (messageSucces) {
+        <div class="form-links success-links">
+          <a (click)="retourConnexion()" class="link link-primary" style="cursor: pointer;">
+            <i class="fas fa-arrow-left"></i> Retour à la connexion
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

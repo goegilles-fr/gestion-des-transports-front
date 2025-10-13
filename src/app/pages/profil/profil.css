@@ -255,6 +255,27 @@ input[readonly] {
   font-size: 12px;
 }
 
+.btn-password {
+  background: #6c757d;
+  color: white;
+  padding: 15px 30px;
+  font-size: 12px;
+  margin-left: 15px;
+}
+
+.btn-password:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+@media (max-width: 768px) {
+  .btn-password {
+    margin-left: 0;
+    margin-top: 15px;
+  }
+}
+
 .btn-vehicle:hover {
   background: #0a6d87;
   transform: translateY(-2px);

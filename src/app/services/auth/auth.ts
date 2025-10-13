@@ -142,7 +142,56 @@ export class AuthService {
         })
       );
   }
+/**
+   * Demande la réinitialisation du mot de passe
+   * Envoie un email avec un lien de réinitialisation
+   */
+  demanderReinitialisationMotDePasse(email: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/utilisateurs/passwordreset`, { email })
+      .pipe(
+        catchError((error: any) => {
+          let errorMessage = 'Erreur lors de la demande de réinitialisation';
 
+          if (error.status === 400) {
+            // Le backend retourne le message d'erreur dans error.error.error
+            errorMessage = error.error?.error || 'Aucun utilisateur trouvé avec cet email.';
+          } else if (error.status === 404) {
+            errorMessage = 'Aucun compte associé à cet email.';
+          } else if (error.status === 500) {
+            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          }
+
+          console.error('Erreur de réinitialisation:', error);
+          return throwError(() => ({ message: errorMessage, originalError: error }));
+        })
+      );
+  }
+
+  /**
+   * Change le mot de passe de l'utilisateur connecté
+   * Nécessite une authentification (token JWT)
+   */
+  changerMotDePasse(nouveauMotDePasse: string): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/api/utilisateurs/changepassword`, { 
+      newpassword: nouveauMotDePasse 
+    })
+      .pipe(
+        catchError((error: any) => {
+          let errorMessage = 'Erreur lors du changement de mot de passe';
+
+          if (error.status === 401) {
+            errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+          } else if (error.status === 400) {
+            errorMessage = 'Le mot de passe ne respecte pas les critères requis.';
+          } else if (error.status === 500) {
+            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          }
+
+          console.error('Erreur changement mot de passe:', error);
+          return throwError(() => ({ message: errorMessage, originalError: error }));
+        })
+      );
+  }
   /**
    * Récupère le profil utilisateur complet
    */
