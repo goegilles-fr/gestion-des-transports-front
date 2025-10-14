@@ -9,6 +9,7 @@ import { AuthGuard } from './guards/auth/auth-guard';
 import { Mdp } from './pages/auth/mdp/mdp';
 import { MdpReset } from './pages/auth/mdp-reset/mdp-reset';
 import { MdpChange } from './pages/auth/mdp-change/mdp-change';
+import { Utilisateurs } from './pages/admin/utilisateurs/utilisateurs';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -40,6 +41,11 @@ export const routes: Routes = [
     component: CreateAnnonceComponent,
     canActivate: [AuthGuard]
   },
+  {
+  path: 'utilisateurs',
+  component: Utilisateurs,
+  canActivate: [AuthGuard]
+ },
   {
     path: 'vehicules',
     loadChildren: () =>
