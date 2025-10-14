@@ -5,7 +5,7 @@ import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
-import { VehiculeEdit } from "../../../features/vehicules/modales/vehicule-edit/vehicule-edit";
+import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
@@ -131,7 +131,7 @@ export class VehiculesList implements OnInit {
     const MM = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     const HH = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
+    const mm = String(d.getMinutes() + 1).padStart(2, '0');
     const ss = String(d.getSeconds()).padStart(2, '0');
     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
   }

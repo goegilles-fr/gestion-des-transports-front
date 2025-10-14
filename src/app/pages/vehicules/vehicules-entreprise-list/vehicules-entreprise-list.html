@@ -91,10 +91,14 @@
 
 </div>
 
-@if(modalOpen()) {
-<app-vehicules-entreprise-edit
-  [title]="mode()==='create' ? 'ENREGISTRER UN VÉHICULE DE SOCIÉTÉ' : 'MODIFIER LE VÉHICULE DE SOCIÉTÉ'"
-  [data]="current()" [mode]="mode()" (save)="onModalSave($event)" (cancel)="onModalCancel()" />
+@if(vehiculeToEdit(); as editing) {
+<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
 }
+@if(creationVehicule()) {
+<app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
+}
+
 
 <app-footer></app-footer>

@@ -4,27 +4,29 @@ import { FormsModule } from '@angular/forms';
 import { StatutVehicule, VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { VehiculesEntrepriseEdit } from '../vehicules-entreprise-edit/vehicules-entreprise-edit';
 import { Vehicules } from '../../../services/vehicules/vehicules';
+import { VehiculeEdit } from '../modales/vehicule-edit/vehicule-edit';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VehiculesEntrepriseEdit, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, VehiculesEntrepriseEdit, VehiculeEdit, NavbarComponent, FooterComponent],
   templateUrl: './vehicules-entreprise-list.html',
   styleUrls: ['./vehicules-entreprise-list.css']
 })
 export class VehiculeEntrepriseList {
   constructor(private vehiculeService: Vehicules) {
     this.vehiculeService.listEntreprise().subscribe({
-        next: vehicules => {
-          this.vehicules.set(vehicules);
-        },
-        error: (e) => {
-          console.error(e);// en cas d’erreur, retomber sur la base list
-        },
-      });
+      next: vehicules => {
+        this.vehicules.set(vehicules);
+      },
+      error: (e) => {
+        console.error(e);// en cas d’erreur, retomber sur la base list
+      },
+    });
   }
+
   vehicules = signal<VehiculeDTO[]>([]);
 
   // Filtre statut
@@ -40,50 +42,72 @@ export class VehiculeEntrepriseList {
   resetFilter() { this.selected.set('ALL'); }
 
   // Modale
-  modalOpen = signal(false);
-  mode = signal<'create' | 'edit'>('create');
-  current = signal<VehiculeDTO | null>(null);
+  vehiculeToEdit = signal<VehiculeDTO | null>(null);
+  modaleTitle = signal<string>('');
+  creationVehicule = signal<boolean>(false);
 
   openCreate() {
-    this.mode.set('create');
-    this.current.set(null);
-    this.modalOpen.set(true);
+    this.vehiculeToEdit.set(null);
+    this.modaleTitle.set('ENREGISTRER UN VÉHICULE DE SOCIÉTÉ');
+    this.creationVehicule.set(true);
   }
 
   openEdit(v: VehiculeDTO) {
-    this.mode.set('edit');
-    this.current.set({ ...v });
-    this.modalOpen.set(true);
+    this.vehiculeToEdit.set({ ...v });
+    this.modaleTitle.set('MODIFIER UN VÉHICULE DE SOCIÉTÉ');
   }
 
-  onModalCancel() { this.modalOpen.set(false); }
-
-  async onModalSave(payload: VehiculeDTO) {
-    try {
-      if (this.mode() === 'create') {
-        await this.vehiculeService.createEntreprise(payload).toPromise();
-      } else {
-        if (!payload.id) throw new Error('ID manquant pour la mise à jour');
-        await this.vehiculeService.updateEntreprise(payload.id, payload).toPromise();
-      }
-      // TODO Recharge la liste (simple tic)
-
-      this.onModalCancel();
-    } catch (e) {
-      console.error('Erreur save véhicule', e);
-      alert('Impossible d’enregistrer le véhicule.');
-    }
+  closeEdit() {
+    this.vehiculeToEdit.set(null);
+    this.creationVehicule.set(false);
   }
 
-  async onDelete(id?: number) {
+  onDelete(id?: number) {
     if (id == null) return;
     if (!confirm('Supprimer ce véhicule ?')) return;
-    try {
-      await this.vehiculeService.deleteEntreprise(id);
-      // TODO Recharge la liste (simple tic)
-    } catch (e) {
-      console.error('Erreur suppression véhicule', e);
-      alert('Suppression impossible.');
+
+    this.vehiculeService.deleteEntreprise(id).subscribe({
+      next: () => {
+        this.vehicules.set(this.vehicules().filter(v => v.id !== id));
+      },
+      error: (e) => {
+        console.error('Erreur suppression véhicule', e);
+        alert('Suppression impossible.');
+      }
+    });
+  }
+
+  onSaveEdit(vehicule: VehiculeDTO) {
+    const oldVehicule = this.vehiculeToEdit();
+    if (this.creationVehicule()) {
+      if ('id' in vehicule) {
+        delete vehicule.id;
+      }
+      this.vehiculeService.createEntreprise(vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehicules.set([...this.vehicules(), vehicule]);
+          this.creationVehicule.set(false);
+        },
+        error: (e) => {
+          console.error(e);
+          this.creationVehicule.set(false);
+        }
+      })
+    }
+    else if (!vehicule?.id || oldVehicule == vehicule) {
+      this.vehiculeToEdit.set(null);
+    }
+    else {
+      this.vehiculeService.updateEntreprise(vehicule.id, vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehicules.set(this.vehicules().map(v => v.id === vehicule.id ? vehicule : v));
+          this.vehiculeToEdit.set(null);
+        },
+        error: (e) => {
+          console.error(e);
+          this.vehiculeToEdit.set(null);
+        }
+      })
     }
   }
 }

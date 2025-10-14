@@ -40,6 +40,19 @@
                 </select>
             </label>
 
+            <!-- Champ Statut visible seulement pour les vehicule d'entreprise -->
+            @if (showStatut) {
+            <label class="form-field">
+                <span class="field-label">Statut</span>
+                <select name="statut" [(ngModel)]="vehicule().statut" required>
+                    @for(s of STATUTS; track $index) {
+                    <option [ngValue]="s">{{ s.replace('_',' ').toLowerCase() | titlecase }}</option>
+                    }
+                </select>
+            </label>
+            }
+
+
             <label class="form-field">
                 <span class="field-label">URL photo</span>
                 <input name="photo" [(ngModel)]="vehicule().photo" placeholder="https://…" />
