@@ -1,0 +1,87 @@
+<div class="page-wrapper">
+  <app-navbar></app-navbar>
+
+  <main class="mes-reservations-container">
+    <h1 class="page-title">MES RÉSERVATIONS</h1>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des réservations...</p>
+    </div>
+
+    <!-- Tableau des réservations -->
+    <div *ngIf="!isLoading && reservations && reservations.length > 0" class="reservations-table-container">
+      <table class="reservations-table">
+        <thead>
+        <tr>
+          <th>Conducteur</th>
+          <th>Véhicule</th>
+          <th>Adresse de départ</th>
+          <th>Adresse d'arrivée</th>
+          <th>Date de départ</th>
+          <th>Durée du trajet</th>
+          <th>Distance du trajet</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let reservation of reservations">
+          <td>{{ getConducteurLabel(reservation) }}</td>
+          <td>{{ getVehiculeLabel(reservation) }}</td>
+          <td>{{ formatAdresse(reservation.annonce.adresseDepart) }}</td>
+          <td>{{ formatAdresse(reservation.annonce.adresseArrivee) }}</td>
+          <td>{{ formatDateDepart(reservation.annonce.heureDepart) }}</td>
+          <td>{{ formatDuree(reservation.annonce.dureeTrajet) }}</td>
+          <td>{{ formatDistance(reservation.annonce.distance) }}</td>
+          <td class="actions-cell">
+            <button
+              class="action-btn info-btn"
+              (click)="voirDetails(reservation)"
+              title="Voir les détails">
+              <i class="icon-info">ℹ️</i>
+            </button>
+            <button
+              class="action-btn delete-btn"
+              (click)="confirmerAnnulation(reservation)"
+              title="Annuler la réservation">
+              <i class="icon-delete">🗑️</i>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Message si aucune réservation -->
+    <div *ngIf="!isLoading && (!reservations || reservations.length === 0)" class="no-reservations">
+      <p>Vous n'avez pas encore réservé de covoiturage.</p>
+    </div>
+
+    <!-- Bouton rechercher un covoiturage -->
+    <div class="action-button-container">
+      <button class="btn-rechercher-covoiturage" (click)="rechercherCovoiturage()">
+        RECHERCHER UN COVOITURAGE
+      </button>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>
+
+<!-- Modal de confirmation d'annulation (en dehors du wrapper) -->
+<app-delete-confirmation-dialog
+  [open]="showDeleteModal"
+  [title]="'Confirmer l\'annulation'"
+  [message]="'Êtes-vous sûr de vouloir annuler cette réservation ?'"
+  [warningMessage]="''"
+  [confirmLabel]="'Confirmer'"
+  [cancelLabel]="'Annuler'"
+  (confirm)="annulerReservation()"
+  (cancel)="annulerConfirmation()">
+</app-delete-confirmation-dialog>
