@@ -1,0 +1,95 @@
+<div class="page-wrapper">
+  <app-navbar></app-navbar>
+
+  <main class="utilisateurs-container">
+    <h1 class="page-title">UTILISATEURS</h1>
+
+    <!-- Message d'erreur -->
+    @if (messageErreur()) {
+      <div class="error-message">
+        {{ messageErreur() }}
+      </div>
+    }
+
+    <!-- Loader -->
+    @if (estEnChargement()) {
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Chargement des utilisateurs...</p>
+      </div>
+    }
+
+    <!-- Zone de recherche et filtre -->
+    @if (!estEnChargement()) {
+      <div class="filters-container">
+        <div class="search-box">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Rechercher par nom ou prénom..."
+            [value]="rechercheTexte()"
+            (input)="mettreAJourRecherche($any($event.target).value)"
+          />
+        </div>
+
+        <div class="checkbox-container">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="afficherSeulementNonVerifies()"
+              (change)="basculerFiltreNonVerifies($any($event.target).checked)"
+            />
+            <span>En attente de vérification</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Tableau des utilisateurs -->
+      @if (utilisateursFiltres().length > 0) {
+        <div class="utilisateurs-table-container">
+          <table class="utilisateurs-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (utilisateur of utilisateursFiltres(); track utilisateur.id) {
+                <tr>
+                  <td>{{ utilisateur.nom }}</td>
+                  <td>{{ utilisateur.prenom }}</td>
+                  <td>{{ utilisateur.email }}</td>
+                  <td>{{ obtenirStatut(utilisateur) }}</td>
+                  <td class="actions-cell">
+                    <button
+                      class="action-btn verify-btn"
+                      (click)="gererActionVerificationBannissement(utilisateur)"
+                      [title]="obtenirTitreAction(utilisateur)">
+                      {{ obtenirIconeAction(utilisateur) }}
+                    </button>
+                    <button
+                      class="action-btn delete-btn"
+                      (click)="supprimerUtilisateur(utilisateur)"
+                      title="Supprimer">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-utilisateurs">
+          <p>Aucun utilisateur trouvé.</p>
+        </div>
+      }
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>
