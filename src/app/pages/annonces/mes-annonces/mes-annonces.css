@@ -1,0 +1,275 @@
+.page-wrapper {
+  min-height: 100vh;
+  background: #EDEDED;
+  display: flex;
+  flex-direction: column;
+}
+
+.mes-annonces-container {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin-top: 0.1rem;
+  margin-bottom: 1.8rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Messages et loader */
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c33;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 50px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1a7a8a;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tableau des annonces */
+.annonces-table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  max-height: 330px; /* Hauteur maximale pour le scroll */
+}
+
+.annonces-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.annonces-table thead {
+  background-color: #0B84A2;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.annonces-table th {
+  padding: 15px;
+  text-align: center; /* Centrer TOUS les titres horizontalement */
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: none; /* Pas de transformation, juste la première lettre en majuscule */
+  border-right: 1px solid rgba(255, 255, 255, 0.3); /* Séparateur vertical pour l'en-tête */
+  vertical-align: middle;
+}
+
+.annonces-table th:last-child {
+  border-right: none;
+}
+
+.annonces-table tbody tr {
+  border-bottom: 2px solid #0B84A2;
+  transition: background-color 0.2s;
+}
+
+.annonces-table tbody tr:hover {
+  background-color: #f5f5f5; /* Gris clair au survol */
+}
+
+/* Colonnes en alternance avec fond bleu clair */
+.annonces-table tbody tr td:nth-child(odd) {
+  background-color: #E6F7FB;
+}
+
+.annonces-table tbody tr:hover td {
+  filter: brightness(0.97); /* Légèrement plus sombre au survol */
+}
+
+.annonces-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.annonces-table td {
+  padding: 15px;
+  font-size: 14px;
+  color: #555;
+  border-right: 1px solid #E6F7FB; /* Séparateur vertical bleu clair */
+  text-align: left; /* Par défaut aligné à gauche */
+}
+
+.annonces-table td:last-child {
+  border-right: none;
+}
+
+/* Alignement à droite pour certaines colonnes */
+.annonces-table td:nth-child(4), /* Date et Heure de départ */
+.annonces-table td:nth-child(5), /* Durée du trajet */
+.annonces-table td:nth-child(6), /* Distance du trajet */
+.annonces-table td:nth-child(7)  /* Participants */
+{
+  text-align: right;
+}
+
+/* Actions */
+.actions-cell {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  padding: 0;
+  background: transparent;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.info-btn {
+  color: #4a90e2;
+}
+
+.info-btn:hover:not(:disabled) {
+  color: #357abd;
+}
+
+.edit-btn {
+  color: #f5a623;
+}
+
+.edit-btn:hover:not(:disabled) {
+  color: #d68910;
+}
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+.delete-btn:hover:not(:disabled) {
+  color: #c0392b;
+}
+
+.icon-info, .icon-edit, .icon-delete {
+  display: block;
+  font-style: normal;
+  font-size: 20px;
+}
+
+/* Message aucune annonce */
+.no-annonces {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.no-annonces p {
+  font-size: 16px;
+  color: #777;
+}
+
+/* Bouton poster annonce */
+.action-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+.btn-poster-annonce {
+  background: #0B84A2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-poster-annonce:hover {
+  background-color: #145d6a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(26, 122, 138, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .annonces-table {
+    font-size: 13px;
+  }
+
+  .annonces-table th,
+  .annonces-table td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mes-annonces-container {
+    padding: 15px;
+  }
+
+  .annonces-table-container {
+    overflow-x: auto;
+  }
+
+  .annonces-table {
+    min-width: 900px;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,94 @@
+<div class="page-wrapper">
+  <app-navbar></app-navbar>
+
+  <main class="mes-annonces-container">
+    <h1 class="page-title">MES ANNONCES</h1>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des annonces...</p>
+    </div>
+
+    <!-- Tableau des annonces -->
+    <div *ngIf="!isLoading && annonces && annonces.length > 0" class="annonces-table-container">
+      <table class="annonces-table">
+        <thead>
+        <tr>
+          <th>Véhicules</th>
+          <th>Adresse de départ</th>
+          <th>Adresse d'arrivée</th>
+          <th>Date de départ</th>
+          <th>Durée du trajet</th>
+          <th>Distance du trajet</th>
+          <th>Participants</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let annonce of annonces">
+          <td>{{ getVehiculeLabel(annonce) }}</td>
+          <td>{{ formatAdresse(annonce.annonce.adresseDepart) }}</td>
+          <td>{{ formatAdresse(annonce.annonce.adresseArrivee) }}</td>
+          <td>{{ formatHeureDepart(annonce.annonce.heureDepart) }}</td>
+          <td>{{ formatDuree(annonce.annonce.dureeTrajet) }}</td>
+          <td>{{ formatDistance(annonce.annonce.distance) }}</td>
+          <td>{{ getParticipants(annonce) }}</td>
+          <td class="actions-cell">
+            <button
+              class="action-btn info-btn"
+              (click)="voirDetails(annonce)"
+              title="Voir les détails">
+              <i class="icon-info">ℹ️</i>
+            </button>
+            <button
+              class="action-btn edit-btn"
+              (click)="modifierAnnonce(annonce)"
+              [disabled]="!peutEtreModifiee(annonce)"
+              [title]="peutEtreModifiee(annonce) ? 'Modifier' : 'Modification impossible (annonce réservée)'">
+              <i class="icon-edit">✏️</i>
+            </button>
+            <button
+              class="action-btn delete-btn"
+              (click)="confirmerSuppression(annonce)"
+              title="Supprimer">
+              <i class="icon-delete">🗑️</i>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Message si aucune annonce -->
+    <div *ngIf="!isLoading && (!annonces || annonces.length === 0)" class="no-annonces">
+      <p>Vous n'avez pas encore créé d'annonce.</p>
+    </div>
+
+    <!-- Bouton poster une annonce -->
+    <div class="action-button-container">
+      <button class="btn-poster-annonce" (click)="posterAnnonce()">
+        POSTER UNE ANNONCE
+      </button>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>
+
+<!-- Modal de confirmation de suppression (en dehors du wrapper) -->
+<app-delete-confirmation-dialog
+  [open]="showDeleteModal"
+  [title]="'Confirmer la suppression'"
+  [message]="'Êtes-vous sûr de vouloir supprimer cette annonce ?'"
+  [warningMessage]="'Un email sera envoyé à tous les participants qui ont réservé cette annonce.'"
+  [confirmLabel]="'Confirmer'"
+  [cancelLabel]="'Annuler'"
+  (confirm)="supprimerAnnonce()"
+  (cancel)="annulerSuppression()">
+</app-delete-confirmation-dialog>
