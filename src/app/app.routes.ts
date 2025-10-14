@@ -5,6 +5,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard';
 import { ProfilComponent } from './pages/profil/profil';
 import { CreateAnnonceComponent } from './pages/annonces/create-annonce/create-annonce';
 import { MesAnnoncesComponent } from './pages/annonces/mes-annonces/mes-annonces';
+import { MesReservationsComponent } from './pages/reservations/mes-reservations/mes-reservations';
 import { AuthGuard } from './guards/auth/auth-guard';
 import { Mdp } from './pages/auth/mdp/mdp';
 import { MdpReset } from './pages/auth/mdp-reset/mdp-reset';
@@ -34,7 +35,8 @@ export const routes: Routes = [
   },
   {
     path: 'mes-annonces',
-    component: MesAnnoncesComponent
+    component: MesAnnoncesComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'annonces/create',
@@ -44,6 +46,11 @@ export const routes: Routes = [
   {
   path: 'utilisateurs',
   component: Utilisateurs,
+  canActivate: [AuthGuard]
+ },
+ {
+  path: 'mes-reservations',
+  component: MesReservationsComponent,
   canActivate: [AuthGuard]
  },
   {
