@@ -4,11 +4,17 @@
       <img src="images/covoit-logo.png" alt="Logo" class="logo">
     </div>
 
-    <nav class="main-nav">
+      <nav class="main-nav">
       <button class="nav-btn" routerLink="/dashboard" routerLinkActive="active">Accueil</button>
       <button class="nav-btn" routerLink="/reservations" routerLinkActive="active">Réservations</button>
       <button class="nav-btn" routerLink="/annonces" routerLinkActive="active">Annonces</button>
       <button class="nav-btn" routerLink="/vehicules" routerLinkActive="active">Véhicules</button>
+      @if (currentUser$ | async; as user) {
+        @if (estAdministrateur(user)) {
+          <button class="nav-btn" routerLink="/vehicules-societe" routerLinkActive="active">Véhicules de société</button>
+          <button class="nav-btn" routerLink="/utilisateurs" routerLinkActive="active">Utilisateurs</button>
+        }
+      }
     </nav>
   </div>
 
