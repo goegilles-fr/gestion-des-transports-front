@@ -414,13 +414,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       if (isNaN(debut.getTime()) || isNaN(fin.getTime())) return '';
 
-      const formatOptions: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      // Format : JJ/MM/AA HH:MM
+      const formatDateTime = (date: Date): string => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
       };
 
-      return `${debut.toLocaleDateString('fr-FR', formatOptions)} → ${fin.toLocaleDateString('fr-FR', formatOptions)}`;
+      return `${formatDateTime(debut)} → ${formatDateTime(fin)}`;
     } catch (error) {
       console.error('Erreur formatage période:', error);
       return '';
