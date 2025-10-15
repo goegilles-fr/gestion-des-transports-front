@@ -67,6 +67,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   prochaineReservationCovoiturage: Covoiturage | null = null;
   isLoadingReservationsCovoiturage = false;
 
+  // Propriétés pour l'affichage des participants
+    showParticipantsAnnonce = false;
+    showParticipantsReservation = false;
+    showPhotoVehicule = false;
+    participantsAnnonce: any = null;
+    participantsReservation: any = null;
+    isLoadingParticipants = false;
+
   // Données générales
   isLoading = true;
   currentUser: any = null;
@@ -418,4 +426,67 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return '';
     }
   }
+
+  // Méthodes pour afficher/masquer les participants
+    toggleParticipantsAnnonce(): void {
+      if (this.showParticipantsAnnonce) {
+        this.showParticipantsAnnonce = false;
+        this.participantsAnnonce = null;
+      } else {
+        this.loadParticipantsAnnonce();
+      }
+    }
+
+    toggleParticipantsReservation(): void {
+      if (this.showParticipantsReservation) {
+        this.showParticipantsReservation = false;
+        this.participantsReservation = null;
+      } else {
+        this.loadParticipantsReservation();
+      }
+    }
+
+    togglePhotoVehicule(): void {
+      this.showPhotoVehicule = !this.showPhotoVehicule;
+    }
+
+    loadParticipantsAnnonce(): void {
+      if (!this.prochaineAnnonceCovoiturage) return;
+
+      this.isLoadingParticipants = true;
+      this.dashboardService.getParticipants(this.prochaineAnnonceCovoiturage.annonce.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (participants: any) => {
+            console.log('Participants annonce chargés:', participants);
+            this.participantsAnnonce = participants;
+            this.showParticipantsAnnonce = true;
+            this.isLoadingParticipants = false;
+          },
+          error: (error: any) => {
+            console.error('Erreur chargement participants annonce:', error);
+            this.isLoadingParticipants = false;
+          }
+        });
+    }
+
+    loadParticipantsReservation(): void {
+      if (!this.prochaineReservationCovoiturage) return;
+
+      this.isLoadingParticipants = true;
+      this.dashboardService.getParticipants(this.prochaineReservationCovoiturage.annonce.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (participants: any) => {
+            console.log('Participants réservation chargés:', participants);
+            this.participantsReservation = participants;
+            this.showParticipantsReservation = true;
+            this.isLoadingParticipants = false;
+          },
+          error: (error: any) => {
+            console.error('Erreur chargement participants réservation:', error);
+            this.isLoadingParticipants = false;
+          }
+        });
+    }
 }
