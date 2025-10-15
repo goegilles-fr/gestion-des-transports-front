@@ -110,7 +110,7 @@ export class DashboardService {
    * Récupère les annonces de covoiturage de l'utilisateur connecté
    */
   getAnnoncesCovoiturage(): Observable<Covoiturage[]> {
-    return this.http.get<Covoiturage[]>(`${this.baseUrl}/api/covoit/`);
+    return this.http.get<Covoiturage[]>(`${this.baseUrl}/api/covoit/mes-annonces`);
   }
 
   /**
@@ -283,4 +283,11 @@ export class DashboardService {
   getPlacesLibres(covoiturage: Covoiturage): number {
     return covoiturage.placesTotales - covoiturage.placesOccupees;
   }
+
+  /**
+     * Récupère les participants d'une annonce (conducteur + passagers)
+     */
+    getParticipants(annonceId: number): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/api/covoit/${annonceId}/participants`);
+    }
 }

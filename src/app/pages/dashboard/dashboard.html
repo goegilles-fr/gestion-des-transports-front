@@ -1,5 +1,5 @@
 <div class="dashboard-container">
-    <app-navbar></app-navbar>
+  <app-navbar></app-navbar>
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
@@ -22,128 +22,232 @@
   <!-- Main Content -->
   <main class="dashboard-main" *ngIf="!isLoading && !hasError">
 
+    <h1 class="page-title">Mon tableau de bord</h1>
+
     <!-- Section principale avec cartes conditionnelles -->
     <section class="dashboard-section">
       <div class="section-grid">
 
         <!-- Card Réservation Covoiturage -->
-        <div class="action-card">
-          <div class="card-header">
-            <h3>Ma prochaine réservation</h3>
-          </div>
-          <div class="card-content">
-
-            <!-- Version sans données -->
-            <div *ngIf="!hasReservationCovoiturage">
-              <p class="no-data">Vous n'avez pas encore réservé de covoiturage</p>
-              <button class="card-action-btn" (click)="rechercherCovoiturage()">
-                RECHERCHER UN COVOITURAGE
-              </button>
+        <div>
+          <div class="action-card">
+            <div class="card-header">
+              <h3>Ma prochaine réservation</h3>
             </div>
+            <div class="card-content">
 
-            <!-- Version avec données -->
-            <div *ngIf="hasReservationCovoiturage">
-              <div class="reservation-info">
-                <div class="date-time">
-                  <i class="fas fa-calendar"></i>
-                  <span>{{ reservationCovoiturageInfo?.dateHeure }}</span>
-                </div>
-                <div class="route">
-                  <span>{{ reservationCovoiturageInfo?.route }}</span>
-                </div>
-                <div class="trip-details">
-                  <span>{{ reservationCovoiturageInfo?.dureeTrajet }} - {{ reservationCovoiturageInfo?.distance }}</span>
-                </div>
+              <!-- Version sans données -->
+              <div *ngIf="!hasReservationCovoiturage">
+                <p class="no-data">Vous n'avez pas encore réservé de covoiturage</p>
+                <button class="card-action-btn" (click)="rechercherCovoiturage()">
+                  RECHERCHER UN COVOITURAGE
+                </button>
               </div>
-              <button class="card-action-btn" (click)="rechercherCovoiturage()">
-                RECHERCHER UN AUTRE COVOITURAGE
-              </button>
+
+              <!-- Version avec données -->
+              <div *ngIf="hasReservationCovoiturage">
+                <div class="reservation-info">
+                  <div class="date-time">
+                    <i class="fas fa-calendar"></i>
+                    <span>{{ reservationCovoiturageInfo?.dateHeure }}</span>
+                  </div>
+                  <div class="route">
+                    <span>{{ reservationCovoiturageInfo?.route }}</span>
+                  </div>
+                  <div class="trip-details">
+                    <span>{{ reservationCovoiturageInfo?.dureeTrajet }} - {{ reservationCovoiturageInfo?.distance }}</span>
+                  </div>
+                </div>
+                <button class="card-action-btn" (click)="rechercherCovoiturage()">
+                  RECHERCHER UN AUTRE COVOITURAGE
+                </button>
+              </div>
             </div>
+          </div>
+
+          <!-- Bouton Voir les participants - Réservation -->
+          <div *ngIf="hasReservationCovoiturage && !showParticipantsReservation" class="participants-button-container">
+            <button class="btn-voir-participants" (click)="toggleParticipantsReservation()">
+              👥 Voir les participants
+            </button>
+          </div>
+
+          <!-- Card Participants - Réservation -->
+          <div *ngIf="showParticipantsReservation && participantsReservation" class="participants-card">
+            <div class="conducteur-info">
+              <div>
+                <h4>👤 Conducteur</h4>
+              </div>
+              <div>{{ participantsReservation.conducteur?.prenom }} {{ participantsReservation.conducteur?.nom }}</div>
+            </div>
+
+            <div class="passagers-list"
+                 *ngIf="participantsReservation.passagers && participantsReservation.passagers.length > 0">
+              <h5>👥 Passagers ({{ participantsReservation.passagers.length }})</h5>
+              <ul>
+                <li *ngFor="let passager of participantsReservation.passagers">
+                  {{ passager.prenom }} {{ passager.nom }}
+                </li>
+              </ul>
+            </div>
+
+            <button class="btn-masquer" (click)="toggleParticipantsReservation()">
+              Masquer
+            </button>
           </div>
         </div>
 
         <!-- Card Annonce -->
-        <div class="action-card">
-          <div class="card-header">
-            <h3>Ma prochaine Annonce</h3>
-          </div>
-          <div class="card-content">
-
-            <!-- Version sans données -->
-            <div *ngIf="!hasAnnonce">
-              <p class="no-data">Vous n'avez pas encore fait d'annonces</p>
-              <button class="card-action-btn" (click)="posterAnnonce()">
-                POSTER UNE ANNONCE
-              </button>
+        <div>
+          <div class="action-card">
+            <div class="card-header">
+              <h3>Ma prochaine Annonce</h3>
             </div>
+            <div class="card-content">
 
-            <!-- Version avec données -->
-            <div *ngIf="hasAnnonce">
-              <div class="annonce-info">
-                <div class="date-time">
-                  <i class="fas fa-calendar"></i>
-                  <span>{{ annonceInfo?.dateHeure }}</span>
-                </div>
-                <div class="route">
-                  <span>{{ annonceInfo?.route }}</span>
-                </div>
-                <div class="car-info">
-                  <i class="fas fa-car"></i>
-                  <span>{{ annonceInfo?.vehicule }}</span>
-                </div>
-                <div class="places-info">
-                  <span>Places libres: {{ annonceInfo?.places }}</span>
-                </div>
+              <!-- Version sans données -->
+              <div *ngIf="!hasAnnonce">
+                <p class="no-data">Vous n'avez pas encore fait d'annonces</p>
+                <button class="card-action-btn" (click)="posterAnnonce()">
+                  POSTER UNE ANNONCE
+                </button>
               </div>
-              <button class="card-action-btn" (click)="posterAnnonce()">
-                POSTER UNE AUTRE ANNONCE
-              </button>
+
+              <!-- Version avec données -->
+              <div *ngIf="hasAnnonce">
+                <div class="annonce-info">
+                  <div class="date-time">
+                    <i class="fas fa-calendar"></i>
+                    <span>{{ annonceInfo?.dateHeure }}</span>
+                  </div>
+                  <div class="route">
+                    <span>{{ annonceInfo?.route }}</span>
+                  </div>
+                  <div class="car-info">
+                    <i class="fas fa-car"></i>
+                    <span>{{ annonceInfo?.vehicule }}</span>
+                  </div>
+                  <div class="places-info">
+                    <span>Places libres: {{ annonceInfo?.places }}</span>
+                  </div>
+                </div>
+                <button class="card-action-btn" (click)="posterAnnonce()">
+                  POSTER UNE AUTRE ANNONCE
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-      <!-- Card Véhicule -->
-      <div class="action-card">
-        <div class="card-header">
-          <h3>Ma réservation de véhicule</h3>
-        </div>
-        <div class="card-content">
-
-          <!-- Version sans données -->
-          <div *ngIf="!hasReservationVehicule">
-            <p class="no-data">Vous n'avez pas encore réservé de véhicule de société</p>
-            <button class="card-action-btn" (click)="reserverVehicule()">
-              RÉSERVER UN VÉHICULE DE SOCIÉTÉ
+          <!-- Bouton Voir les participants - Annonce -->
+          <div *ngIf="hasAnnonce && !showParticipantsAnnonce" class="participants-button-container">
+            <button class="btn-voir-participants" (click)="toggleParticipantsAnnonce()">
+              👥 Voir les participants
             </button>
           </div>
 
-          <!-- Version avec données -->
-          <div *ngIf="hasReservationVehicule">
-            <div class="vehicle-info">
-              <div class="vehicle-details">
-                <span class="vehicle-name">{{ reservationVehiculeInfo?.vehicule }}</span>
-                <span class="vehicle-plate">{{ reservationVehiculeInfo?.immatriculation }}</span>
-                <span class="reservation-period">{{ reservationVehiculeInfo?.periode }}</span>
-                <span
-                  *ngIf="reservationVehiculeInfo?.afficherJoursRestants"
-                  class="days-remaining"
-                  [style.color]="'red'">{{ reservationVehiculeInfo?.joursRestants }}j restant(s)
-                  </span>
+          <!-- Card Participants - Annonce -->
+          <div *ngIf="showParticipantsAnnonce && participantsAnnonce" class="participants-card">
+            <div class="conducteur-info">
+              <div>
+                <h4>👤 Conducteur (Vous)</h4>
+              </div>
+              <div>{{ participantsAnnonce.conducteur?.prenom }} {{ participantsAnnonce.conducteur?.nom }}</div>
+            </div>
+
+            <div class="passagers-list"
+                 *ngIf="participantsAnnonce.passagers && participantsAnnonce.passagers.length > 0">
+              <h5>👥 Passagers ({{ participantsAnnonce.passagers.length }})</h5>
+              <ul>
+                <li *ngFor="let passager of participantsAnnonce.passagers">
+                  {{ passager.prenom }} {{ passager.nom }}
+                </li>
+              </ul>
+            </div>
+
+            <div *ngIf="!participantsAnnonce.passagers || participantsAnnonce.passagers.length === 0"
+                 class="passagers-list">
+              <h5>👥 Passagers</h5>
+              <p style="color: #999; font-style: italic; font-size: 14px;">Aucun passager pour le moment</p>
+            </div>
+
+            <button class="btn-masquer" (click)="toggleParticipantsAnnonce()">
+              Masquer
+            </button>
+          </div>
+        </div>
+
+        <!-- Card Véhicule -->
+        <div>
+          <div class="action-card">
+            <div class="card-header">
+              <h3>Ma réservation de véhicule</h3>
+            </div>
+            <div class="card-content">
+
+              <!-- Version sans données -->
+              <div *ngIf="!hasReservationVehicule">
+                <p class="no-data">Vous n'avez pas encore réservé de véhicule de société</p>
+                <button class="card-action-btn" (click)="reserverVehicule()">
+                  RÉSERVER UN VÉHICULE DE SOCIÉTÉ
+                </button>
+              </div>
+
+              <!-- Version avec données -->
+              <div *ngIf="hasReservationVehicule">
+                <div class="vehicle-info">
+                  <div class="vehicle-details">
+                    <span class="vehicle-name">{{ reservationVehiculeInfo?.vehicule }}</span>
+                    <span class="vehicle-plate">{{ reservationVehiculeInfo?.immatriculation }}</span>
+                    <span class="reservation-period">{{ reservationVehiculeInfo?.periode }}</span>
+                    <span
+                      *ngIf="reservationVehiculeInfo?.afficherJoursRestants"
+                      class="days-remaining"
+                      [style.color]="'red'">{{ reservationVehiculeInfo?.joursRestants }}j restant(s)
+                    </span>
+                  </div>
+                </div>
+                <button class="card-action-btn" (click)="reserverVehicule()">
+                  RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
+                </button>
               </div>
             </div>
-            <button class="card-action-btn" (click)="reserverVehicule()">
-              RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
+          </div>
+
+          <!-- Bouton Voir la photo - Véhicule -->
+          <div *ngIf="hasReservationVehicule && !showPhotoVehicule" class="participants-button-container">
+            <button class="btn-voir-photo" (click)="togglePhotoVehicule()">
+              📷 Voir la photo du véhicule
+            </button>
+          </div>
+
+          <!-- Card Photo - Véhicule -->
+          <div *ngIf="showPhotoVehicule && hasReservationVehicule" class="photo-card">
+            <h4>{{ reservationVehiculeInfo?.vehicule }}</h4>
+
+            <div class="photo-content">
+              <img [src]="(prochaineReservation || reservationEnCours)?.vehicule?.photo"
+                   [alt]="reservationVehiculeInfo?.vehicule">
+
+              <div class="vehicle-specs">
+                <div class="spec-item"><strong>Immatriculation:</strong> {{ reservationVehiculeInfo?.immatriculation }}</div>
+                <div class="spec-item"><strong>Motorisation:</strong> {{ (prochaineReservation || reservationEnCours)?.vehicule?.motorisation }}</div>
+                <div class="spec-item"><strong>CO₂/km:</strong> {{ (prochaineReservation || reservationEnCours)?.vehicule?.co2ParKm }}</div>
+                <div class="spec-item"><strong>Catégorie:</strong> {{ (prochaineReservation || reservationEnCours)?.vehicule?.categorie }}</div>
+                <div class="spec-item"><strong>Places:</strong> {{ (prochaineReservation || reservationEnCours)?.vehicule?.nbPlaces }}</div>
+              </div>
+            </div>
+
+            <button class="btn-masquer" (click)="togglePhotoVehicule()">
+              Masquer
             </button>
           </div>
         </div>
       </div>
+    </section>
 
-</div>
-</section>
+  </main>
 
-</main>
-
-<!-- Footer -->
-<app-footer></app-footer>
+  <!-- Footer -->
+  <app-footer></app-footer>
 
 </div>
