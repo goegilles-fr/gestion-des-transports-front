@@ -12,20 +12,25 @@ import { FormsModule, NgForm } from '@angular/forms';
 })
 export class VehiculeEdit {
   @Input() set model(value: VehiculeDTO) {
-    this.vehicule.set({...value});
+    this.vehicule.set({ ...value });
   };
   @Input({ required: true }) open = false;
   @Input() title = 'Creer';
   @Input() confirmLabel = 'Sauvegarder';
   @Input() cancelLabel = 'Annuler';
+  @Input() showStatut = false;
+
+  STATUTS: Array<'EN_SERVICE' | 'EN_REPARATION' | 'HORS_SERVICE'> = [
+    'EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'
+  ];
 
   vehicule = signal<VehiculeDTO>({} as any);
 
   @Output() confirm = new EventEmitter<VehiculeDTO>();
   @Output() cancel = new EventEmitter<void>();
 
-  readonly CATEGORIES = ['MICRO_URBAINE', 
-    'MINI_CITADINE', 
+  readonly CATEGORIES = ['MICRO_URBAINE',
+    'MINI_CITADINE',
     'CIDADINE_POLYVALANTE',
     'COMPACTE',
     'BERLINE_S',
@@ -33,10 +38,10 @@ export class VehiculeEdit {
     'BERLINE_L',
     'SUV_PICK_UP'];
 
-    readonly MOTORISATIONS = ['THERMIQUE',
-      'HYBRIDE',
-      'ELECTRIQUE'
-    ];
+  readonly MOTORISATIONS = ['THERMIQUE',
+    'HYBRIDE',
+    'ELECTRIQUE'
+  ];
 
   onSave() {
     this.confirm.emit(this.vehicule());

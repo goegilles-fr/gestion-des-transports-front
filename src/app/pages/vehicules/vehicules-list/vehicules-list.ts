@@ -1,19 +1,21 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Vehicules } from '../../../services/vehicules/vehicules';
 import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
-import { VehiculeEdit } from "../../../features/vehicules/modales/vehicule-edit/vehicule-edit";
+import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
 import { Router } from '@angular/router';
+import { NavbarComponent } from '../../../shared/navbar/navbar';
+import { FooterComponent } from '../../../shared/footer/footer';
 
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
 
 @Component({
   selector: 'app-vehicules-list',
   standalone: true,
-  imports: [CommonModule, ConfirmDialog, VehiculeEdit],
+  imports: [CommonModule, ConfirmDialog, VehiculeEdit, NavbarComponent, FooterComponent],
   templateUrl: './vehicules-list.html',
   styleUrl: './vehicules-list.css'
 })
@@ -24,8 +26,54 @@ export class VehiculesList implements OnInit {
   vehiculePersoList = signal<VehiculeDTO[]>([]);
   reservations = signal<ReservationVehiculeDto[]>([]);
   reservationRows = signal<ReservationRow[]>([]);
-  // Cache des véhicules entreprise par id
-  vehiculeEntrepriseById = signal<Map<number, VehiculeDTO>>(new Map());
+
+  // ================ Tableau reservations ================
+
+  page = signal(1);
+  readonly pageSize = 5;
+
+  // Rang d’état pour le tri: en cours (0) < futur (1) < passé (2)
+  private statusRank = (r: any): number =>
+    this.isCurrent(r) ? 0 : (this.isUpcoming(r) ? 1 : 2);
+
+  sortedReservations = computed(() => {
+    const rows = this.reservationRows?.() ?? []; // respecte ton API existante
+    return [...rows].sort((a, b) => {
+      const ra = this.statusRank(a), rb = this.statusRank(b);
+      if (ra !== rb) return ra - rb;
+
+      const sa = this.ts(a.dateDebut), sb = this.ts(b.dateDebut);
+      // en cours: on garde l’ordre naturel (par début croissant)
+      if (ra === 0) return sa - sb;
+      // futures: du plus proche au plus tard
+      if (ra === 1) return sa - sb;
+      // passées: du plus proche (récemment terminé) au plus ancien
+      return sb - sa;
+    });
+  });
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.sortedReservations().length / this.pageSize)));
+
+  pagedReservations = computed(() => {
+    const start = (this.page() - 1) * this.pageSize;
+    return this.sortedReservations().slice(start, start + this.pageSize);
+  });
+
+  private readonly _pageEffect: EffectRef = effect((): void => {
+    const p = this.page();
+    const t = this.totalPages();
+    if (p > t) this.page.set(t);
+  });
+
+  // Contrôles pagination
+  nextPage() { if (this.page() < this.totalPages()) this.page.update(x => x + 1); }
+  prevPage() { if (this.page() > 1) this.page.update(x => x - 1); }
+  goToPage(n: number) {
+    const t = this.totalPages();
+    this.page.set(Math.max(1, Math.min(t, n)));
+  }
+
+  // ================ Modale ================
 
   // État de la modale de suppression
   reservationToDelete = signal<ReservationVehiculeDto | null>(null);
@@ -46,7 +94,11 @@ export class VehiculesList implements OnInit {
     return map.get?.(r.vehiculeId) ?? null;
   });
 
-  // Quand tu charges les réservations, précharge les véhicules liés
+  // ================ Pré-chargement ================
+
+  // Cache des véhicules entreprise par id
+  vehiculeEntrepriseById = signal<Map<number, VehiculeDTO>>(new Map());
+
   private prefetchVehiculesEntreprise(res: ReservationVehiculeDto[]) {
     res.forEach(r => this.ensureVehiculeLoaded(r.vehiculeId));
   }
@@ -62,6 +114,29 @@ export class VehiculesList implements OnInit {
       error: e => console.error(e)
     });
   }
+
+  // ================  Helpers date/état ================
+
+  private ts(x: string | Date): number { return new Date(x).getTime(); }
+
+  isCurrent = (r: any): boolean => {
+    const now = Date.now();
+    return this.ts(r.dateDebut) <= now && now <= this.ts(r.dateFin);
+  };
+  isUpcoming = (r: any): boolean => Date.now() < this.ts(r.dateDebut);
+  isPast = (r: any): boolean => Date.now() > this.ts(r.dateFin);
+
+  private formatLocal(d: Date) {
+    const yyyy = d.getFullYear();
+    const MM = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const HH = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes() + 1).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
+  }
+
+  // ================ Initiallisation ================
 
   ngOnInit(): void {
     this.vehiculeService.getPersoByUserId().subscribe({
@@ -98,15 +173,23 @@ export class VehiculesList implements OnInit {
     });
   }
 
+  // ================ Modale ================
+
   openAnnulation(row: ReservationRow) {
     this.modaleTitle.set("Annuler la reservation");
-    this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous annuler la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous annuler cette réservation ?');
+    this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous annuler la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous annuler cette réservation ?');
     this.reservationToDelete.set(row);
+  }
+
+  openFinalisation(row: ReservationRow) {
+    this.modaleTitle.set("Terminer la réservation");
+    this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous terminer la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous terminer cette réservation ?');
+    this.reservationToEdit.set(row);
   }
 
   openSuppression(vehicule: VehiculeDTO) {
     this.modaleTitle.set("Supprimer votre vehicule personnel");
-    this.deleteContent.set(this.selectedVehiculeForDelete()? ('Voulez-vous supprimer votre vehicule ' + (this.vehiculePersoToDelete()?.marque || '') + ' ' + (this.vehiculePersoToDelete()?.modele || '') + ' ?') : 'Voulez-vous supprimer votre vehicule personnel ?');
+    this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous supprimer votre vehicule ' + (this.vehiculePersoToDelete()?.marque || '') + ' ' + (this.vehiculePersoToDelete()?.modele || '') + ' ?') : 'Voulez-vous supprimer votre vehicule personnel ?');
     this.vehiculePersoToDelete.set(vehicule);
   }
 
@@ -123,6 +206,7 @@ export class VehiculesList implements OnInit {
   closeModale() {
     this.reservationToDelete.set(null);
     this.vehiculePersoToDelete.set(null);
+    this.reservationToEdit.set(null);
   }
 
   closeEdit() {
@@ -131,16 +215,17 @@ export class VehiculesList implements OnInit {
   }
 
   confirmModale() {
-    const reservation = this.reservationToDelete();
-    if (!reservation?.id) {
+    const reservationToDelete = this.reservationToDelete();
+    const reservationToEdit = this.reservationToEdit();
+    if (!reservationToDelete?.id) {
       this.reservationToDelete.set(null);
     }
     else {
-      this.vehiculeService.deleteReservation(reservation.id).subscribe({
+      this.vehiculeService.deleteReservation(reservationToDelete.id).subscribe({
         next: () => {
           // retire localement
-          this.reservations.update(list => list.filter(x => x.id !== reservation.id));
-          this.reservationRows.update(rows => rows.filter(x => x.id !== reservation.id));
+          this.reservations.update(list => list.filter(x => x.id !== reservationToDelete.id));
+          this.reservationRows.update(rows => rows.filter(x => x.id !== reservationToDelete.id));
           this.reservationToDelete.set(null);
         },
         error: (e) => {
@@ -150,8 +235,30 @@ export class VehiculesList implements OnInit {
       });
     }
 
+    if (!reservationToEdit?.id) {
+      this.reservationToEdit.set(null);
+    }
+    else {
+      const now = new Date();
+      this.vehiculeService.updateReservation(reservationToEdit.id, {
+        vehiculeId: reservationToEdit.vehiculeId,
+        dateDebut: reservationToEdit.dateDebut,
+        dateFin: this.formatLocal(now)
+      }).subscribe({
+        next: (res) => {
+          this.reservations.update(list => list.map(x => x.id === res.id ? res : x));
+          this.reservationRows.update(rows => rows.map(x => x.id === res.id ? ({ ...x, dateFin: res.dateFin }) : x));
+          this.reservationToEdit.set(null);
+        },
+        error: (e) => {
+          console.error(e);
+          this.reservationToEdit.set(null);
+        }
+      });
+    }
+
     const vehicule = this.vehiculePersoToDelete();
-    if(!vehicule?.id){
+    if (!vehicule?.id) {
       this.vehiculePersoToDelete.set(null);
     }
     else {
@@ -168,10 +275,10 @@ export class VehiculesList implements OnInit {
     }
   }
 
-  onSaveEdit(vehicule: VehiculeDTO){
+  onSaveEdit(vehicule: VehiculeDTO) {
     const oldVehicule = this.vehiculeToEdit();
     if (this.creationVehicule()) {
-      if('id' in vehicule) {
+      if ('id' in vehicule) {
         delete vehicule.id;
       }
       this.vehiculeService.createPerso(vehicule).subscribe({
@@ -185,7 +292,7 @@ export class VehiculesList implements OnInit {
         }
       })
     }
-    else if(!oldVehicule?.id || oldVehicule == vehicule) {
+    else if (!oldVehicule?.id || oldVehicule == vehicule) {
       this.vehiculeToEdit.set(null);
     }
     else {

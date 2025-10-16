@@ -1,3 +1,5 @@
+<app-navbar></app-navbar>
+
 <div class="vehicules-page">
 
   <section class="panel">
@@ -34,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          @for(vehicule of filtered(); track vehicule.id ?? $index) {
+          @for(vehicule of pagedVehicules(); track vehicule.id ?? $index) {
           <tr>
             <td>{{ vehicule.marque }}</td>
             <td>{{ vehicule.modele }}</td>
@@ -77,6 +79,11 @@
           }
         </tbody>
       </table>
+      <div class="pagination">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
+        <span class="pager__info">Page {{ page() }} / {{ totalPages() }}</span>
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+      </div>
     </div>
   </section>
 
@@ -89,8 +96,14 @@
 
 </div>
 
-@if(modalOpen()) {
-<app-vehicules-entreprise-edit
-  [title]="mode()==='create' ? 'ENREGISTRER UN VÉHICULE DE SOCIÉTÉ' : 'MODIFIER LE VÉHICULE DE SOCIÉTÉ'"
-  [data]="current()" [mode]="mode()" (save)="onModalSave($event)" (cancel)="onModalCancel()" />
+@if(vehiculeToEdit(); as editing) {
+<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
 }
+@if(creationVehicule()) {
+<app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()"></app-vehicule-edit>
+}
+
+
+<app-footer></app-footer>
