@@ -48,21 +48,22 @@
               <img [src]="vehicule.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule" class="thumb"
                 loading="lazy">
             </td>
-            <td class="actions-col">
-              @if (vehicule.id != null) {
-              <button class="icon-btn" title="Modifier" (click)="openEdit(vehicule)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M3 17.25v21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                </svg>
-              </button>
-              <button class="icon-btn" title="Supprimer" (click)="onDelete(vehicule.id)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 3h6l1 2h4v2H4v5h4l1-2zm1 6h2v9h-2v9zm4 0h2v9h-2v9zM7 9h2v9H7v9z" />
-                </svg>
-              </button>
-              }
-            </td>
+
+
+          <td class="actions-col">
+  <div class="actions-cell">
+    @if (vehicule.id != null) {
+    <button class="action-btn edit-btn" title="Modifier" (click)="openEdit(vehicule)">
+      <i class="icon-edit">✏️</i>
+    </button>
+    <button class="action-btn delete-btn" title="Supprimer" (click)="onDelete(vehicule.id)">
+      <i class="icon-delete">🗑️</i>
+    </button>
+    }
+  </div>
+</td>
+
+
             <td>
               <span class="badge" [class.badge--ok]="vehicule.statut==='EN_SERVICE'"
                 [class.badge--warn]="vehicule.statut==='EN_REPARATION'"

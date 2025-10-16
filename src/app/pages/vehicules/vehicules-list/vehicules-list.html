@@ -38,15 +38,10 @@
             </td>
             <td class="actions-col">
               <button type="button" class="icon-btn" title="modifier" (click)="openEditVehicule(vehiculePerso)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0L15.13 4.1l3.75 3.75 1.83-1.83z" />
-                </svg>
+                <i class="icon-edit">✏️</i>
               </button>
               <button type="button" class="icon-btn" title="Supprimer" (click)="openSuppression(vehiculePerso)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
-                </svg>
+                <i class="icon-delete">🗑️</i>
               </button>
             </td>
           </tr>
@@ -113,16 +108,13 @@
               <!-- réservations à venir : annuler -->
               
               <button type="button" class="icon-btn" title="Annuler la réservation" (click)="openAnnulation(row)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
-                </svg>
+                <i class="icon-delete">🗑️</i>
               </button>
               } @else if (isCurrent(row)) {
               <!-- réservation en cours : terminer -->
               <button type="button" class="icon-btn" title="Terminer la réservation" (click)="openFinalisation(row)">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" />
-                </svg>
+                
+                <i class="icon-delete">🗑️</i>
               </button>
               } @else {
               <!-- réservations passées : aucune action -->
