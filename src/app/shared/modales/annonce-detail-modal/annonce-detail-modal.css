@@ -1,0 +1,205 @@
+/* Overlay sombre comme la modale de confirmation */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* Overlay sombre */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+/* Contenu de la modale */
+.modal-content {
+  background: #F5F5F5;
+  border-radius: 25px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* En-tête - MON ANNONCE */
+.modal-header {
+  background: #F5F5F5;
+  padding: 20px 40px 10px;
+  text-align: center;
+  border-bottom: none;
+}
+
+.modal-header h2 {
+  color: #000;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Bouton fermer */
+.close-btn {
+  display: none;
+}
+
+/* Corps de la modale */
+.modal-body {
+  padding: 20px 40px 30px;
+  overflow-y: auto;
+  background: #F5F5F5;
+  flex: 1;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 0;
+}
+
+/* Grille d'informations */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Chaque ligne d'information */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.info-item.full-width {
+  display: flex;
+}
+
+/* Labels (à gauche) */
+.label {
+  font-weight: 600;
+  color: #000;
+  font-size: 18px;
+  white-space: nowrap;
+  min-width: 180px;
+  text-align: left;
+}
+
+/* Valeurs (à droite) */
+.value {
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: left;
+  flex: 1;
+}
+
+/* Type de véhicule en texte normal */
+.vehicle-type {
+  font-weight: 400;
+  color: #000;
+}
+
+/* Places - format X / Y */
+.places-highlight {
+  color: #000;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+/* Footer avec boutons */
+.modal-footer {
+  padding: 10px 40px 35px;
+  background: #F5F5F5;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  border-top: none;
+}
+
+/* Bouton ANNULER MON ANNONCE - rouge */
+.btn-danger {
+  background: #FF0000;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.btn-danger:hover {
+  background: #CC0000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 0, 0, 0.4);
+}
+
+/* Bouton RETOUR - gris */
+.btn-secondary {
+  background: #999999;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary:hover {
+  background: #777777;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    border-radius: 30px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .modal-header h2 {
+    font-size: 24px;
+  }
+
+  .label,
+  .value {
+    font-size: 16px;
+  }
+
+  .label {
+    min-width: 140px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .btn-danger,
+  .btn-secondary {
+    width: 100%;
+  }
+}
