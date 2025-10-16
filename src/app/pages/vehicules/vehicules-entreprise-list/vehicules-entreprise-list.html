@@ -36,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          @for(vehicule of filtered(); track vehicule.id ?? $index) {
+          @for(vehicule of pagedVehicules(); track vehicule.id ?? $index) {
           <tr>
             <td>{{ vehicule.marque }}</td>
             <td>{{ vehicule.modele }}</td>
@@ -79,6 +79,11 @@
           }
         </tbody>
       </table>
+      <div class="pagination">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
+        <span class="pager__info">Page {{ page() }} / {{ totalPages() }}</span>
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+      </div>
     </div>
   </section>
 

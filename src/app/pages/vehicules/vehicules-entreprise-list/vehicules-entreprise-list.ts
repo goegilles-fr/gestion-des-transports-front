@@ -1,4 +1,4 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StatutVehicule, VehiculeDTO } from '../../../core/models/vehicule-dto';
@@ -28,6 +28,29 @@ export class VehiculeEntrepriseList {
   }
 
   vehicules = signal<VehiculeDTO[]>([]);
+
+  // Pagination
+  page = signal<number>(1);
+  pageSize = 5;
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+
+  pagedVehicules = computed(() => {
+    const start = (this.page() - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+
+  // Contrôles pagination
+  nextPage() { if (this.page() < this.totalPages()) this.page.update(x => x + 1); }
+  prevPage() { if (this.page() > 1) this.page.update(x => x - 1); }
+  goToPage(n: number) {
+    const t = this.totalPages();
+    this.page.set(Math.max(1, Math.min(t, n)));
+  }
+
+  resetOnFilterChange = effect(() => {
+    this.selected();
+    this.page.set(1);
+  }, { allowSignalWrites: true });
 
   // Filtre statut
   STATUTS: StatutVehicule[] = ['EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'];

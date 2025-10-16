@@ -15,7 +15,8 @@
             <th>Modèle</th>
             <th>Immatriculation</th>
             <th>Nombre de places</th>
-            <th>CO2/km</th>
+            <th>CO₂/km</th>
+            <th>Catégorie</th>
             <th>Motorisation</th>
             <th>Photo</th>
             <th class="actions-col">Actions</th>
@@ -29,6 +30,7 @@
             <td class="immat">{{ vehiculePerso?.immatriculation || '—' }}</td>
             <td>{{ vehiculePerso?.nbPlaces || '—' }}</td>
             <td>{{ vehiculePerso?.co2ParKm || '—' }}</td>
+            <td>{{ vehiculePerso?.categorie || '—' }}</td>
             <td>{{ vehiculePerso?.motorisation || '—' }}</td>
             <td class="photo-cell">
               <img [src]="vehiculePerso?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
@@ -77,7 +79,8 @@
             <th>Modèle</th>
             <th>Immatriculation</th>
             <th>Nombre de places</th>
-            <th>CO2/km</th>
+            <th>CO₂/km</th>
+            <th>Catégorie</th>
             <th>Motorisation</th>
             <th>Photo</th>
             <th>Date de début</th>
@@ -93,6 +96,7 @@
             <td class="immat">{{ row.vehicule?.immatriculation ?? '—' }}</td>
             <td>{{ row.vehicule?.nbPlaces ?? '—' }}</td>
             <td>{{ row.vehicule?.co2ParKm ?? '—' }}</td>
+            <td>{{ row.vehicule?.categorie ?? '—' }}</td>
             <td>{{ row.vehicule?.motorisation ?? '—' }}</td>
             <td class="photo-cell">
               <img [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
