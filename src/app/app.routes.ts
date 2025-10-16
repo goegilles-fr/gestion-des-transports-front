@@ -56,7 +56,7 @@ export const routes: Routes = [
   {
     path: 'vehicules',
     loadChildren: () =>
-      import('./features/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
+      import('./pages/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
   },
   { path: '**', redirectTo: '/login' } // wildcard vers login
 ];

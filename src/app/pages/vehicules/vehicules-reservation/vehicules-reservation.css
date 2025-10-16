@@ -1,6 +1,6 @@
 :host {
-  --teal-700: #0b6f7b;
-  --teal-600: #0f7f8d;
+  --teal-700: #0B84A2;
+  --teal-600: #0B84A2;
   --teal-500: #1292a3;
   --teal-200: #1fb0c4;
   --teal-100: #e6f7fa;
@@ -9,7 +9,9 @@
   --ink-500: #4c6f78;
   --muted: #6b7f85;
   --white: #fff;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* Page + Titre */
@@ -17,10 +19,21 @@
   text-align: center;
 }
 
-.page {
-  padding: 18px clamp(12px, 4vw, 28px);
-  background: linear-gradient(180deg, #f7fbfc 0%, #f2fafb 100%);
+/* le header et le footer ne doivent pas s’étirer */
+app-navbar,
+app-footer {
+  flex: 0 0 auto;
 }
+
+/* le contenu central prend tout l’espace restant */
+.page {
+  flex: 1 0 auto;
+  padding: 24px clamp(16px, 5vw, 40px);
+  background: linear-gradient(180deg, #f7fbfc 0%, #f2fafb 100%);
+  /* min-height: 100%;  ← plus besoin avec flex */
+  color: var(--ink-900);
+}
+
 .header h1 {
   margin: 0 0 16px;
   color: var(--ink-900);

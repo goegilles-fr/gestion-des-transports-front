@@ -1,5 +1,0 @@
-<ng-container *ngIf="vm$ | async as v">
-    <h1>{{ v.immatriculation || '—' }} — {{ v.marque }} {{ v.modele }}</h1>
-    <p>Places: {{ v.nbPlaces }}</p>
-    <a [routerLink]="['/vehicules', v.id, 'edit']">Modifier</a>
-  </ng-container>

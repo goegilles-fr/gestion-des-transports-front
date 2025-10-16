@@ -1,6 +1,6 @@
 :host {
-  --teal-700: #0b6f7b;
-  --teal-600: #0f7f8d;
+  --teal-700: #0B84A2;
+  --teal-600: #0B84A2;
   --teal-500: #1292a3;
   --teal-200: #cbeff4;
   --teal-100: #e6f7fa;
@@ -8,13 +8,23 @@
   --ink-700: #28515c;
   --ink-500: #4c6f78;
   --white: #ffffff;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
+/* le header et le footer ne doivent pas s’étirer */
+app-navbar,
+app-footer {
+  flex: 0 0 auto;
+}
+
+/* le contenu central prend tout l’espace restant */
 .vehicules-page {
+  flex: 1 0 auto;
   padding: 24px clamp(16px, 5vw, 40px);
   background: linear-gradient(180deg, #f7fbfc 0%, #f2fafb 100%);
-  min-height: 100%;
+  /* min-height: 100%;  ← plus besoin avec flex */
   color: var(--ink-900);
 }
 
@@ -160,3 +170,10 @@
   .table tbody td { padding: 6px 0; }
   .actions-col { justify-self: end; }
 }
+
+.pagination {
+  display: flex; gap: 12px; align-items: center; justify-content: center;
+  padding: 10px 0 2px;
+}
+.pager { padding: 6px 10px; }
+.pager__info { opacity: 0.85; }
