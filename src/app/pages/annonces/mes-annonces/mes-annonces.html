@@ -81,7 +81,7 @@
   <app-footer></app-footer>
 </div>
 
-<!-- Modal de confirmation de suppression (en dehors du wrapper) -->
+<!-- Modal de confirmation de suppression -->
 <app-delete-confirmation-dialog
   [open]="showDeleteModal"
   [title]="'Confirmer la suppression'"
@@ -92,3 +92,13 @@
   (confirm)="supprimerAnnonce()"
   (cancel)="annulerSuppression()">
 </app-delete-confirmation-dialog>
+
+<!-- Modale de détail d'annonce -->
+<app-annonce-detail-modal
+  *ngIf="showDetailModal"
+  [annonce]="selectedAnnonce"
+  [conducteur]="currentUser"
+  [isOpen]="showDetailModal"
+  (close)="showDetailModal = false"
+  (annuler)="onAnnulerAnnonce($event)">
+</app-annonce-detail-modal>

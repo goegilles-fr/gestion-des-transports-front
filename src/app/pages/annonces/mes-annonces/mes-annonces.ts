@@ -6,13 +6,21 @@ import { Annonce, AnnonceResponse } from '../../../models/annonce';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { DeleteConfirmationDialog } from '../../../shared/modales/delete-confirmation-dialog/delete-confirmation-dialog';
+import { AnnonceDetailModalComponent } from '../../../shared/modales/annonce-detail-modal/annonce-detail-modal';
+import { AuthService } from '../../../services/auth/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-mes-annonces',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FooterComponent, DeleteConfirmationDialog],
+  imports: [
+    CommonModule,
+    NavbarComponent,
+    FooterComponent,
+    DeleteConfirmationDialog,
+    AnnonceDetailModalComponent
+  ],
   templateUrl: './mes-annonces.html',
   styleUrls: ['./mes-annonces.css']
 })
@@ -23,13 +31,28 @@ export class MesAnnoncesComponent implements OnInit {
   showDeleteModal = false;
   annonceToDelete: Annonce | null = null;
 
+  // Nouvelles propriétés pour la modale de détail
+  showDetailModal = false;
+  selectedAnnonce: Annonce | null = null;
+  currentUser: any = null;
+
   constructor(
     private annonceService: AnnonceService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUser();
     this.chargerAnnonces();
+  }
+
+  private loadCurrentUser(): void {
+    this.authService.currentUser$.subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      }
+    });
   }
 
   chargerAnnonces(): void {
@@ -92,8 +115,29 @@ export class MesAnnoncesComponent implements OnInit {
 
   private vehiculePersoCache: any = null;
 
+  // Ouvrir la modale de détail
   voirDetails(annonce: Annonce): void {
-    this.router.navigate(['/annonces', annonce.annonce.id]);
+    console.log('Clic sur détails, annonce:', annonce);
+    console.log('showDetailModal AVANT:', this.showDetailModal);
+    this.selectedAnnonce = annonce;
+    this.showDetailModal = true;
+    console.log('showDetailModal APRÈS:', this.showDetailModal);
+  }
+
+  // Fermer la modale de détail
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedAnnonce = null;
+  }
+
+  // Gérer l'annulation depuis la modale
+  onAnnulerAnnonce(annonceId: number): void {
+    const annonce = this.annonces.find(a => a.annonce.id === annonceId);
+    if (annonce) {
+      this.annonceToDelete = annonce;
+      this.showDeleteModal = true;
+      this.showDetailModal = false; // Ferme la modale de détail
+    }
   }
 
   modifierAnnonce(annonce: Annonce): void {

@@ -1,0 +1,101 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="fermer()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- En-tête de la modale -->
+    <div class="modal-header">
+      <h2>MON ANNONCE</h2>
+      <button class="close-btn" (click)="fermer()" title="Fermer">✕</button>
+    </div>
+
+    <!-- Corps de la modale -->
+    <div class="modal-body" *ngIf="annonce">
+      <div class="section">
+        <div class="info-grid">
+          <!-- Date -->
+          <div class="info-item">
+            <span class="label">Date :</span>
+            <span class="value">{{ annonce.annonce.heureDepart | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <!-- Conducteur -->
+          <div class="info-item">
+            <span class="label">Conducteur :</span>
+            <span class="value">{{ conducteur?.prenom }} {{ conducteur?.nom }}</span>
+          </div>
+
+          <!-- Adresse de départ -->
+          <div class="info-item full-width">
+            <span class="label">Adresse de départ :</span>
+            <span class="value">{{ annonce.annonce.adresseDepart.numero }}, {{ annonce.annonce.adresseDepart.libelle }}<br>{{ annonce.annonce.adresseDepart.codePostal }}, {{ annonce.annonce.adresseDepart.ville }}</span>
+          </div>
+
+          <!-- Adresse d'arrivée -->
+          <div class="info-item full-width">
+            <span class="label">Adresse de d'arrivée :</span>
+            <span class="value">{{ annonce.annonce.adresseArrivee.numero }}, {{ annonce.annonce.adresseArrivee.libelle }}<br>{{ annonce.annonce.adresseArrivee.codePostal }}, {{ annonce.annonce.adresseArrivee.ville }}</span>
+          </div>
+
+          <!-- Heure de départ -->
+          <div class="info-item">
+            <span class="label">Heure de départ :</span>
+            <span class="value">{{ annonce.annonce.heureDepart | date:'HH:mm' }}</span>
+          </div>
+
+          <!-- Durée du trajet -->
+          <div class="info-item">
+            <span class="label">Durée du trajet :</span>
+            <span class="value">{{ annonce.annonce.dureeTrajet }} min</span>
+          </div>
+
+          <!-- Distance -->
+          <div class="info-item">
+            <span class="label">Distance :</span>
+            <span class="value">{{ annonce.annonce.distance }} km</span>
+          </div>
+
+          <!-- Passagers -->
+          <div class="info-item">
+            <span class="label">Passagers :</span>
+            <span class="value places-highlight">{{ annonce.placesOccupees }} / {{ annonce.placesTotales }}</span>
+          </div>
+
+          <!-- Véhicule -->
+          <div class="info-item">
+            <span class="label">Véhicule :</span>
+            <span class="value">
+              {{ annonce.vehicule?.marque }} {{ annonce.vehicule?.modele }} - {{ annonce.vehicule?.immatriculation }} - <span class="vehicle-type">{{ annonce.vehicule?.categorie === 'ENTREPRISE' ? 'Véhicule de société' : 'Véhicule personnel' }}</span>
+            </span>
+          </div>
+
+          <!-- Liste des passagers -->
+          <div class="info-item full-width" *ngIf="isLoadingPassagers">
+            <span class="label">Liste des passagers :</span>
+            <span class="value">Chargement...</span>
+          </div>
+
+          <div class="info-item full-width" *ngIf="!isLoadingPassagers && passagers && passagers.length > 0">
+            <span class="label">Liste des passagers :</span>
+            <div class="value">
+              <div class="passagers-list">
+                <div class="passager-item" *ngFor="let passager of passagers">
+                  👤 {{ passager.prenom }} {{ passager.nom }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si aucun passager -->
+          <div class="info-item full-width" *ngIf="!isLoadingPassagers && (!passagers || passagers.length === 0)">
+            <span class="label">Liste des passagers :</span>
+            <span class="value">Aucun passager pour le moment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer avec boutons d'action -->
+    <div class="modal-footer">
+      <button class="btn-danger" (click)="annulerAnnonce()">Annuler mon annonce</button>
+      <button class="btn-secondary" (click)="fermer()">Retour</button>
+    </div>
+  </div>
+</div>
