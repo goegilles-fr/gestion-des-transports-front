@@ -1,54 +1,69 @@
-.page-wrapper {
-  min-height: 100vh;
-  background: #EDEDED;
+/* Styles appliqués au host component pour le fond gris */
+:host {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background: #EDEDED;
 }
 
+/* Wrapper pour pousser le footer en bas */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Zone de contenu principale */
 .mes-reservations-container {
   flex: 1;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px;
+  padding: 15px 20px;
   display: flex;
   flex-direction: column;
+  background: #EDEDED;
 }
 
+/* Titre de la page */
 .page-title {
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: #333;
   margin-top: 0.1rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 10px;
   text-align: center;
   text-transform: uppercase;
 }
 
-/* Messages et loader */
+/* Message d'erreur */
 .error-message {
   background-color: #fee;
   color: #c33;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 6px;
   margin-bottom: 20px;
-  border-left: 4px solid #c33;
+  text-align: center;
+  font-weight: 600;
 }
 
+/* Loader */
 .loading-spinner {
-  text-align: center;
-  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
 }
 
 .spinner {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #1a7a8a;
+  border-top: 4px solid #0B84A2;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
 }
 
 @keyframes spin {
@@ -56,21 +71,22 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Tableau des réservations */
+/* Conteneur de la carte/tableau */
 .reservations-table-container {
   background: white;
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-  max-height: 330px;
+  margin-bottom: 15px;
 }
 
+/* Tableau des réservations */
 .reservations-table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* En-tête du tableau */
 .reservations-table thead {
   background-color: #0B84A2;
   color: white;
@@ -79,20 +95,20 @@
   z-index: 10;
 }
 
-.reservations-table th {
-  padding: 15px;
+.reservations-table thead th {
+  padding: 10px 12px;
   text-align: center;
   font-weight: 600;
   font-size: 14px;
-  text-transform: none;
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   vertical-align: middle;
 }
 
-.reservations-table th:last-child {
+.reservations-table thead th:last-child {
   border-right: none;
 }
 
+/* Corps du tableau */
 .reservations-table tbody tr {
   border-bottom: 2px solid #0B84A2;
   transition: background-color 0.2s;
@@ -102,7 +118,30 @@
   background-color: #f5f5f5;
 }
 
-/* Colonnes en alternance avec fond bleu clair */
+.reservations-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Cellules du tableau */
+.reservations-table tbody td {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #555;
+  border-right: 1px solid #E6F7FB;
+  text-align: left;
+}
+
+.reservations-table tbody td:last-child {
+  padding: 0 !important;
+  vertical-align: middle;
+  border-right: none;
+}
+
+.reservations-table tbody td:nth-child(7) {
+  text-align: center;
+}
+
+/* Alternance des couleurs de fond pour les cellules impaires */
 .reservations-table tbody tr td:nth-child(odd) {
   background-color: #E6F7FB;
 }
@@ -111,38 +150,44 @@
   filter: brightness(0.97);
 }
 
-.reservations-table tbody tr:last-child {
-  border-bottom: none;
+/* Cellule de photo */
+.photo-cell {
+  width: 120px;
+  text-align: center;
+  padding: 8px !important;
 }
 
-.reservations-table td {
-  padding: 15px;
-  font-size: 14px;
-  color: #555;
-  border-right: 1px solid #E6F7FB;
-  text-align: left;
+.vehicle-photo {
+  width: 120px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 7px;
+  background: #f8f8f8;
 }
 
-.reservations-table td:last-child {
-  border-right: none;
+.no-photo {
+  font-size: 32px;
+  opacity: 0.3;
+  display: inline-block;
+  width: 120px;
+  height: 76px;
+  line-height: 76px;
+  background: #f8f8f8;
+  border-radius: 7px;
 }
 
-/* Alignement à droite pour certaines colonnes */
-.reservations-table td:nth-child(5), /* Date de départ */
-.reservations-table td:nth-child(6), /* Durée du trajet */
-.reservations-table td:nth-child(7)  /* Distance du trajet */
-{
-  text-align: right;
-}
-
-/* Actions */
+/* Colonne des actions */
 .actions-cell {
   display: flex;
+  flex-direction: row;
   gap: 10px;
   align-items: center;
   justify-content: center;
+  min-height: 97px; /* Correspond à la hauteur de la photo */
+  padding: 8px 12px;
 }
 
+/* Boutons d'action */
 .action-btn {
   width: 32px;
   height: 32px;
@@ -152,7 +197,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   transition: all 0.2s;
   padding: 0;
   background: transparent;
@@ -160,6 +204,7 @@
 
 .action-btn:hover:not(:disabled) {
   transform: scale(1.15);
+  background: rgba(11, 132, 162, 0.1);
 }
 
 .action-btn:disabled {
@@ -167,12 +212,13 @@
   cursor: not-allowed;
 }
 
+/* Styles pour les boutons avec emojis */
 .info-btn {
-  color: #4a90e2;
+  color: #0B84A2;
 }
 
 .info-btn:hover:not(:disabled) {
-  color: #357abd;
+  color: #0a7089;
 }
 
 .delete-btn {
@@ -183,54 +229,94 @@
   color: #c0392b;
 }
 
-.icon-info, .icon-delete {
+.icon-info,
+.icon-delete {
   display: block;
   font-style: normal;
   font-size: 20px;
 }
 
-/* Message aucune réservation */
+/* Pagination */
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  background: white;
+}
+
+.pager {
+  padding: 8px 16px;
+  background: #0B84A2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pager:hover:not(:disabled) {
+  background: #0a7089;
+  transform: translateY(-1px);
+}
+
+.pager:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pager__info {
+  font-size: 14px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* Message si aucune réservation */
 .no-reservations {
-  text-align: center;
-  padding: 60px 20px;
   background: white;
   border-radius: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #777;
+  font-style: italic;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
 }
 
-.no-reservations p {
-  font-size: 16px;
-  color: #777;
-}
-
-/* Bouton rechercher covoiturage */
+/* Bouton rechercher un covoiturage */
 .action-button-container {
   display: flex;
   justify-content: center;
-  margin-top: auto;
-  padding-top: 30px;
-  padding-bottom: 20px;
 }
 
 .btn-rechercher-covoiturage {
+  appearance: none;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 26px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   background: #0B84A2;
   color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(11, 132, 162, 0.3);
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 14px;
 }
 
 .btn-rechercher-covoiturage:hover {
-  background-color: #145d6a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(26, 122, 138, 0.4);
+  background: #0a7089;
+  box-shadow: 0 4px 12px rgba(11, 132, 162, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-rechercher-covoiturage:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
@@ -245,7 +331,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .mes-reservations-container {
     padding: 15px;
   }
@@ -259,8 +345,7 @@
   }
 
   .action-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
+    width: 28px;
+    height: 28px;
   }
 }

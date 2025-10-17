@@ -20,24 +20,31 @@
       <table class="annonces-table">
         <thead>
         <tr>
-          <th>Véhicules</th>
+          <th>Date de départ</th>
           <th>Adresse de départ</th>
           <th>Adresse d'arrivée</th>
-          <th>Date de départ</th>
-          <th>Durée du trajet</th>
-          <th>Distance du trajet</th>
+          <th>Marque</th>
+          <th>Modèle</th>
+          <th>Photo</th>
           <th>Participants</th>
           <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let annonce of annonces">
-          <td>{{ getVehiculeLabel(annonce) }}</td>
+        <tr *ngFor="let annonce of pagedAnnonces">
+          <td>{{ formatHeureDepart(annonce.annonce.heureDepart) }}</td>
           <td>{{ formatAdresse(annonce.annonce.adresseDepart) }}</td>
           <td>{{ formatAdresse(annonce.annonce.adresseArrivee) }}</td>
-          <td>{{ formatHeureDepart(annonce.annonce.heureDepart) }}</td>
-          <td>{{ formatDuree(annonce.annonce.dureeTrajet) }}</td>
-          <td>{{ formatDistance(annonce.annonce.distance) }}</td>
+          <td>{{ annonce.vehicule?.marque || 'Chargement...' }}</td>
+          <td>{{ annonce.vehicule?.modele || 'Chargement...' }}</td>
+          <td class="photo-cell">
+            <img
+              *ngIf="annonce.vehicule?.photo"
+              [src]="annonce.vehicule?.photo"
+              [alt]="(annonce.vehicule?.marque || '') + ' ' + (annonce.vehicule?.modele || '')"
+              class="vehicle-photo">
+            <span *ngIf="!annonce.vehicule?.photo" class="no-photo">📷</span>
+          </td>
           <td>{{ getParticipants(annonce) }}</td>
           <td class="actions-cell">
             <button
@@ -50,7 +57,8 @@
               class="action-btn edit-btn"
               (click)="modifierAnnonce(annonce)"
               [disabled]="!peutEtreModifiee(annonce)"
-              [title]="peutEtreModifiee(annonce) ? 'Modifier' : 'Modification impossible (annonce réservée)'">
+              [title]="peutEtreModifiee(annonce) ?
+                'Modifier' : 'Modification impossible (annonce réservée)'">
               <i class="icon-edit">✏️</i>
             </button>
             <button
@@ -63,6 +71,11 @@
         </tr>
         </tbody>
       </table>
+      <div class="pagination">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+        <span class="pager__info">Page {{ currentPage }} / {{ totalPages }}</span>
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+      </div>
     </div>
 
     <!-- Message si aucune annonce -->
@@ -81,7 +94,7 @@
   <app-footer></app-footer>
 </div>
 
-<!-- Modal de confirmation de suppression -->
+<!-- Modal de confirmation de suppression (en dehors du wrapper) -->
 <app-delete-confirmation-dialog
   [open]="showDeleteModal"
   [title]="'Confirmer la suppression'"
@@ -93,12 +106,11 @@
   (cancel)="annulerSuppression()">
 </app-delete-confirmation-dialog>
 
-<!-- Modale de détail d'annonce -->
+<!-- Modale de détail d'annonce (en dehors du wrapper) -->
 <app-annonce-detail-modal
-  *ngIf="showDetailModal"
-  [annonce]="selectedAnnonce"
-  [conducteur]="currentUser"
   [isOpen]="showDetailModal"
-  (close)="showDetailModal = false"
+  [annonce]="selectedAnnonce"
+  [conducteur]="{ prenom: currentUser?.prenom || '', nom: currentUser?.nom || '' }"
+  (close)="closeDetailModal()"
   (annuler)="onAnnulerAnnonce($event)">
 </app-annonce-detail-modal>

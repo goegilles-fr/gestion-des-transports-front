@@ -12,7 +12,7 @@ export class DeleteConfirmationDialog {
   @Input({ required: true }) open = false;
   @Input() title = 'Confirmer la suppression';
   @Input() message = 'Êtes-vous sûr de vouloir supprimer cette annonce ?';
-  @Input() warningMessage = 'Un email sera envoyé à tous les participants qui ont réservé cette annonce.';
+  @Input() warningMessage?: string;
   @Input() confirmLabel = 'Confirmer';
   @Input() cancelLabel = 'Annuler';
 

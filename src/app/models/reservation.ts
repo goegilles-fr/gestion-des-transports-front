@@ -43,6 +43,8 @@ export interface AnnonceDetails {
   adresseDepart: Adresse;
   adresseArrivee: Adresse;
   vehiculeServiceId: number | null;
+  placesTotales?: number; // Nombre de places disponibles pour les passagers dans l'annonce
+  placesOccupees?: number; // Nombre de places déjà occupées
 }
 
 export interface Reservation {
@@ -51,6 +53,7 @@ export interface Reservation {
   placesOccupees: number;
   vehicule?: Vehicule; // Ajouté après chargement
   conducteur?: Conducteur; // Ajouté après chargement
+  passagers?: Passager[]; // Ajouté après chargement
 }
 
 export type ReservationResponse = Reservation[];

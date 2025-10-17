@@ -20,25 +20,32 @@
       <table class="reservations-table">
         <thead>
         <tr>
-          <th>Conducteur</th>
-          <th>Véhicule</th>
+          <th>Date de départ</th>
           <th>Adresse de départ</th>
           <th>Adresse d'arrivée</th>
-          <th>Date de départ</th>
-          <th>Durée du trajet</th>
-          <th>Distance du trajet</th>
+          <th>Marque</th>
+          <th>Modèle</th>
+          <th>Photo</th>
+          <th>Participants</th>
           <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let reservation of reservations">
-          <td>{{ getConducteurLabel(reservation) }}</td>
-          <td>{{ getVehiculeLabel(reservation) }}</td>
+        <tr *ngFor="let reservation of pagedReservations">
+          <td>{{ formatDateDepart(reservation.annonce.heureDepart) }}</td>
           <td>{{ formatAdresse(reservation.annonce.adresseDepart) }}</td>
           <td>{{ formatAdresse(reservation.annonce.adresseArrivee) }}</td>
-          <td>{{ formatDateDepart(reservation.annonce.heureDepart) }}</td>
-          <td>{{ formatDuree(reservation.annonce.dureeTrajet) }}</td>
-          <td>{{ formatDistance(reservation.annonce.distance) }}</td>
+          <td>{{ reservation.vehicule?.marque || 'Chargement...' }}</td>
+          <td>{{ reservation.vehicule?.modele || 'Chargement...' }}</td>
+          <td class="photo-cell">
+            <img
+              *ngIf="reservation.vehicule?.photo"
+              [src]="reservation.vehicule?.photo"
+              [alt]="(reservation.vehicule?.marque || '') + ' ' + (reservation.vehicule?.modele || '')"
+              class="vehicle-photo">
+            <span *ngIf="!reservation.vehicule?.photo" class="no-photo">📷</span>
+          </td>
+          <td>{{ getNombrePassagers(reservation) }}</td>
           <td class="actions-cell">
             <button
               class="action-btn info-btn"
@@ -56,6 +63,11 @@
         </tr>
         </tbody>
       </table>
+      <div class="pagination">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+        <span class="pager__info">Page {{ currentPage }} / {{ totalPages }}</span>
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+      </div>
     </div>
 
     <!-- Message si aucune réservation -->
@@ -79,19 +91,16 @@
   [open]="showDeleteModal"
   [title]="'Confirmer l\'annulation'"
   [message]="'Êtes-vous sûr de vouloir annuler cette réservation ?'"
-  [warningMessage]="''"
   [confirmLabel]="'Confirmer'"
   [cancelLabel]="'Annuler'"
   (confirm)="annulerReservation()"
-  (cancel)="annulerConfirmation()">
+  (cancel)="annulerSuppression()">
 </app-delete-confirmation-dialog>
 
-<!-- Modal de détails de la réservation -->
+<!-- Modale de détail de réservation (en dehors du wrapper) -->
 <app-reservation-detail-modal
-  *ngIf="showDetailModal"
-  [reservation]="selectedReservation"
-  [conducteur]="selectedReservation?.conducteur"
   [isOpen]="showDetailModal"
-  (close)="showDetailModal = false"
-  (annuler)="confirmerAnnulation(selectedReservation!)">
+  [reservation]="selectedReservation"
+  (close)="closeDetailModal()"
+  (annuler)="onAnnulerReservation($event)">
 </app-reservation-detail-modal>

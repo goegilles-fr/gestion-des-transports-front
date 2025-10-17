@@ -26,10 +26,15 @@ export class MesReservationsComponent implements OnInit {
   reservationToDelete: Reservation | null = null;
   vehiculePersoCache: any = null;
 
-  // Modale de détails
-    showDetailModal = false;
-    selectedReservation: Reservation | null = null;
-    currentUser: any = null;
+  // Propriétés pour la modale de détail
+  showDetailModal = false;
+  selectedReservation: Reservation | null = null;
+  currentUser: any = null;
+
+  // Propriétés de pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  pagedReservations: any[] = [];
 
   constructor(
     private reservationService: ReservationService,
@@ -42,13 +47,14 @@ export class MesReservationsComponent implements OnInit {
     this.chargerReservations();
   }
 
-// Charger l'utilisateur courant
+  // Charger l'utilisateur courant
   loadCurrentUser(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
   }
 
+  // Charger toutes les réservations de l'utilisateur
   chargerReservations(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -57,7 +63,6 @@ export class MesReservationsComponent implements OnInit {
       next: (response: ReservationResponse) => {
         this.reservations = response;
         console.log('Réservations chargées:', this.reservations);
-        // Charger les véhicules pour chaque réservation
         this.chargerVehicules();
       },
       error: (error: any) => {
@@ -68,10 +73,10 @@ export class MesReservationsComponent implements OnInit {
     });
   }
 
+  // Charger les véhicules et conducteurs pour chaque réservation
   chargerVehicules(): void {
     const observables: any[] = [];
 
-    // D'abord, charger le véhicule perso une seule fois s'il y a au moins une réservation avec véhicule perso
     const hasVehiculePerso = this.reservations.some(r => !r.annonce.vehiculeServiceId);
 
     if (hasVehiculePerso) {
@@ -85,7 +90,6 @@ export class MesReservationsComponent implements OnInit {
       );
     }
 
-    // Charger tous les véhicules de société et les conducteurs
     this.reservations.forEach(reservation => {
       if (reservation.annonce.vehiculeServiceId) {
         observables.push(
@@ -98,7 +102,6 @@ export class MesReservationsComponent implements OnInit {
         );
       }
 
-      // Charger les participants (conducteur) pour chaque réservation
       observables.push(
         this.reservationService.getParticipants(reservation.annonce.id).pipe(
           catchError((error: any) => {
@@ -120,15 +123,12 @@ export class MesReservationsComponent implements OnInit {
 
         let currentIndex = 0;
 
-        // Le premier résultat est le véhicule perso si hasVehiculePerso
         if (hasVehiculePerso && results.length > 0) {
           this.vehiculePersoCache = results[currentIndex];
           currentIndex++;
         }
 
-        // Assigner les véhicules et conducteurs aux réservations
         this.reservations.forEach(reservation => {
-          // Assigner le véhicule
           if (reservation.annonce.vehiculeServiceId) {
             reservation.vehicule = results[currentIndex];
             currentIndex++;
@@ -136,16 +136,22 @@ export class MesReservationsComponent implements OnInit {
             reservation.vehicule = this.vehiculePersoCache;
           }
 
-          // Assigner le conducteur
+          // Assigner le conducteur et les passagers
           const participants = results[currentIndex];
-          if (participants && participants.conducteur) {
-            reservation.conducteur = participants.conducteur;
+          if (participants) {
+            if (participants.conducteur) {
+              reservation.conducteur = participants.conducteur;
+            }
+            if (participants.passagers) {
+              reservation.passagers = participants.passagers;
+            }
           }
           currentIndex++;
         });
 
-        console.log('Réservations avec véhicules et conducteurs:', this.reservations);
+        console.log('Réservations avec véhicules, conducteurs et passagers:', this.reservations);
         this.isLoading = false;
+        this.updatePagedReservations();
       },
       error: (error: any) => {
         console.error('Erreur lors du chargement:', error);
@@ -154,21 +160,70 @@ export class MesReservationsComponent implements OnInit {
     });
   }
 
- voirDetails(reservation: Reservation): void {
-     this.selectedReservation = reservation;
-     this.showDetailModal = true;
-   }
+  // Mettre à jour les réservations affichées selon la page courante
+  private updatePagedReservations(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.pagedReservations = this.reservations.slice(startIndex, endIndex);
+  }
 
+  // Aller à la page précédente
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagedReservations();
+    }
+  }
+
+  // Aller à la page suivante
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagedReservations();
+    }
+  }
+
+  // Ouvrir la modale de détail d'une réservation
+  voirDetails(reservation: Reservation): void {
+    this.selectedReservation = reservation;
+    this.showDetailModal = true;
+  }
+
+  // Fermer la modale de détail
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedReservation = null;
+  }
+
+  // Gérer l'annulation depuis la modale de détail
+  onAnnulerReservation(reservationId: number): void {
+    const reservation = this.reservations.find(r => r.annonce.id === reservationId);
+    if (reservation) {
+      this.reservationToDelete = reservation;
+      this.showDeleteModal = true;
+      this.showDetailModal = false;
+    }
+  }
+
+  // Ouvrir la modale de confirmation d'annulation
   confirmerAnnulation(reservation: Reservation): void {
     this.reservationToDelete = reservation;
     this.showDeleteModal = true;
   }
 
+  // Fermer la modale de confirmation sans annuler
+  annulerSuppression(): void {
+    this.showDeleteModal = false;
+    this.reservationToDelete = null;
+  }
+
+  // Alias pour annulerSuppression (compatibilité)
   annulerConfirmation(): void {
     this.showDeleteModal = false;
     this.reservationToDelete = null;
   }
 
+  // Annuler définitivement la réservation
   annulerReservation(): void {
     if (!this.reservationToDelete) return;
 
@@ -177,6 +232,7 @@ export class MesReservationsComponent implements OnInit {
         this.reservations = this.reservations.filter(r => r.annonce.id !== this.reservationToDelete!.annonce.id);
         this.showDeleteModal = false;
         this.reservationToDelete = null;
+        this.updatePagedReservations();
         alert('Votre réservation a été annulée avec succès.');
       },
       error: (error: any) => {
@@ -188,12 +244,17 @@ export class MesReservationsComponent implements OnInit {
     });
   }
 
+  // Rediriger vers la page de recherche de covoiturage
   rechercherCovoiturage(): void {
-    // TODO: Redirection vers page de recherche
     console.log('Redirection vers recherche de covoiturage');
   }
 
-  // Helpers pour l'affichage
+  // Calculer le nombre total de pages
+  get totalPages(): number {
+    return Math.ceil(this.reservations.length / this.itemsPerPage);
+  }
+
+  // Formater le nom du conducteur
   getConducteurLabel(reservation: Reservation): string {
     if (!reservation.conducteur) {
       return 'Chargement...';
@@ -201,20 +262,31 @@ export class MesReservationsComponent implements OnInit {
     return `${reservation.conducteur.prenom} ${reservation.conducteur.nom}`;
   }
 
+  // Formater les informations du véhicule
   getVehiculeLabel(reservation: Reservation): string {
-      if (!reservation.vehicule) {
-        return 'Chargement...';
-      }
-
-      const v = reservation.vehicule;
-      const type = reservation.annonce.vehiculeServiceId ? 'société' : 'perso';
-      return `${v.marque} ${v.modele} ${v.immatriculation} (${type})`;
+    if (!reservation.vehicule) {
+      return 'Chargement...';
     }
 
+    const v = reservation.vehicule;
+    const type = reservation.annonce.vehiculeServiceId ? 'société' : 'perso';
+    return `${v.marque} ${v.modele} ${v.immatriculation} (${type})`;
+  }
+
+  // Calculer le nombre de passagers (sans compter le conducteur)
+  getNombrePassagers(reservation: Reservation): string {
+    const passagers = reservation.passagers?.length || 0;
+    // Utiliser les places de l'annonce si disponibles, sinon fallback sur reservation.placesTotales
+    const placesDisponibles = reservation.annonce.placesTotales || reservation.placesTotales;
+    return `${passagers}/${placesDisponibles}`;
+  }
+
+  // Formater une adresse
   formatAdresse(adresse: any): string {
     return `${adresse.numero} ${adresse.libelle}, ${adresse.codePostal} ${adresse.ville}`;
   }
 
+  // Formater la date de départ
   formatDateDepart(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('fr-FR', {
@@ -226,6 +298,7 @@ export class MesReservationsComponent implements OnInit {
     });
   }
 
+  // Formater la durée du trajet
   formatDuree(minutes: number): string {
     const heures = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -235,6 +308,7 @@ export class MesReservationsComponent implements OnInit {
     return `${mins}min`;
   }
 
+  // Formater la distance
   formatDistance(km: number): string {
     return `${km} km`;
   }

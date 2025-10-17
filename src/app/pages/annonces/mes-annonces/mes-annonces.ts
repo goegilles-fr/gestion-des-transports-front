@@ -31,10 +31,15 @@ export class MesAnnoncesComponent implements OnInit {
   showDeleteModal = false;
   annonceToDelete: Annonce | null = null;
 
-  // Nouvelles propriétés pour la modale de détail
+  // Propriétés pour la modale de détail
   showDetailModal = false;
   selectedAnnonce: Annonce | null = null;
   currentUser: any = null;
+
+  // Propriétés de pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  pagedAnnonces: Annonce[] = [];
 
   constructor(
     private annonceService: AnnonceService,
@@ -109,11 +114,33 @@ export class MesAnnoncesComponent implements OnInit {
 
     Promise.all(promises).finally(() => {
       this.isLoading = false;
+      this.updatePagedAnnonces();
       console.log('Annonces avec véhicules:', this.annonces);
     });
   }
 
   private vehiculePersoCache: any = null;
+
+  // Méthode à appeler après le chargement des annonces
+  private updatePagedAnnonces(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.pagedAnnonces = this.annonces.slice(startIndex, endIndex);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagedAnnonces();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagedAnnonces();
+    }
+  }
 
   // Ouvrir la modale de détail
   voirDetails(annonce: Annonce): void {
@@ -222,6 +249,10 @@ export class MesAnnoncesComponent implements OnInit {
 
   getParticipants(annonce: Annonce): string {
     return `${annonce.placesOccupees} / ${annonce.placesTotales}`;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.annonces.length / this.itemsPerPage);
   }
 
   peutEtreModifiee(annonce: Annonce): boolean {

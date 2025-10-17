@@ -1,54 +1,62 @@
-.page-wrapper {
-  min-height: 100vh;
-  background: #EDEDED;
+/* Styles appliqués au host component pour le fond gris */
+:host {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background: #EDEDED;
 }
 
+/* Zone de contenu principale */
 .mes-annonces-container {
   flex: 1;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px;
+  padding: 15px 20px;
   display: flex;
   flex-direction: column;
+  background: #EDEDED;
 }
 
+/* Titre de la page */
 .page-title {
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: #333;
   margin-top: 0.1rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 10px;
   text-align: center;
   text-transform: uppercase;
 }
 
-/* Messages et loader */
+/* Message d'erreur */
 .error-message {
   background-color: #fee;
   color: #c33;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 6px;
   margin-bottom: 20px;
-  border-left: 4px solid #c33;
+  text-align: center;
+  font-weight: 600;
 }
 
+/* Loader */
 .loading-spinner {
-  text-align: center;
-  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
 }
 
 .spinner {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #1a7a8a;
+  border-top: 4px solid #0B84A2;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
 }
 
 @keyframes spin {
@@ -56,21 +64,22 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Tableau des annonces */
+/* Conteneur de la carte/tableau */
 .annonces-table-container {
   background: white;
   border-radius: 8px;
-  overflow: auto;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-  max-height: 330px; /* Hauteur maximale pour le scroll */
+  margin-bottom: 15px;
 }
 
+/* Tableau des annonces */
 .annonces-table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* En-tête du tableau */
 .annonces-table thead {
   background-color: #0B84A2;
   color: white;
@@ -79,71 +88,99 @@
   z-index: 10;
 }
 
-.annonces-table th {
-  padding: 15px;
-  text-align: center; /* Centrer TOUS les titres horizontalement */
+.annonces-table thead th {
+  padding: 10px 12px;
+  text-align: center;
   font-weight: 600;
   font-size: 14px;
-  text-transform: none; /* Pas de transformation, juste la première lettre en majuscule */
-  border-right: 1px solid rgba(255, 255, 255, 0.3); /* Séparateur vertical pour l'en-tête */
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
   vertical-align: middle;
 }
 
-.annonces-table th:last-child {
+.annonces-table thead th:last-child {
   border-right: none;
 }
 
+/* Corps du tableau */
 .annonces-table tbody tr {
   border-bottom: 2px solid #0B84A2;
   transition: background-color 0.2s;
 }
 
 .annonces-table tbody tr:hover {
-  background-color: #f5f5f5; /* Gris clair au survol */
-}
-
-/* Colonnes en alternance avec fond bleu clair */
-.annonces-table tbody tr td:nth-child(odd) {
-  background-color: #E6F7FB;
-}
-
-.annonces-table tbody tr:hover td {
-  filter: brightness(0.97); /* Légèrement plus sombre au survol */
+  background-color: #f5f5f5;
 }
 
 .annonces-table tbody tr:last-child {
   border-bottom: none;
 }
 
-.annonces-table td {
-  padding: 15px;
+/* Cellules du tableau */
+.annonces-table tbody td {
+  padding: 8px 12px;
   font-size: 14px;
   color: #555;
-  border-right: 1px solid #E6F7FB; /* Séparateur vertical bleu clair */
-  text-align: left; /* Par défaut aligné à gauche */
+  border-right: 1px solid #E6F7FB;
+  text-align: left;
 }
 
-.annonces-table td:last-child {
+.annonces-table tbody td:last-child {
+  padding: 0 !important;
+  vertical-align: middle;
   border-right: none;
 }
 
-/* Alignement à droite pour certaines colonnes */
-.annonces-table td:nth-child(4), /* Date et Heure de départ */
-.annonces-table td:nth-child(5), /* Durée du trajet */
-.annonces-table td:nth-child(6), /* Distance du trajet */
-.annonces-table td:nth-child(7)  /* Participants */
-{
-  text-align: right;
+.annonces-table tbody td:nth-child(7) {
+  text-align: center;
 }
 
-/* Actions */
+/* Alternance des couleurs de fond pour les cellules impaires */
+.annonces-table tbody tr td:nth-child(odd) {
+  background-color: #E6F7FB;
+}
+
+.annonces-table tbody tr:hover td {
+  filter: brightness(0.97);
+}
+
+/* Cellule de photo */
+.photo-cell {
+  width: 120px;
+  text-align: center;
+  padding: 8px !important;
+}
+
+.vehicle-photo {
+  width: 120px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 7px;
+  background: #f8f8f8;
+}
+
+.no-photo {
+  font-size: 32px;
+  opacity: 0.3;
+  display: inline-block;
+  width: 120px;
+  height: 76px;
+  line-height: 76px;
+  background: #f8f8f8;
+  border-radius: 7px;
+}
+
+/* Colonne des actions */
 .actions-cell {
   display: flex;
+  flex-direction: row;
   gap: 10px;
   align-items: center;
   justify-content: center;
+  min-height: 97px; /* Correspond à la hauteur de la photo */
+  padding: 8px 12px;
 }
 
+/* Boutons d'action */
 .action-btn {
   width: 32px;
   height: 32px;
@@ -153,7 +190,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   transition: all 0.2s;
   padding: 0;
   background: transparent;
@@ -161,6 +197,7 @@
 
 .action-btn:hover:not(:disabled) {
   transform: scale(1.15);
+  background: rgba(11, 132, 162, 0.1);
 }
 
 .action-btn:disabled {
@@ -168,12 +205,13 @@
   cursor: not-allowed;
 }
 
+/* Styles pour les boutons avec emojis */
 .info-btn {
-  color: #4a90e2;
+  color: #0B84A2;
 }
 
 .info-btn:hover:not(:disabled) {
-  color: #357abd;
+  color: #0a7089;
 }
 
 .edit-btn {
@@ -192,54 +230,95 @@
   color: #c0392b;
 }
 
-.icon-info, .icon-edit, .icon-delete {
+.icon-info,
+.icon-edit,
+.icon-delete {
   display: block;
   font-style: normal;
   font-size: 20px;
 }
 
-/* Message aucune annonce */
+/* Pagination */
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  background: white;
+}
+
+.pager {
+  padding: 8px 16px;
+  background: #0B84A2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pager:hover:not(:disabled) {
+  background: #0a7089;
+  transform: translateY(-1px);
+}
+
+.pager:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pager__info {
+  font-size: 14px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* Message si aucune annonce */
 .no-annonces {
-  text-align: center;
-  padding: 60px 20px;
   background: white;
   border-radius: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #777;
+  font-style: italic;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
 }
 
-.no-annonces p {
-  font-size: 16px;
-  color: #777;
-}
-
-/* Bouton poster annonce */
+/* Bouton poster une annonce */
 .action-button-container {
   display: flex;
   justify-content: center;
-  margin-top: auto;
-  padding-top: 30px;
-  padding-bottom: 20px;
 }
 
 .btn-poster-annonce {
+  appearance: none;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 26px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   background: #0B84A2;
   color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(11, 132, 162, 0.3);
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 14px;
 }
 
 .btn-poster-annonce:hover {
-  background-color: #145d6a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(26, 122, 138, 0.4);
+  background: #0a7089;
+  box-shadow: 0 4px 12px rgba(11, 132, 162, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-poster-annonce:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
@@ -254,7 +333,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .mes-annonces-container {
     padding: 15px;
   }
@@ -268,8 +347,7 @@
   }
 
   .action-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
+    width: 28px;
+    height: 28px;
   }
 }
