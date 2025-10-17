@@ -6,13 +6,15 @@ import { Reservation, ReservationResponse } from '../../../models/reservation';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { DeleteConfirmationDialog } from '../../../shared/modales/delete-confirmation-dialog/delete-confirmation-dialog';
+import { ReservationDetailModalComponent } from '../../../shared/modales/reservation-detail-modal/reservation-detail-modal';
+import { AuthService } from '../../../services/auth/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-mes-reservations',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FooterComponent, DeleteConfirmationDialog],
+  imports: [CommonModule, NavbarComponent, FooterComponent, DeleteConfirmationDialog, ReservationDetailModalComponent],
   templateUrl: './mes-reservations.html',
   styleUrls: ['./mes-reservations.css']
 })
@@ -24,13 +26,27 @@ export class MesReservationsComponent implements OnInit {
   reservationToDelete: Reservation | null = null;
   vehiculePersoCache: any = null;
 
+  // Modale de détails
+    showDetailModal = false;
+    selectedReservation: Reservation | null = null;
+    currentUser: any = null;
+
   constructor(
     private reservationService: ReservationService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUser();
     this.chargerReservations();
+  }
+
+// Charger l'utilisateur courant
+  loadCurrentUser(): void {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   chargerReservations(): void {
@@ -138,10 +154,10 @@ export class MesReservationsComponent implements OnInit {
     });
   }
 
-  voirDetails(reservation: Reservation): void {
-    // TODO: À implémenter plus tard
-    console.log('Voir détails de la réservation:', reservation);
-  }
+ voirDetails(reservation: Reservation): void {
+     this.selectedReservation = reservation;
+     this.showDetailModal = true;
+   }
 
   confirmerAnnulation(reservation: Reservation): void {
     this.reservationToDelete = reservation;
