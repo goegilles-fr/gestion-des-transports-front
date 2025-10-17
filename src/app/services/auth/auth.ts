@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
+import { CookieService } from '../cookie/cookie.service';
 
 export interface LoginRequest {
   username: string;
@@ -29,95 +30,131 @@ export class AuthService {
   private baseUrl = 'https://dev.goegilles.fr';
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  
+  // Nom du cookie pour stocker le JWT
+  private readonly NOM_COOKIE_JWT = 'jwt_token';
+  
+  private http = inject(HttpClient);
+  private cookieService = inject(CookieService);
 
-  constructor(private http: HttpClient) {
-    this.checkExistingToken();
+  constructor() {
+    this.verifierTokenExistant();
   }
 
-  private checkExistingToken(): void {
-    const token = sessionStorage.getItem('token');
+  /**
+   * Vérifie si un token existe au démarrage de l'application
+   * Charge le profil utilisateur si le token est valide
+   */
+  private verifierTokenExistant(): void {
+    const token = this.cookieService.obtenirCookie(this.NOM_COOKIE_JWT);
+    
     if (token) {
-      const userInfo = this.decodeToken(token);
-      if (userInfo && this.isTokenValid(userInfo)) {
-        this.loadUserProfile().subscribe({
-          next: (fullProfile: any) => {
-            const completeUserInfo = {
-              ...userInfo,
-              ...fullProfile
+      const infoUtilisateur = this.decoderToken(token);
+      
+      if (infoUtilisateur && this.estTokenValide(infoUtilisateur)) {
+        // IMPORTANT: Définir l'utilisateur IMMÉDIATEMENT depuis le JWT
+        // Cela permet au AuthGuard de fonctionner sans attendre l'API
+        this.currentUserSubject.next(infoUtilisateur);
+        
+        // Ensuite, charger le profil complet en arrière-plan
+        this.chargerProfilUtilisateur().subscribe({
+          next: (profilComplet: any) => {
+            const infoUtilisateurComplete = {
+              ...infoUtilisateur,
+              ...profilComplet
             };
-            this.currentUserSubject.next(completeUserInfo);
+            this.currentUserSubject.next(infoUtilisateurComplete);
           },
-          error: (error: any) => {
-            console.error('Erreur lors de la récupération du profil au démarrage:', error);
-            this.logout();
+          error: (erreur: any) => {
+            console.error('Erreur lors de la récupération du profil au démarrage:', erreur);
+            // Ne pas déconnecter si le JWT est valide, juste garder les données de base
+            console.log('Utilisation des données JWT de base uniquement');
           }
         });
       } else {
-        this.logout();
+        this.deconnexion();
       }
     }
   }
 
+  /**
+   * Authentifie un utilisateur et stocke le JWT dans un cookie
+   */
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/api/auth/login`, credentials)
       .pipe(
-        tap((response: any) => {
-          if (response && response.jwt) {
-            sessionStorage.setItem('token', response.jwt);
+        tap((reponse: any) => {
+          if (reponse && reponse.jwt) {
+            // Décoder le JWT pour obtenir la date d'expiration
+            const infoUtilisateur = this.decoderToken(reponse.jwt);
+            
+            // Calculer la date d'expiration du cookie basée sur le JWT
+            let dateExpiration: Date | undefined;
+            if (infoUtilisateur && infoUtilisateur.exp) {
+              // exp est en secondes, convertir en millisecondes
+              dateExpiration = new Date(infoUtilisateur.exp * 1000);
+            }
+            
+            // Stocker le JWT dans un cookie avec la même expiration que le JWT
+            this.cookieService.definirCookie(
+              this.NOM_COOKIE_JWT, 
+              reponse.jwt,
+              undefined, // pas de jours
+              dateExpiration // date d'expiration du JWT
+            );
 
-            const userInfo = this.decodeToken(response.jwt);
-            this.currentUserSubject.next(userInfo);
+            this.currentUserSubject.next(infoUtilisateur);
 
-            this.getUserProfile().subscribe({
-              next: (profile) => {
-                console.log('Profil complet récupéré:', profile);
-                this.currentUserSubject.next(profile);
+            this.obtenirProfilUtilisateur().subscribe({
+              next: (profil) => {
+                console.log('Profil complet récupéré:', profil);
+                this.currentUserSubject.next(profil);
               },
-              error: (error) => {
-                console.error('Erreur profil:', error);
+              error: (erreur) => {
+                console.error('Erreur profil:', erreur);
                 console.log('Utilisation des données JWT de base');
               }
             });
 
-            console.log('Connexion réussie:', response);
+            console.log('Connexion réussie:', reponse);
           }
         }),
-        catchError((error: any) => {
-          let errorMessage = 'Erreur de connexion';
-          let errorCode = 'UNKNOWN_ERROR';
+        catchError((erreur: any) => {
+          let messageErreur = 'Erreur de connexion';
+          let codeErreur = 'UNKNOWN_ERROR';
 
-          if (error.status === 401) {
-            errorCode = error.error || 'UNAUTHORIZED';
+          if (erreur.status === 401) {
+            codeErreur = erreur.error || 'UNAUTHORIZED';
 
-            switch (error.error) {
+            switch (erreur.error) {
               case 'BANNED':
-                errorMessage = 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.';
+                messageErreur = 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.';
                 break;
               case 'DELETED':
-                errorMessage = 'Ce compte n\'existe plus. Veuillez vous inscrire à nouveau.';
+                messageErreur = 'Ce compte n\'existe plus. Veuillez vous inscrire à nouveau.';
                 break;
               case 'NON_VERIFIED':
-                errorMessage = 'Votre compte n\'est pas encore activé. Veuillez contacter l\'administrateur.';
+                messageErreur = 'Votre compte n\'est pas encore activé. Veuillez contacter l\'administrateur.';
                 break;
               case 'BAD_CREDENTIALS':
-                errorMessage = 'Email ou mot de passe incorrect.';
+                messageErreur = 'Email ou mot de passe incorrect.';
                 break;
               default:
-                errorMessage = 'Identifiants invalides.';
+                messageErreur = 'Identifiants invalides.';
             }
-          } else if (error.status === 500) {
-            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
-            errorCode = 'SERVER_ERROR';
-          } else if (error.status === 0) {
-            errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
-            errorCode = 'NETWORK_ERROR';
+          } else if (erreur.status === 500) {
+            messageErreur = 'Erreur serveur. Veuillez réessayer plus tard.';
+            codeErreur = 'SERVER_ERROR';
+          } else if (erreur.status === 0) {
+            messageErreur = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+            codeErreur = 'NETWORK_ERROR';
           }
 
-          console.error('Erreur de connexion:', error);
+          console.error('Erreur de connexion:', erreur);
           return throwError(() => ({
-            message: errorMessage,
-            code: errorCode,
-            originalError: error
+            message: messageErreur,
+            code: codeErreur,
+            originalError: erreur
           }));
         })
       );
@@ -126,43 +163,43 @@ export class AuthService {
   register(userData: RegisterRequest): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/api/auth/register`, userData)
       .pipe(
-        catchError((error: any) => {
-          let errorMessage = 'Erreur lors de l\'inscription';
+        catchError((erreur: any) => {
+          let messageErreur = 'Erreur lors de l\'inscription';
 
-          if (error.status === 400) {
-            errorMessage = 'Données invalides. Vérifiez les informations saisies.';
-          } else if (error.status === 409) {
-            errorMessage = 'Un compte avec cet email existe déjà.';
-          } else if (error.status === 500) {
-            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          if (erreur.status === 400) {
+            messageErreur = 'Données invalides. Vérifiez les informations saisies.';
+          } else if (erreur.status === 409) {
+            messageErreur = 'Un compte avec cet email existe déjà.';
+          } else if (erreur.status === 500) {
+            messageErreur = 'Erreur serveur. Veuillez réessayer plus tard.';
           }
 
-          console.error('Erreur d\'inscription:', error);
-          return throwError(() => ({ message: errorMessage, originalError: error }));
+          console.error('Erreur d\'inscription:', erreur);
+          return throwError(() => ({ message: messageErreur, originalError: erreur }));
         })
       );
   }
-/**
+
+  /**
    * Demande la réinitialisation du mot de passe
    * Envoie un email avec un lien de réinitialisation
    */
   demanderReinitialisationMotDePasse(email: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/api/utilisateurs/passwordreset`, { email })
       .pipe(
-        catchError((error: any) => {
-          let errorMessage = 'Erreur lors de la demande de réinitialisation';
+        catchError((erreur: any) => {
+          let messageErreur = 'Erreur lors de la demande de réinitialisation';
 
-          if (error.status === 400) {
-            // Le backend retourne le message d'erreur dans error.error.error
-            errorMessage = error.error?.error || 'Aucun utilisateur trouvé avec cet email.';
-          } else if (error.status === 404) {
-            errorMessage = 'Aucun compte associé à cet email.';
-          } else if (error.status === 500) {
-            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          if (erreur.status === 400) {
+            messageErreur = erreur.error?.error || 'Aucun utilisateur trouvé avec cet email.';
+          } else if (erreur.status === 404) {
+            messageErreur = 'Aucun compte associé à cet email.';
+          } else if (erreur.status === 500) {
+            messageErreur = 'Erreur serveur. Veuillez réessayer plus tard.';
           }
 
-          console.error('Erreur de réinitialisation:', error);
-          return throwError(() => ({ message: errorMessage, originalError: error }));
+          console.error('Erreur de réinitialisation:', erreur);
+          return throwError(() => ({ message: messageErreur, originalError: erreur }));
         })
       );
   }
@@ -176,123 +213,175 @@ export class AuthService {
       newpassword: nouveauMotDePasse 
     })
       .pipe(
-        catchError((error: any) => {
-          let errorMessage = 'Erreur lors du changement de mot de passe';
+        catchError((erreur: any) => {
+          let messageErreur = 'Erreur lors du changement de mot de passe';
 
-          if (error.status === 401) {
-            errorMessage = 'Session expirée. Veuillez vous reconnecter.';
-          } else if (error.status === 400) {
-            errorMessage = 'Le mot de passe ne respecte pas les critères requis.';
-          } else if (error.status === 500) {
-            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          if (erreur.status === 401) {
+            messageErreur = 'Session expirée. Veuillez vous reconnecter.';
+          } else if (erreur.status === 400) {
+            messageErreur = 'Le mot de passe ne respecte pas les critères requis.';
+          } else if (erreur.status === 500) {
+            messageErreur = 'Erreur serveur. Veuillez réessayer plus tard.';
           }
 
-          console.error('Erreur changement mot de passe:', error);
-          return throwError(() => ({ message: errorMessage, originalError: error }));
+          console.error('Erreur changement mot de passe:', erreur);
+          return throwError(() => ({ message: messageErreur, originalError: erreur }));
         })
       );
   }
+
   /**
    * Récupère le profil utilisateur complet
    */
-  loadUserProfile(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profil`).pipe(
-      map((profile: any) => {
-        console.log('Profil API reçu:', profile);
+  chargerProfilUtilisateur(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profile`).pipe(
+      map((profil: any) => {
+        console.log('Profil API reçu:', profil);
         return {
-          id: profile.id,
-          email: profile.email,
-          username: profile.email,
-          nom: profile.nom,
-          prenom: profile.prenom,
-          role: profile.role,
-          adresse: profile.adresse
+          id: profil.id,
+          email: profil.email,
+          username: profil.email,
+          nom: profil.nom,
+          prenom: profil.prenom,
+          role: profil.role,
+          adresse: profil.adresse
         };
       }),
-      catchError((error: any) => {
-        console.error('Erreur lors de la récupération du profil:', error);
-        return throwError(() => error);
+      catchError((erreur: any) => {
+        console.error('Erreur lors de la récupération du profil:', erreur);
+        return throwError(() => erreur);
       })
     );
   }
 
-  logout(): void {
+  /**
+   * Déconnecte l'utilisateur et supprime le cookie JWT
+   */
+  deconnexion(): void {
     console.log('Déconnexion en cours...');
-    sessionStorage.removeItem('token');
+    
+    // Supprimer le cookie JWT
+    this.cookieService.supprimerCookie(this.NOM_COOKIE_JWT);
+    
+    // Nettoyer sessionStorage au cas où il reste des données
     sessionStorage.clear();
+    
     this.currentUserSubject.next(null);
     console.log('Utilisateur déconnecté');
+  }
+
+  // Alias pour compatibilité
+  logout(): void {
+    this.deconnexion();
   }
 
   getCurrentUser(): any {
     return this.currentUserSubject.value;
   }
 
-  getUserProfile(): Observable<any> {
+  obtenirProfilUtilisateur(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profile`);
+  }
+
+  // Alias pour compatibilité
+  getUserProfile(): Observable<any> {
+    return this.obtenirProfilUtilisateur();
   }
 
   /**
    * Rafraîchit le profil utilisateur après une modification
    * Met à jour automatiquement le currentUserSubject
    */
-  refreshUserProfile(): Observable<any> {
-    return this.getUserProfile().pipe(
-      tap((profile) => {
-        console.log('Profil rafraîchi:', profile);
-        this.currentUserSubject.next(profile);
+  rafraichirProfilUtilisateur(): Observable<any> {
+    return this.obtenirProfilUtilisateur().pipe(
+      tap((profil) => {
+        console.log('Profil rafraîchi:', profil);
+        this.currentUserSubject.next(profil);
       }),
-      catchError((error: any) => {
-        console.error('Erreur rafraîchissement profil:', error);
-        return throwError(() => error);
+      catchError((erreur: any) => {
+        console.error('Erreur rafraîchissement profil:', erreur);
+        return throwError(() => erreur);
       })
     );
   }
 
+  // Alias pour compatibilité
+  refreshUserProfile(): Observable<any> {
+    return this.rafraichirProfilUtilisateur();
+  }
+
+  /**
+   * Vérifie si l'utilisateur est authentifié
+   * Lit le JWT depuis le cookie
+   */
   isAuthenticated(): boolean {
-    const token = sessionStorage.getItem('token');
+    const token = this.cookieService.obtenirCookie(this.NOM_COOKIE_JWT);
+    
     if (!token) return false;
 
     try {
       const payload = token.split('.')[1];
-      const decodedPayload = atob(payload);
-      const parsedPayload = JSON.parse(decodedPayload);
+      const payloadDecode = atob(payload);
+      const payloadParse = JSON.parse(payloadDecode);
 
-      const currentTime = Math.floor(Date.now() / 1000);
-      return parsedPayload.exp && parsedPayload.exp > currentTime;
-    } catch (error) {
-      console.error('Token invalide:', error);
+      const tempsActuel = Math.floor(Date.now() / 1000);
+      return payloadParse.exp && payloadParse.exp > tempsActuel;
+    } catch (erreur) {
+      console.error('Token invalide:', erreur);
       return false;
     }
   }
 
-  private decodeToken(token: string): any {
+  /**
+   * Décode le token JWT et extrait les informations utilisateur
+   */
+  private decoderToken(token: string): any {
     try {
       const payload = token.split('.')[1];
-      const decodedPayload = atob(payload);
-      const parsedPayload = JSON.parse(decodedPayload);
+      const payloadDecode = atob(payload);
+      const payloadParse = JSON.parse(payloadDecode);
 
-      console.log('JWT payload:', parsedPayload);
+      console.log('JWT payload:', payloadParse);
 
       return {
-        id: parsedPayload.userId || parsedPayload.id || parsedPayload.sub,
-        email: parsedPayload.sub || parsedPayload.email || parsedPayload.username,
-        username: parsedPayload.username || parsedPayload.sub,
-        nom: parsedPayload.nom || parsedPayload.lastName || parsedPayload.family_name,
-        prenom: parsedPayload.prenom || parsedPayload.firstName || parsedPayload.given_name,
-        roles: parsedPayload.roles || parsedPayload.authorities || [],
-        exp: parsedPayload.exp
+        id: payloadParse.userId || payloadParse.id || payloadParse.sub,
+        email: payloadParse.sub || payloadParse.email || payloadParse.username,
+        username: payloadParse.username || payloadParse.sub,
+        nom: payloadParse.nom || payloadParse.lastName || payloadParse.family_name,
+        prenom: payloadParse.prenom || payloadParse.firstName || payloadParse.given_name,
+        roles: payloadParse.roles || payloadParse.authorities || [],
+        exp: payloadParse.exp
       };
-    } catch (error) {
-      console.error('Erreur lors du décodage du token:', error);
+    } catch (erreur) {
+      console.error('Erreur lors du décodage du token:', erreur);
       return null;
     }
   }
 
-  private isTokenValid(userInfo: any): boolean {
-    if (!userInfo || !userInfo.exp) return false;
+  /**
+   * Vérifie si le token est encore valide (non expiré)
+   */
+  private estTokenValide(infoUtilisateur: any): boolean {
+    if (!infoUtilisateur || !infoUtilisateur.exp) return false;
 
-    const currentTime = Math.floor(Date.now() / 1000);
-    return userInfo.exp > currentTime;
+    const tempsActuel = Math.floor(Date.now() / 1000);
+    return infoUtilisateur.exp > tempsActuel;
+  }
+
+  // Alias pour compatibilité avec l'ancien code
+  private checkExistingToken(): void {
+    this.verifierTokenExistant();
+  }
+
+  private decodeToken(token: string): any {
+    return this.decoderToken(token);
+  }
+
+  private isTokenValid(userInfo: any): boolean {
+    return this.estTokenValide(userInfo);
+  }
+
+  private loadUserProfile(): Observable<any> {
+    return this.chargerProfilUtilisateur();
   }
 }
