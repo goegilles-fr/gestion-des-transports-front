@@ -26,12 +26,12 @@ export class AnnonceDetailModalComponent implements OnChanges {
     }
   }
 
+  // Charger la liste des passagers pour l'annonce
   chargerPassagers(): void {
     this.isLoadingPassagers = true;
     this.dashboardService.getParticipants(this.annonce.annonce.id).subscribe({
       next: (participants: any) => {
         console.log('Participants chargés:', participants);
-        // Le conducteur est déjà affiché séparément, on ne garde que les passagers
         this.passagers = participants.passagers || participants.filter((p: any) => p.role !== 'CONDUCTEUR') || [];
         this.isLoadingPassagers = false;
       },
@@ -43,14 +43,37 @@ export class AnnonceDetailModalComponent implements OnChanges {
     });
   }
 
-  fermer(): void {
+  // Fermer la modale
+  onClose(): void {
     this.close.emit();
   }
 
-  annulerAnnonce(): void {
+  // Annuler l'annonce
+  onAnnuler(): void {
     if (this.annonce?.annonce?.id) {
       this.annuler.emit(this.annonce.annonce.id);
-      this.fermer();
     }
+  }
+
+  // Obtenir le type de véhicule (Société ou Personnel)
+  getTypeVehicule(): string {
+    return this.annonce?.annonce?.vehiculeServiceId ? 'Société' : 'Personnel';
+  }
+
+  // Formater la durée du trajet en heures et minutes
+  formatDuree(minutes: number): string {
+    if (!minutes) return '0min';
+    const heures = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (heures > 0) {
+      return mins > 0 ? `${heures}h${mins}` : `${heures}h`;
+    }
+    return `${mins}min`;
+  }
+
+  // Formater la distance en kilomètres
+  formatDistance(km: number): string {
+    if (!km) return '0 km';
+    return `${km} km`;
   }
 }

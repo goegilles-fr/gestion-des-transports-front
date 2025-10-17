@@ -26,11 +26,12 @@ export class ReservationDetailModalComponent implements OnChanges {
     }
   }
 
+  // Charger la liste des passagers pour la réservation
   chargerPassagers(): void {
     this.isLoadingPassagers = true;
     this.dashboardService.getParticipants(this.reservation.annonce.id).subscribe({
       next: (participants: any) => {
-        // Le conducteur est déjà affiché séparément, on ne garde que les passagers
+        console.log('Participants chargés:', participants);
         this.passagers = participants.passagers || participants.filter((p: any) => p.role !== 'CONDUCTEUR') || [];
         this.isLoadingPassagers = false;
       },
@@ -42,14 +43,45 @@ export class ReservationDetailModalComponent implements OnChanges {
     });
   }
 
-  fermer(): void {
+  // Fermer la modale
+  onClose(): void {
     this.close.emit();
   }
 
-  annulerReservation(): void {
+  // Annuler la réservation
+  onAnnuler(): void {
     if (this.reservation?.annonce?.id) {
       this.annuler.emit(this.reservation.annonce.id);
-      this.fermer();
     }
+  }
+
+  // Obtenir le nom complet du conducteur
+  getConducteurName(): string {
+    if (this.reservation?.conducteur) {
+      return `${this.reservation.conducteur.prenom} ${this.reservation.conducteur.nom}`;
+    }
+    return 'Chargement...';
+  }
+
+  // Obtenir le type de véhicule (Société ou Personnel)
+  getTypeVehicule(): string {
+    return this.reservation?.annonce?.vehiculeServiceId ? 'Société' : 'Personnel';
+  }
+
+  // Formater la durée du trajet en heures et minutes
+  formatDuree(minutes: number): string {
+    if (!minutes) return '0min';
+    const heures = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (heures > 0) {
+      return mins > 0 ? `${heures}h${mins}` : `${heures}h`;
+    }
+    return `${mins}min`;
+  }
+
+  // Formater la distance en kilomètres
+  formatDistance(km: number): string {
+    if (!km) return '0 km';
+    return `${km} km`;
   }
 }
