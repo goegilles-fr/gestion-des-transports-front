@@ -85,3 +85,13 @@
   (confirm)="annulerReservation()"
   (cancel)="annulerConfirmation()">
 </app-delete-confirmation-dialog>
+
+<!-- Modal de détails de la réservation -->
+<app-reservation-detail-modal
+  *ngIf="showDetailModal"
+  [reservation]="selectedReservation"
+  [conducteur]="selectedReservation?.conducteur"
+  [isOpen]="showDetailModal"
+  (close)="showDetailModal = false"
+  (annuler)="confirmerAnnulation(selectedReservation!)">
+</app-reservation-detail-modal>

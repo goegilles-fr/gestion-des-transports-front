@@ -1,0 +1,101 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="fermer()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- En-tête de la modale -->
+    <div class="modal-header">
+      <h2>MA RÉSERVATION</h2>
+      <button class="close-btn" (click)="fermer()" title="Fermer">✕</button>
+    </div>
+
+    <!-- Corps de la modale -->
+    <div class="modal-body" *ngIf="reservation">
+      <div class="section">
+        <div class="info-grid">
+          <!-- Date -->
+          <div class="info-item">
+            <span class="label">Date :</span>
+            <span class="value">{{ reservation.annonce.heureDepart | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <!-- Conducteur -->
+          <div class="info-item">
+            <span class="label">Conducteur :</span>
+            <span class="value">{{ conducteur?.prenom }} {{ conducteur?.nom }}</span>
+          </div>
+
+          <!-- Adresse de départ -->
+          <div class="info-item full-width">
+            <span class="label">Adresse de départ :</span>
+            <span class="value">{{ reservation.annonce.adresseDepart.numero }}, {{ reservation.annonce.adresseDepart.libelle }}<br>{{ reservation.annonce.adresseDepart.codePostal }}, {{ reservation.annonce.adresseDepart.ville }}</span>
+          </div>
+
+          <!-- Adresse d'arrivée -->
+          <div class="info-item full-width">
+            <span class="label">Adresse d'arrivée :</span>
+            <span class="value">{{ reservation.annonce.adresseArrivee.numero }}, {{ reservation.annonce.adresseArrivee.libelle }}<br>{{ reservation.annonce.adresseArrivee.codePostal }}, {{ reservation.annonce.adresseArrivee.ville }}</span>
+          </div>
+
+          <!-- Heure de départ -->
+          <div class="info-item">
+            <span class="label">Heure de départ :</span>
+            <span class="value">{{ reservation.annonce.heureDepart | date:'HH:mm' }}</span>
+          </div>
+
+          <!-- Durée du trajet -->
+          <div class="info-item">
+            <span class="label">Durée du trajet :</span>
+            <span class="value">{{ reservation.annonce.dureeTrajet }} min</span>
+          </div>
+
+          <!-- Distance -->
+          <div class="info-item">
+            <span class="label">Distance :</span>
+            <span class="value">{{ reservation.annonce.distance }} km</span>
+          </div>
+
+          <!-- Passagers -->
+          <div class="info-item">
+            <span class="label">Passagers :</span>
+            <span class="value places-highlight">{{ reservation.placesOccupees }} / {{ reservation.placesTotales }}</span>
+          </div>
+
+          <!-- Véhicule -->
+          <div class="info-item">
+            <span class="label">Véhicule :</span>
+            <span class="value">
+              {{ reservation.vehicule?.marque }} {{ reservation.vehicule?.modele }} - {{ reservation.vehicule?.immatriculation }} - <span class="vehicle-type">{{ reservation.vehicule?.categorie === 'ENTREPRISE' ? 'Véhicule de société' : 'Véhicule personnel' }}</span>
+            </span>
+          </div>
+
+          <!-- Liste des passagers -->
+          <div class="info-item full-width" *ngIf="isLoadingPassagers">
+            <span class="label">Liste des passagers :</span>
+            <span class="value">Chargement...</span>
+          </div>
+
+          <div class="info-item full-width" *ngIf="!isLoadingPassagers && passagers && passagers.length > 0">
+            <span class="label">Liste des passagers :</span>
+            <div class="value">
+              <div class="passagers-list">
+                <div class="passager-item" *ngFor="let passager of passagers">
+                  👤 {{ passager.prenom }} {{ passager.nom }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si aucun passager -->
+          <div class="info-item full-width" *ngIf="!isLoadingPassagers && (!passagers || passagers.length === 0)">
+            <span class="label">Liste des passagers :</span>
+            <span class="value">Aucun passager pour le moment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer avec boutons d'action -->
+    <div class="modal-footer">
+      <button class="btn-danger" (click)="annulerReservation()">Annuler ma réservation</button>
+      <button class="btn-secondary" (click)="fermer()">Retour</button>
+    </div>
+  </div>
+</div>
