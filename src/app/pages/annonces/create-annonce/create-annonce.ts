@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
@@ -45,20 +45,44 @@ export class CreateAnnonceComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
+  // Date minimale (aujourd'hui)
+  minDate: string;
+
   constructor(
     private fb: FormBuilder,
     private createAnnonceService: CreateAnnonceService,
     private router: Router
-  ) {}
+  ) {
+    // Calculer la date minimale (aujourd'hui au format YYYY-MM-DD)
+    const today = new Date();
+    this.minDate = today.toISOString().split('T')[0];
+  }
 
   ngOnInit(): void {
     this.initForm();
     this.loadVehiculePersonnel();
   }
 
+  // Validateur personnalisé pour la date
+  dateNotInPastValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null; // Si pas de valeur, laisser le validateur 'required' gérer
+    }
+
+    const selectedDate = new Date(control.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Réinitialiser l'heure pour comparer seulement la date
+
+    if (selectedDate < today) {
+      return { dateInPast: true };
+    }
+
+    return null;
+  }
+
   initForm(): void {
     this.annonceForm = this.fb.group({
-      dateDepart: ['', Validators.required],
+      dateDepart: ['', [Validators.required, this.dateNotInPastValidator.bind(this)]], // AJOUT validateur
       heureDepart: ['', Validators.required],
       dureeTrajet: ['', [Validators.required, Validators.min(1)]],
       distance: ['', [Validators.required, Validators.min(1)]],
