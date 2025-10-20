@@ -90,6 +90,14 @@
       }
     }
   </main>
-
+<app-confirm-dialog
+    [open]="dialogueOuvert()"
+    [title]="dialogueTitre()"
+    [message]="dialogueMessage()"
+    [confirmLabel]="dialogueLabelConfirmer()"
+    [cancelLabel]="dialogueLabelAnnuler()"
+    (confirm)="confirmerAction()"
+    (cancel)="fermerDialogue()">
+  </app-confirm-dialog>
   <app-footer></app-footer>
 </div>

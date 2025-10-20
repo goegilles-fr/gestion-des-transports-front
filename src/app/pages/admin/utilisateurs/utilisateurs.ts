@@ -5,10 +5,11 @@ import { UtilisateursService } from '../../../services/utilisateurs/utilisateurs
 import { Utilisateur } from '../../../models/utilisateur.model';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-utilisateurs',
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, ConfirmDialog],
   templateUrl: './utilisateurs.html',
   styleUrl: './utilisateurs.css'
 })
@@ -21,6 +22,14 @@ export class Utilisateurs implements OnInit {
   afficherSeulementNonVerifies = signal<boolean>(false);
   estEnChargement = signal<boolean>(true);
   messageErreur = signal<string>('');
+
+  // Signaux pour la gestion de la modale de confirmation
+  dialogueOuvert = signal<boolean>(false);
+  dialogueTitre = signal<string>('');
+  dialogueMessage = signal<string>('');
+  dialogueLabelConfirmer = signal<string>('Confirmer');
+  dialogueLabelAnnuler = signal<string>('Annuler');
+  actionEnAttente = signal<(() => void) | null>(null);
 
   // Calcul des utilisateurs filtrés
   utilisateursFiltres = computed(() => {
@@ -130,96 +139,147 @@ export class Utilisateurs implements OnInit {
   }
 
   
-/**
-   * Gère l'action de vérification/bannissement
-   */
-  gererActionVerificationBannissement(utilisateur: Utilisateur): void {
-    if (utilisateur.estBanni) {
-      this.debannirUtilisateur(utilisateur);
-    } else if (!utilisateur.estVerifie) {
-      this.verifierUtilisateur(utilisateur);
-    } else {
-      this.bannirUtilisateur(utilisateur);
-    }
+gererActionVerificationBannissement(utilisateur: Utilisateur): void {
+  if (utilisateur.estBanni) {
+    this.ouvrirDialogue(
+      'Débannir l\'utilisateur',
+      `Voulez-vous débannir l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`,
+      () => this.debannirUtilisateur(utilisateur),
+      'Débannir',
+      'Annuler'
+    );
+  } else if (!utilisateur.estVerifie) {
+    this.ouvrirDialogue(
+      'Vérifier l\'utilisateur',
+      `Voulez-vous vérifier l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`,
+      () => this.verifierUtilisateur(utilisateur),
+      'Vérifier',
+      'Annuler'
+    );
+  } else {
+    this.ouvrirDialogue(
+      'Bannir l\'utilisateur',
+      `Voulez-vous bannir l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`,
+      () => this.bannirUtilisateur(utilisateur),
+      'Bannir',
+      'Annuler'
+    );
   }
+}
+
+
+/**
+ * Ouvre la modale de confirmation
+ */
+/**
+ * Ouvre la modale de confirmation
+ */
+ouvrirDialogue(titre: string, message: string, action: () => void, labelConfirmer = 'Confirmer', labelAnnuler = 'Annuler'): void {
+  this.dialogueTitre.set(titre);
+  this.dialogueMessage.set(message);
+  this.dialogueLabelConfirmer.set(labelConfirmer);
+  this.dialogueLabelAnnuler.set(labelAnnuler);
+  this.actionEnAttente.set(action); 
+  this.dialogueOuvert.set(true)
+}
+
+/**
+ * Ferme la modale de confirmation
+ */
+fermerDialogue(): void {
+  this.dialogueOuvert.set(false);
+  this.actionEnAttente.set(null);
+}
+
+/**
+ * Confirme l'action de la modale
+ */
+confirmerAction(): void {
+  const action = this.actionEnAttente();
+  if (action) {
+    action();
+  }
+  this.fermerDialogue();
+}
 
   /**
    * Vérifie un utilisateur
    */
-  verifierUtilisateur(utilisateur: Utilisateur): void {
-    if (!confirm(`Voulez-vous vérifier l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`)) {
-      return;
+ verifierUtilisateur(utilisateur: Utilisateur): void {
+  this.utilisateursService.verifierUtilisateur(utilisateur.id, true).subscribe({
+    next: (reponse) => {
+      this.messageErreur.set(reponse.message || 'Utilisateur vérifié avec succès.');
+      this.chargerUtilisateurs();
+      setTimeout(() => this.messageErreur.set(''), 3000);
+    },
+    error: (erreur) => {
+      console.error('Erreur lors de la vérification:', erreur);
+      this.messageErreur.set('Impossible de vérifier l\'utilisateur. Veuillez réessayer.');
     }
-
-    this.utilisateursService.verifierUtilisateur(utilisateur.id, true).subscribe({
-      next: (reponse) => {
-        alert(reponse.message || 'Utilisateur vérifié avec succès.');
-        this.chargerUtilisateurs();
-      },
-      error: (erreur) => {
-        console.error('Erreur lors de la vérification:', erreur);
-        alert('Impossible de vérifier l\'utilisateur. Veuillez réessayer.');
-      }
-    });
-  }
+  });
+}
 
   /**
    * Bannit un utilisateur
    */
-  bannirUtilisateur(utilisateur: Utilisateur): void {
-    if (!confirm(`Voulez-vous bannir l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`)) {
-      return;
+ bannirUtilisateur(utilisateur: Utilisateur): void {
+  this.utilisateursService.bannirUtilisateur(utilisateur.id, true).subscribe({
+    next: (reponse) => {
+      this.messageErreur.set(reponse.message || 'Utilisateur banni avec succès.');
+      this.chargerUtilisateurs();
+      setTimeout(() => this.messageErreur.set(''), 3000);
+    },
+    error: (erreur) => {
+      console.error('Erreur lors du bannissement:', erreur);
+      this.messageErreur.set('Impossible de bannir l\'utilisateur. Veuillez réessayer.');
     }
-
-    this.utilisateursService.bannirUtilisateur(utilisateur.id, true).subscribe({
-      next: (reponse) => {
-        alert(reponse.message || 'Utilisateur banni avec succès.');
-        this.chargerUtilisateurs();
-      },
-      error: (erreur) => {
-        console.error('Erreur lors du bannissement:', erreur);
-        alert('Impossible de bannir l\'utilisateur. Veuillez réessayer.');
-      }
-    });
-  }
+  });
+}
 
   /**
    * Débannit un utilisateur
    */
   debannirUtilisateur(utilisateur: Utilisateur): void {
-    if (!confirm(`Voulez-vous débannir l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ?`)) {
-      return;
+  this.utilisateursService.bannirUtilisateur(utilisateur.id, false).subscribe({
+    next: (reponse) => {
+      this.messageErreur.set(reponse.message || 'Utilisateur débanni avec succès.');
+      this.chargerUtilisateurs();
+      setTimeout(() => this.messageErreur.set(''), 3000);
+    },
+    error: (erreur) => {
+      console.error('Erreur lors du débannissement:', erreur);
+      this.messageErreur.set('Impossible de débannir l\'utilisateur. Veuillez réessayer.');
     }
-
-    this.utilisateursService.bannirUtilisateur(utilisateur.id, false).subscribe({
-      next: (reponse) => {
-        alert(reponse.message || 'Utilisateur débanni avec succès.');
-        this.chargerUtilisateurs();
-      },
-      error: (erreur) => {
-        console.error('Erreur lors du débannissement:', erreur);
-        alert('Impossible de débannir l\'utilisateur. Veuillez réessayer.');
-      }
-    });
-  }
+  });
+}
 
   /**
    * Supprime un utilisateur
    */
   supprimerUtilisateur(utilisateur: Utilisateur): void {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ? Cette action est irréversible.`)) {
-      return;
-    }
+  this.ouvrirDialogue(
+    'Supprimer l\'utilisateur',
+    `Êtes-vous sûr de vouloir supprimer l'utilisateur ${utilisateur.prenom} ${utilisateur.nom} ? Cette action est irréversible.`,
+    () => this.confirmerSuppression(utilisateur),
+    'Supprimer',
+    'Annuler'
+  );
+}
 
-    this.utilisateursService.supprimerUtilisateur(utilisateur.id).subscribe({
-      next: (reponse) => {
-        alert(reponse.message || 'Utilisateur supprimé avec succès.');
-        this.chargerUtilisateurs();
-      },
-      error: (erreur) => {
-        console.error('Erreur lors de la suppression:', erreur);
-        alert('Impossible de supprimer l\'utilisateur. Veuillez réessayer.');
-      }
-    });
-  }
+/**
+ * Confirme et exécute la suppression
+ */
+private confirmerSuppression(utilisateur: Utilisateur): void {
+  this.utilisateursService.supprimerUtilisateur(utilisateur.id).subscribe({
+    next: (reponse) => {
+      this.messageErreur.set(reponse.message || 'Utilisateur supprimé avec succès.');
+      this.chargerUtilisateurs();
+      setTimeout(() => this.messageErreur.set(''), 3000);
+    },
+    error: (erreur) => {
+      console.error('Erreur lors de la suppression:', erreur);
+      this.messageErreur.set('Impossible de supprimer l\'utilisateur. Veuillez réessayer.');
+    }
+  });
+}
 }
