@@ -168,6 +168,25 @@
   font-size: 14px;
 }
 
+/* Statut des places */
+.places-status {
+  margin-left: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.places-status.complet {
+  background-color: #ff4444;
+  color: white;
+}
+
+.places-status.disponible {
+  background-color: #4CAF50;
+  color: white;
+}
+
 /* BLOC TRAJET & VÉHICULE */
 .info-grid {
   display: grid;

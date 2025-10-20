@@ -31,7 +31,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 24px;
+  padding: 20px 24px;
   border-bottom: 2px solid #0B84A2;
   background: #f8f9fa;
 }
@@ -47,7 +47,7 @@
 
 /* Body avec scroll */
 .modal-body {
-  padding: 16px 24px;
+  padding: 18px;
   overflow-y: auto;
   flex: 1;
 }
@@ -56,23 +56,23 @@
 .section-participants,
 .section-trajet,
 .section-vehicule {
-  margin-bottom: 16px;
-  padding: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
   border-radius: 8px;
   background: #f8f9fa;
   border: 1px solid #e0e0e0;
 }
 
 .section-title {
-  margin: 0 0 12px 0;
-  font-size: 15px;
+  margin: 0 0 16px 0;
+  font-size: 16px;
   font-weight: 700;
   color: #0B84A2;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* BLOC CONDUCTEUR */
+/* BLOC PARTICIPANTS */
 .section-participants {
   background: #E6F7FB;
   border: 2px solid #0B84A2;
@@ -83,12 +83,12 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 16px;
   background: white;
   border-radius: 8px;
   border: 2px solid #0B84A2;
   box-shadow: 0 2px 8px rgba(11, 132, 162, 0.15);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .conducteur-icon {
@@ -118,7 +118,7 @@
 
 /* Passagers */
 .passagers-container {
-  padding: 12px 16px;
+  padding: 16px;
   background: white;
   border-radius: 8px;
   border: 1px solid #ddd;
@@ -128,7 +128,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 14px;
   font-weight: 600;
   color: #555;
@@ -159,7 +159,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 16px;
   background: white;
   border-radius: 8px;
   border: 1px solid #ddd;
@@ -168,11 +168,30 @@
   font-size: 14px;
 }
 
+/* Statut des places */
+.places-status {
+  margin-left: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.places-status.complet {
+  background-color: #ff4444;
+  color: white;
+}
+
+.places-status.disponible {
+  background-color: #4CAF50;
+  color: white;
+}
+
 /* BLOC TRAJET & VÉHICULE */
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .info-item {
@@ -209,7 +228,7 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 16px 24px;
+  padding: 20px 24px;
   border-top: 1px solid #e0e0e0;
   background: #f8f9fa;
 }

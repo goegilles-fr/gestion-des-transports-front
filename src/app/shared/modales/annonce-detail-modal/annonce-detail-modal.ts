@@ -43,6 +43,28 @@ export class AnnonceDetailModalComponent implements OnChanges {
     });
   }
 
+  // Vérifier si c'est complet
+  isComplet(): boolean {
+    const nbPlaces = this.annonce?.vehicule?.nbPlaces || 0;
+    const nbPassagers = this.passagers?.length || 0;
+    return nbPassagers >= nbPlaces;
+  }
+
+  // Obtenir le texte du statut des places
+  getPlacesStatus(): string {
+    const nbPlaces = this.annonce?.vehicule?.nbPlaces || 0;
+    const nbPassagers = this.passagers?.length || 0;
+
+    if (nbPassagers >= nbPlaces) {
+      return 'Complet';
+    }
+
+    const placesDisponibles = nbPlaces - nbPassagers;
+    return placesDisponibles === 1
+      ? 'Place disponible : 1'
+      : `Places disponibles : ${placesDisponibles}`;
+  }
+
   // Fermer la modale
   onClose(): void {
     this.close.emit();

@@ -84,4 +84,26 @@ export class ReservationDetailModalComponent implements OnChanges {
     if (!km) return '0 km';
     return `${km} km`;
   }
+
+  // Vérifier si c'est complet
+  isComplet(): boolean {
+    const nbPlaces = this.reservation?.vehicule?.nbPlaces || 0;
+    const nbPassagers = this.passagers?.length || 0;
+    return nbPassagers >= nbPlaces;
+  }
+
+  // Obtenir le texte du statut des places
+  getPlacesStatus(): string {
+    const nbPlaces = this.reservation?.vehicule?.nbPlaces || 0;
+    const nbPassagers = this.passagers?.length || 0;
+
+    if (nbPassagers >= nbPlaces) {
+      return 'Complet';
+    }
+
+    const placesDisponibles = nbPlaces - nbPassagers;
+    return placesDisponibles === 1
+      ? 'Place disponible : 1'
+      : `Places disponibles : ${placesDisponibles}`;
+  }
 }
