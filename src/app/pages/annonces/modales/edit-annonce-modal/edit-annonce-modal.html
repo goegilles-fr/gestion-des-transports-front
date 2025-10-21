@@ -1,0 +1,329 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header de la modale -->
+    <div class="modal-header">
+      <h1 class="page-title">Modifier mon annonce</h1>
+      <button class="close-btn" (click)="onClose()" title="Fermer">✕</button>
+    </div>
+
+    <!-- Corps de la modale -->
+    <div class="modal-body">
+
+      <!-- Messages -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="annonceForm" (ngSubmit)="onSubmit()" class="annonce-form">
+
+        <!-- Section Date et Heure -->
+        <div class="form-section">
+          <h3 class="section-title">Annonce</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateDepart">Date de départ *</label>
+              <input
+                type="date"
+                id="dateDepart"
+                formControlName="dateDepart"
+                [min]="minDate"
+                class="form-control"
+                [class.error]="annonceForm.get('dateDepart')?.invalid && annonceForm.get('dateDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('dateDepart')?.hasError('required') && annonceForm.get('dateDepart')?.touched">
+                La date est requise
+              </span>
+              <span class="error-message"
+                    *ngIf="annonceForm.get('dateDepart')?.hasError('dateInPast') && annonceForm.get('dateDepart')?.touched">
+                La date ne peut pas être dans le passé
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="heureDepart">Heure de départ *</label>
+              <input
+                type="time"
+                id="heureDepart"
+                formControlName="heureDepart"
+                class="form-control"
+                [class.error]="annonceForm.get('heureDepart')?.invalid && annonceForm.get('heureDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('heureDepart')?.invalid && annonceForm.get('heureDepart')?.touched">
+              L'heure est requise
+            </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dureeTrajet">Durée du trajet *</label>
+              <div class="input-with-suffix">
+                <input
+                  type="number"
+                  id="dureeTrajet"
+                  formControlName="dureeTrajet"
+                  class="form-control"
+                  placeholder="Ex: 30"
+                  [class.error]="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
+                <span class="suffix">minutes</span>
+              </div>
+              <span class="error-message"
+                    *ngIf="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
+              La durée est requise (min. 1 minute)
+            </span>
+            </div>
+
+            <div class="form-group">
+              <label for="distance">Distance *</label>
+              <div class="input-with-suffix">
+                <input
+                  type="number"
+                  id="distance"
+                  formControlName="distance"
+                  class="form-control"
+                  placeholder="Ex: 25"
+                  [class.error]="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
+                <span class="suffix">kilomètres</span>
+              </div>
+              <span class="error-message"
+                    *ngIf="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
+              La distance est requise (min. 1 km)
+            </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Adresse de départ -->
+        <div class="form-section">
+          <h3 class="section-title">Adresse de départ</h3>
+
+          <div class="form-row">
+            <div class="form-group small">
+              <label for="numeroDepart">N° *</label>
+              <input
+                type="number"
+                id="numeroDepart"
+                formControlName="numeroDepart"
+                class="form-control"
+                placeholder="12"
+                [class.error]="annonceForm.get('numeroDepart')?.invalid && annonceForm.get('numeroDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('numeroDepart')?.invalid && annonceForm.get('numeroDepart')?.touched">
+              Requis
+            </span>
+            </div>
+
+            <div class="form-group large">
+              <label for="libelleDepart">Rue *</label>
+              <input
+                type="text"
+                id="libelleDepart"
+                formControlName="libelleDepart"
+                class="form-control"
+                placeholder="Rue de la République"
+                [class.error]="annonceForm.get('libelleDepart')?.invalid && annonceForm.get('libelleDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('libelleDepart')?.invalid && annonceForm.get('libelleDepart')?.touched">
+              L'adresse est requise
+            </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="codePostalDepart">Code postal *</label>
+              <input
+                type="text"
+                id="codePostalDepart"
+                formControlName="codePostalDepart"
+                class="form-control"
+                placeholder="34000"
+                maxlength="5"
+                [class.error]="annonceForm.get('codePostalDepart')?.invalid && annonceForm.get('codePostalDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('codePostalDepart')?.invalid && annonceForm.get('codePostalDepart')?.touched">
+              Code postal invalide (5 chiffres)
+            </span>
+            </div>
+
+            <div class="form-group">
+              <label for="villeDepart">Ville *</label>
+              <input
+                type="text"
+                id="villeDepart"
+                formControlName="villeDepart"
+                class="form-control"
+                placeholder="Montpellier"
+                [class.error]="annonceForm.get('villeDepart')?.invalid && annonceForm.get('villeDepart')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('villeDepart')?.invalid && annonceForm.get('villeDepart')?.touched">
+              La ville est requise
+            </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Adresse d'arrivée -->
+        <div class="form-section">
+          <h3 class="section-title">Adresse d'arrivée</h3>
+
+          <div class="form-row">
+            <div class="form-group small">
+              <label for="numeroArrivee">N° *</label>
+              <input
+                type="number"
+                id="numeroArrivee"
+                formControlName="numeroArrivee"
+                class="form-control"
+                placeholder="5"
+                [class.error]="annonceForm.get('numeroArrivee')?.invalid && annonceForm.get('numeroArrivee')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('numeroArrivee')?.invalid && annonceForm.get('numeroArrivee')?.touched">
+              Requis
+            </span>
+            </div>
+
+            <div class="form-group large">
+              <label for="libelleArrivee">Rue *</label>
+              <input
+                type="text"
+                id="libelleArrivee"
+                formControlName="libelleArrivee"
+                class="form-control"
+                placeholder="Avenue de la Liberté"
+                [class.error]="annonceForm.get('libelleArrivee')?.invalid && annonceForm.get('libelleArrivee')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('libelleArrivee')?.invalid && annonceForm.get('libelleArrivee')?.touched">
+              L'adresse est requise
+            </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="codePostalArrivee">Code postal *</label>
+              <input
+                type="text"
+                id="codePostalArrivee"
+                formControlName="codePostalArrivee"
+                class="form-control"
+                placeholder="34090"
+                maxlength="5"
+                [class.error]="annonceForm.get('codePostalArrivee')?.invalid && annonceForm.get('codePostalArrivee')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('codePostalArrivee')?.invalid && annonceForm.get('codePostalArrivee')?.touched">
+              Code postal invalide (5 chiffres)
+            </span>
+            </div>
+
+            <div class="form-group">
+              <label for="villeArrivee">Ville *</label>
+              <input
+                type="text"
+                id="villeArrivee"
+                formControlName="villeArrivee"
+                class="form-control"
+                placeholder="Nîmes"
+                [class.error]="annonceForm.get('villeArrivee')?.invalid && annonceForm.get('villeArrivee')?.touched">
+              <span class="error-message"
+                    *ngIf="annonceForm.get('villeArrivee')?.invalid && annonceForm.get('villeArrivee')?.touched">
+              La ville est requise
+            </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Véhicule -->
+        <div class="form-section">
+          <h3 class="section-title">Véhicules</h3>
+
+          <div class="loading-spinner" *ngIf="loadingVehicules">
+            Chargement des véhicules...
+          </div>
+
+          <div class="vehicules-container" *ngIf="!loadingVehicules">
+            <h4 class="vehicule-subtitle">Choisissez votre véhicule</h4>
+
+            <!-- Ligne Véhicule Personnel -->
+            <div class="vehicule-row">
+              <label class="vehicule-label">Votre véhicule personnel :</label>
+
+              <div class="vehicule-content" *ngIf="hasVehiculePersonnel">
+                <img [src]="vehiculePersonnel!.photo"
+                     [alt]="vehiculePersonnel!.marque"
+                     class="vehicule-photo-inline">
+                <span class="vehicule-text">{{ vehiculePersonnel!.marque }} {{ vehiculePersonnel!.modele }}</span>
+                <span class="vehicule-immat-inline">{{ vehiculePersonnel!.immatriculation }}</span>
+                <input
+                  type="checkbox"
+                  [checked]="useVehiculePersonnel"
+                  (change)="selectVehicule('personnel')"
+                  class="vehicule-checkbox-inline">
+              </div>
+
+              <div class="vehicule-content" *ngIf="!hasVehiculePersonnel">
+                <span class="no-vehicule-inline">Pas de véhicule déclaré</span>
+              </div>
+            </div>
+
+            <!-- Ligne Véhicule Entreprise -->
+            <div class="vehicule-row">
+              <label class="vehicule-label">Véhicule de société :</label>
+
+              <div class="vehicule-content" *ngIf="hasVehiculeEntreprise">
+                <img [src]="vehiculeEntreprise!.photo"
+                     [alt]="vehiculeEntreprise!.marque"
+                     class="vehicule-photo-inline">
+                <span class="vehicule-text">{{ vehiculeEntreprise!.marque }} {{ vehiculeEntreprise!.modele }}</span>
+                <span class="vehicule-immat-inline">{{ vehiculeEntreprise!.immatriculation }}</span>
+                <input
+                  type="checkbox"
+                  [checked]="useVehiculeEntreprise"
+                  (change)="selectVehicule('entreprise')"
+                  class="vehicule-checkbox-inline">
+              </div>
+
+              <div class="vehicule-content" *ngIf="!hasVehiculeEntreprise">
+                <span class="no-vehicule-inline">Aucun véhicule disponible pour cette date</span>
+              </div>
+            </div>
+
+            <!-- Bouton réserver -->
+            <button type="button" class="btn-reserver" routerLink="/vehicules/reservation">
+              RÉSERVER UN AUTRE VÉHICULE DE SOCIÉTÉ
+            </button>
+
+            <div class="error-message" *ngIf="!useVehiculePersonnel && !useVehiculeEntreprise && annonceForm.touched">
+              Veuillez sélectionner un véhicule
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="onCancel()"
+            [disabled]="loading">
+            ANNULER
+          </button>
+
+          <button
+            type="submit"
+            class="btn-submit"
+            [class.active]="isFormValid()"
+            [disabled]="!isFormValid() || loading">
+            {{ loading ? 'MODIFICATION EN COURS...' : 'MODIFIER L\'ANNONCE' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

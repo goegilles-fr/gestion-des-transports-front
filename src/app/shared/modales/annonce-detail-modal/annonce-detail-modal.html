@@ -96,7 +96,13 @@
     <!-- BLOC 4 : ACTIONS -->
     <div class="modal-footer">
       <button class="btn-secondary" (click)="onClose()">Fermer</button>
-      <button class="btn-danger" (click)="onAnnuler()">Annuler l'annonce</button>
+      <!-- Masquer le bouton Annuler si l'annonce est passée -->
+      <button
+        *ngIf="!isPassee"
+        class="btn-danger"
+        (click)="onAnnuler()">
+        Annuler l'annonce
+      </button>
     </div>
   </div>
 </div>

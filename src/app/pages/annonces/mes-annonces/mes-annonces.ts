@@ -7,6 +7,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { DeleteConfirmationDialog } from '../../../shared/modales/delete-confirmation-dialog/delete-confirmation-dialog';
 import { AnnonceDetailModalComponent } from '../../../shared/modales/annonce-detail-modal/annonce-detail-modal';
+import { EditAnnonceModalComponent } from '../modales/edit-annonce-modal/edit-annonce-modal';
 import { AuthService } from '../../../services/auth/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -19,7 +20,8 @@ import { catchError } from 'rxjs/operators';
     NavbarComponent,
     FooterComponent,
     DeleteConfirmationDialog,
-    AnnonceDetailModalComponent
+    AnnonceDetailModalComponent,
+    EditAnnonceModalComponent
   ],
   templateUrl: './mes-annonces.html',
   styleUrls: ['./mes-annonces.css']
@@ -36,9 +38,18 @@ export class MesAnnoncesComponent implements OnInit {
   selectedAnnonce: Annonce | null = null;
   currentUser: any = null;
 
+  // Propriétés pour la modale de modification
+  showEditModal = false;
+  annonceToEdit: Annonce | null = null;
+
+  // AJOUT : Propriétés de filtrage
+  filterType: 'avenir' | 'passees' = 'avenir';
+  annoncesAvenir: Annonce[] = [];
+  annoncesPassees: Annonce[] = [];
+
   // Propriétés de pagination
   currentPage = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 5;
   pagedAnnonces: Annonce[] = [];
 
   constructor(
@@ -113,6 +124,7 @@ export class MesAnnoncesComponent implements OnInit {
     });
 
     Promise.all(promises).finally(() => {
+      this.separerAnnonces(); // AJOUT : Séparer les annonces
       this.isLoading = false;
       this.updatePagedAnnonces();
       console.log('Annonces avec véhicules:', this.annonces);
@@ -121,11 +133,43 @@ export class MesAnnoncesComponent implements OnInit {
 
   private vehiculePersoCache: any = null;
 
-  // Méthode à appeler après le chargement des annonces
+  // AJOUT : Séparer les annonces entre passées et à venir
+  private separerAnnonces(): void {
+    const maintenant = new Date();
+
+    // Séparer les annonces
+    this.annoncesPassees = this.annonces.filter(a => new Date(a.annonce.heureDepart) < maintenant);
+    this.annoncesAvenir = this.annonces.filter(a => new Date(a.annonce.heureDepart) >= maintenant);
+
+    // Trier par date croissante (les plus proches en premier)
+    this.annoncesAvenir.sort((a, b) =>
+      new Date(a.annonce.heureDepart).getTime() - new Date(b.annonce.heureDepart).getTime()
+    );
+
+    // Trier les passées par date décroissante (les plus récentes en premier)
+    this.annoncesPassees.sort((a, b) =>
+      new Date(b.annonce.heureDepart).getTime() - new Date(a.annonce.heureDepart).getTime()
+    );
+  }
+
+  // AJOUT : Changer de filtre
+  setFilter(type: 'avenir' | 'passees'): void {
+    this.filterType = type;
+    this.currentPage = 1; // Réinitialiser à la page 1
+    this.updatePagedAnnonces();
+  }
+
+  // MODIFICATION : Récupérer les annonces filtrées
+  private getFilteredAnnonces(): Annonce[] {
+    return this.filterType === 'avenir' ? this.annoncesAvenir : this.annoncesPassees;
+  }
+
+  // MODIFICATION : Méthode à appeler après le chargement des annonces
   private updatePagedAnnonces(): void {
+    const filteredAnnonces = this.getFilteredAnnonces();
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.pagedAnnonces = this.annonces.slice(startIndex, endIndex);
+    this.pagedAnnonces = filteredAnnonces.slice(startIndex, endIndex);
   }
 
   prevPage(): void {
@@ -142,13 +186,16 @@ export class MesAnnoncesComponent implements OnInit {
     }
   }
 
+  // AJOUT : Vérifier si une annonce est passée
+  isAnnoncePassee(annonce: Annonce): boolean {
+    return new Date(annonce.annonce.heureDepart) < new Date();
+  }
+
   // Ouvrir la modale de détail
   voirDetails(annonce: Annonce): void {
     console.log('Clic sur détails, annonce:', annonce);
-    console.log('showDetailModal AVANT:', this.showDetailModal);
     this.selectedAnnonce = annonce;
     this.showDetailModal = true;
-    console.log('showDetailModal APRÈS:', this.showDetailModal);
   }
 
   // Fermer la modale de détail
@@ -167,12 +214,26 @@ export class MesAnnoncesComponent implements OnInit {
     }
   }
 
+  // Ouvrir la modale de modification
   modifierAnnonce(annonce: Annonce): void {
     if (!this.peutEtreModifiee(annonce)) {
       alert('Cette annonce ne peut pas être modifiée car elle a déjà été réservée.');
       return;
     }
-    this.router.navigate(['/annonces', annonce.annonce.id, 'modifier']);
+    this.annonceToEdit = annonce;
+    this.showEditModal = true;
+  }
+
+  // Fermer la modale de modification
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.annonceToEdit = null;
+  }
+
+  // Gérer la mise à jour depuis la modale
+  onAnnonceUpdated(): void {
+    this.closeEditModal();
+    this.chargerAnnonces(); // Recharger les annonces
   }
 
   confirmerSuppression(annonce: Annonce): void {
@@ -191,6 +252,8 @@ export class MesAnnoncesComponent implements OnInit {
     this.annonceService.supprimerAnnonce(this.annonceToDelete.annonce.id).subscribe({
       next: () => {
         this.annonces = this.annonces.filter(a => a.annonce.id !== this.annonceToDelete!.annonce.id);
+        this.separerAnnonces(); // AJOUT : Re-séparer après suppression
+        this.updatePagedAnnonces();
         this.showDeleteModal = false;
         this.annonceToDelete = null;
         alert('L\'annonce a été supprimée avec succès. Un email a été envoyé aux participants.');
@@ -251,8 +314,10 @@ export class MesAnnoncesComponent implements OnInit {
     return `${annonce.placesOccupees} / ${annonce.placesTotales}`;
   }
 
+  // MODIFICATION : Calculer le nombre total de pages selon le filtre
   get totalPages(): number {
-    return Math.ceil(this.annonces.length / this.itemsPerPage);
+    const filteredAnnonces = this.getFilteredAnnonces();
+    return Math.ceil(filteredAnnonces.length / this.itemsPerPage);
   }
 
   peutEtreModifiee(annonce: Annonce): boolean {

@@ -6,6 +6,14 @@
   background: #EDEDED;
 }
 
+/* Fixe le footer en bas */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #EDEDED;
+}
+
 /* Zone de contenu principale */
 .mes-annonces-container {
   flex: 1;
@@ -20,12 +28,11 @@
 
 /* Titre de la page */
 .page-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: #333;
-  margin-top: 0.1rem;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
   text-align: center;
   text-transform: uppercase;
 }
@@ -62,6 +69,52 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Styles pour les filtres */
+.filters-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: start;
+}
+
+.filter-btn {
+  padding: 0.4rem 1.5rem;
+  border: 2px solid #0B84A2;
+  background: white;
+  color: #0B84A2;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-btn:hover {
+  background: #E6F7FB;
+}
+
+.filter-btn.active {
+  background: #0B84A2;
+  color: white;
+}
+
+/* Style pour les lignes d'annonces passées */
+.row-passee {
+  background-color: #f5f5f5 !important;
+  opacity: 0.7;
+}
+
+.row-passee td {
+  color: #888 !important;
+}
+
+.row-passee .vehicle-photo {
+  opacity: 0.6;
+  filter: grayscale(50%);
 }
 
 /* Conteneur de la carte/tableau */
@@ -293,6 +346,7 @@
 .action-button-container {
   display: flex;
   justify-content: center;
+  margin-top: 1rem;
 }
 
 .btn-poster-annonce {

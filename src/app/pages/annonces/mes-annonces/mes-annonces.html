@@ -4,6 +4,22 @@
   <main class="mes-annonces-container">
     <h1 class="page-title">MES ANNONCES</h1>
 
+    <!-- Filtres -->
+    <div class="filters-container">
+      <button
+        class="filter-btn"
+        [class.active]="filterType === 'avenir'"
+        (click)="setFilter('avenir')">
+        📅 À venir ({{ annoncesAvenir.length }})
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="filterType === 'passees'"
+        (click)="setFilter('passees')">
+        📜 Passées ({{ annoncesPassees.length }})
+      </button>
+    </div>
+
     <!-- Message d'erreur -->
     <div *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
@@ -16,7 +32,7 @@
     </div>
 
     <!-- Tableau des annonces -->
-    <div *ngIf="!isLoading && annonces && annonces.length > 0" class="annonces-table-container">
+    <div *ngIf="!isLoading && pagedAnnonces && pagedAnnonces.length > 0" class="annonces-table-container">
       <table class="annonces-table">
         <thead>
         <tr>
@@ -31,7 +47,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let annonce of pagedAnnonces">
+        <tr *ngFor="let annonce of pagedAnnonces"
+            [class.row-passee]="filterType === 'passees'">
           <td>{{ formatHeureDepart(annonce.annonce.heureDepart) }}</td>
           <td>{{ formatAdresse(annonce.annonce.adresseDepart) }}</td>
           <td>{{ formatAdresse(annonce.annonce.adresseArrivee) }}</td>
@@ -53,7 +70,9 @@
               title="Voir les détails">
               <i class="icon-info">ℹ️</i>
             </button>
+
             <button
+              *ngIf="filterType === 'avenir'"
               class="action-btn edit-btn"
               (click)="modifierAnnonce(annonce)"
               [disabled]="!peutEtreModifiee(annonce)"
@@ -61,7 +80,9 @@
                 'Modifier' : 'Modification impossible (annonce réservée)'">
               <i class="icon-edit">✏️</i>
             </button>
+
             <button
+              *ngIf="filterType === 'avenir'"
               class="action-btn delete-btn"
               (click)="confirmerSuppression(annonce)"
               title="Supprimer">
@@ -71,6 +92,7 @@
         </tr>
         </tbody>
       </table>
+
       <div class="pagination">
         <button type="button" class="pager" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
         <span class="pager__info">Page {{ currentPage }} / {{ totalPages }}</span>
@@ -79,8 +101,9 @@
     </div>
 
     <!-- Message si aucune annonce -->
-    <div *ngIf="!isLoading && (!annonces || annonces.length === 0)" class="no-annonces">
-      <p>Vous n'avez pas encore créé d'annonce.</p>
+    <div *ngIf="!isLoading && (!pagedAnnonces || pagedAnnonces.length === 0)" class="no-annonces">
+      <p *ngIf="filterType === 'avenir'">Vous n'avez pas d'annonce à venir.</p>
+      <p *ngIf="filterType === 'passees'">Vous n'avez pas d'annonce passée.</p>
     </div>
 
     <!-- Bouton poster une annonce -->
@@ -94,7 +117,7 @@
   <app-footer></app-footer>
 </div>
 
-<!-- Modal de confirmation de suppression (en dehors du wrapper) -->
+<!-- Modal de confirmation de suppression -->
 <app-delete-confirmation-dialog
   [open]="showDeleteModal"
   [title]="'Confirmer la suppression'"
@@ -106,11 +129,20 @@
   (cancel)="annulerSuppression()">
 </app-delete-confirmation-dialog>
 
-<!-- Modale de détail d'annonce (en dehors du wrapper) -->
+<!-- Modale de détail d'annonce - MODIFICATION : Passer isAnnoncePassee -->
 <app-annonce-detail-modal
   [isOpen]="showDetailModal"
   [annonce]="selectedAnnonce"
   [conducteur]="{ prenom: currentUser?.prenom || '', nom: currentUser?.nom || '' }"
+  [isPassee]="filterType === 'passees'"
   (close)="closeDetailModal()"
   (annuler)="onAnnulerAnnonce($event)">
 </app-annonce-detail-modal>
+
+<!-- Modale de modification d'annonce -->
+<app-edit-annonce-modal
+  [isOpen]="showEditModal"
+  [annonce]="annonceToEdit"
+  (close)="closeEditModal()"
+  (updated)="onAnnonceUpdated()">
+</app-edit-annonce-modal>
