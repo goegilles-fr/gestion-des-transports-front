@@ -13,6 +13,7 @@ export class AnnonceDetailModalComponent implements OnChanges {
   @Input() annonce: any;
   @Input() conducteur: any;
   @Input() isOpen: boolean = false;
+  @Input() isPassee: boolean = false;
   @Output() close = new EventEmitter<void>();
   @Output() annuler = new EventEmitter<number>();
 

@@ -99,4 +99,13 @@ export class CreateAnnonceService {
       { headers: this.getHeaders() }
     );
   }
+
+  // AJOUT : Méthode pour modifier une annonce
+  modifierAnnonce(id: number, annonce: AnnonceRequest): Observable<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/api/covoit/${id}`,
+      annonce,
+      { headers: this.getHeaders() }
+    );
+  }
 }
