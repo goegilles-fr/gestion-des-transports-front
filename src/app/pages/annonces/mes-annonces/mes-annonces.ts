@@ -77,13 +77,31 @@ export class MesAnnoncesComponent implements OnInit {
 
     this.annonceService.getMesAnnonces().subscribe({
       next: (response: AnnonceResponse) => {
-        this.annonces = response;
-        // Charger les véhicules pour chaque annonce
+        if (Array.isArray(response)) {
+          this.annonces = response;
+        } else {
+          this.annonces = [];
+        }
         this.chargerVehicules();
       },
       error: (error: any) => {
         console.error('Erreur lors du chargement des annonces:', error);
-        this.errorMessage = 'Impossible de charger les annonces. Veuillez réessayer.';
+
+        // MODIFICATION : error.error est directement une string, pas un objet
+        const isEmptyList = error.status === 400 &&
+                           typeof error.error === 'string' &&
+                           error.error.includes('Aucune annonce trouvée');
+
+        if (error.status === 404 || error.status === 204 || isEmptyList) {
+          // Cas normal : pas d'annonces
+          this.annonces = [];
+        } else {
+          // Vraie erreur
+          this.errorMessage = 'Impossible de charger les annonces. Veuillez réessayer.';
+          this.annonces = [];
+        }
+
+        this.separerAnnonces();
         this.isLoading = false;
       }
     });
