@@ -116,7 +116,7 @@ app-footer {
 
 /* Alternance des couleurs de fond pour les cellules impaires */
 .table tbody tr td:nth-child(odd) {
-  background-color: #E6F7FB;
+  background-color: #e5f6fa;
 }
 
 .table tbody tr:hover td {
@@ -239,19 +239,19 @@ app-footer {
 
 /* Coloration spéciale pour les réservations */
 .table--reservations tbody tr.row--current td {
-  background-color: #e8f7ea !important;
+  background-color: #bdf1c4 !important;
 }
 
 .table--reservations tbody tr.row--current td:nth-child(odd) {
-  background-color: #d4f1d7 !important;
+  background-color: #9fdfa4 !important;
 }
 
 .table--reservations tbody tr.row--past td {
-  background-color: #f5f5f5 !important;
+  background-color: #c4c4c4 !important;
 }
 
 .table--reservations tbody tr.row--past td:nth-child(odd) {
-  background-color: #ebebeb !important;
+  background-color: #b3b3b3 !important;
 }
 
 /* Pagination */
@@ -380,7 +380,6 @@ app-footer {
     justify-self: end;
   }
 }
-
 
 @media (max-width: 768px) {
   .empty-personal p {

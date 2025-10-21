@@ -1,4 +1,6 @@
+/* ====== Layout plein écran (footer en bas) ====== */
 :host {
+  /* palette locale */
   --teal-700: #0B84A2;
   --teal-600: #0B84A2;
   --teal-500: #1292a3;
@@ -9,41 +11,34 @@
   --ink-500: #4c6f78;
   --muted: #6b7f85;
   --white: #fff;
+
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* Page + Titre */
-.header {
-  text-align: center;
-}
-
-/* le header et le footer ne doivent pas s’étirer */
 app-navbar,
 app-footer {
   flex: 0 0 auto;
 }
 
-/* le contenu central prend tout l’espace restant */
 .page {
   flex: 1 0 auto;
   padding: 24px clamp(16px, 5vw, 40px);
   background: linear-gradient(180deg, #f7fbfc 0%, #f2fafb 100%);
-  /* min-height: 100%;  ← plus besoin avec flex */
   color: var(--ink-900);
 }
 
+/* ====== Titre / Filtres ====== */
+.header { text-align: center; }
 .header h1 {
   margin: 0 0 16px;
   color: var(--ink-900);
   font-size: clamp(1.35rem, 1rem + 1.2vw, 1.8rem);
   font-weight: 800;
   letter-spacing: .02em;
-  justify-self: center;
 }
 
-/* Filtres (dates/heures) */
 .filters {
   display: grid;
   grid-template-columns: repeat(2, minmax(260px, 1fr));
@@ -87,73 +82,58 @@ app-footer {
 }
 .muted { color: var(--muted); }
 
-/* Swiper container (Web Component) */
-swiper-container {
+/* ====== Swiper (web component) ====== */
+.vehicules-swiper {
   display: block;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 8px 0 12px;
+
   /* couleurs des contrôles */
   --swiper-navigation-color: #1f2a2e;
   --swiper-pagination-color: #1f2a2e;
 
-  position: relative;
-  /* variables utilitaires pour calculer la position des flèches */
-  --card-max: 900px;
-  --card-w: min(var(--card-max), 75vw);
-  --card-half: calc(var(--card-w) / 2);
-  --button-offset: 12px;   /* distance entre la carte et la flèche */
-  --button-size: 44px;     /* doit matcher la taille définie plus haut */
+  /* hauteur homogène pour toutes les slides */
+  --slide-h: clamp(420px, 60vh, 560px);
 }
 
-/* Boutons de navigation Swiper Elements (Shadow Parts) */
-swiper-container::part(button-prev),
-swiper-container::part(button-next) {
-  width: 50px;
-  height: 50px;
+/* Boutons (position par défaut de Swiper) */
+.vehicules-swiper::part(button-prev),
+.vehicules-swiper::part(button-next) {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--teal-600);
-  color: #ffffff;
+  color: #fff;
   box-shadow: 0 10px 22px rgba(9,72,82,.16);
   border: 1px solid var(--teal-600);
-  display: grid;
-  place-items: center;
-  opacity: 1;              /* assure visibilité */
-  pointer-events: auto;    /* clickable */
 }
-swiper-container::part(button-prev):hover,
-swiper-container::part(button-next):hover {
+.vehicules-swiper::part(button-prev):hover,
+.vehicules-swiper::part(button-next):hover {
   background: var(--teal-200);
 }
 
-/* Bouton précédent à gauche de la carte */
-swiper-container::part(button-prev) {
-  position: absolute;
-  left: calc(50% - var(--card-half) - var(--button-offset) - (var(--button-size) / 2));
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
+/* Pagination un poil espacée */
+.vehicules-swiper::part(pagination) { margin-top: 10px; }
 
-/* Bouton suivant à droite de la carte */
-swiper-container::part(button-next) {
-  position: absolute;
-  left: calc(50% + var(--card-half) + var(--button-offset) + (var(--button-size) / 2));
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-swiper-container::part(pagination) {
-  position: relative;
-  margin-top: 10px;
-}
-
-/* Slide -> centre la carte et limite la largeur à ~75% */
+/* Slides : même hauteur pour toutes */
 swiper-slide {
   display: grid;
   place-items: center;
   padding: 8px 0 16px;
+  height: var(--slide-h);     /* ← clé : hauteur identique */
+  box-sizing: border-box;
 }
+
+/* ====== Carte véhicule ====== */
 .card {
-  width: min(900px, 75vw);
+  width: 100%;
+  max-width: 760px;
+  height: 100%;              /* ← la carte remplit la slide */
+  display: flex;             /* structure stable */
+  flex-direction: column;
+
   background: var(--white);
   border-radius: 18px;
   box-shadow: 0 10px 24px rgba(9, 72, 82, 0.12);
@@ -161,8 +141,9 @@ swiper-slide {
   overflow: hidden;
 }
 
-/* En-tête de carte */
+/* En-tête */
 .card-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -176,42 +157,65 @@ swiper-slide {
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: .02em;
+
+  /* empêcher que de longues marques/modèles cassent la hauteur */
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .immat {
-  font-weight: 700;
-  opacity: .95;
+  font-weight: 700; opacity: .95;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 28%;
+  text-align: right;
 }
 
-/* Corps de carte */
+/* Corps : image fixe + zone info qui prend le reste */
 .card-body {
+  flex: 1 1 auto;                 /* ← occupe l’espace disponible */
   display: grid;
+  grid-template-rows: auto 1fr;   /* image en haut, infos qui “remplissent” */
   gap: 10px 16px;
   padding: 14px 16px 6px;
 }
+
+/* Image à ratio constant → même hauteur relative */
 .photo {
   width: 100%;
-  aspect-ratio: 16 / 9; /* format paysage homogène */
-  object-fit: cover;    /* léger crop contrôlé */
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   display: block;
   background: var(--teal-100);
   border: 1px solid #e7f4f6;
   border-radius: 12px;
 }
+
+/* Infos : grille fixe + ellipsis pour éviter de grandir */
 .props {
   margin: 0;
   padding: 0;
   list-style: none;
+
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1.6em;     /* ← hauteur uniforme par ligne */
   gap: 8px 12px;
   color: var(--ink-700);
-}
-.props li strong {
-  color: var(--ink-900);
-}
 
-/* Pied de carte */
+  overflow: hidden;          /* pas de débordement */
+}
+.props li {
+  min-width: 0;              /* autorise l’ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.props li strong { color: var(--ink-900); }
+
+/* Pied : hauteur fixe par contenu, ne s’étire pas */
 .card-footer {
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -237,9 +241,10 @@ swiper-slide {
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: .6; cursor: not-allowed; }
 
-/* Slide vide */
+/* Slide “vide” (fallback quand pas de données) */
 .empty {
-  width: min(900px, 75vw);
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
   text-align: center;
   color: var(--muted);
@@ -249,14 +254,66 @@ swiper-slide {
   border-radius: 16px;
 }
 
-/* Responsive */
-@media (max-width: 920px) {
-  .filters {
-    grid-template-columns: 1fr;
+/* --- Espace sous le slide + pagination plus basse --- */
+.vehicules-swiper {
+  /* un peu plus d'air en bas pour éviter le chevauchement */
+  padding-bottom: clamp(28px, 4vh, 56px);
+}
+
+/* ====== Effet “prévisualisation” (miniatures autour de l’active) ====== */
+.vehicules-swiper swiper-slide { transition: transform 220ms ease, opacity 220ms ease; }
+
+/* par défaut, on réduit un peu toutes les cartes */
+.vehicules-swiper swiper-slide .card {
+  transform: scale(.92);
+  opacity: .8;
+  transform-origin: center center;
+}
+
+/* la slide active est “pleine taille” */
+.vehicules-swiper swiper-slide.swiper-slide-active .card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* accentue légèrement les voisines immédiates */
+.vehicules-swiper swiper-slide.swiper-slide-prev .card,
+.vehicules-swiper swiper-slide.swiper-slide-next .card {
+  transform: scale(.95);
+  opacity: .9;
+}
+
+/* Mobile : éviter la réduction trop forte */
+@media (max-width: 480px) {
+  .vehicules-swiper swiper-slide .card { transform: scale(.96); opacity: .9; }
+}
+
+/* pousse visuellement les bullets plus bas */
+.vehicules-swiper::part(pagination) {
+  margin-top: 18px;           /* espace par rapport aux cartes */
+  transform: translateY(10px); /* petit décalage vers le bas */
+}
+
+/* --- Flèches de navigation un peu plus excentrées --- */
+.vehicules-swiper {
+  /* éloigne les flèches du contenu central/lateral */
+  --swiper-navigation-sides-offset: clamp(20px, 6vw, 72px);
+  --swiper-navigation-top-offset: 50%;
+}
+
+/* style inchangé mais on garde une ombre douce */
+.vehicules-swiper::part(button-prev),
+.vehicules-swiper::part(button-next) {
+  box-shadow: 0 8px 22px rgba(9,72,82,.16);
+}
+
+/* Mobile : rapprocher un peu pour que ça reste accessible */
+@media (max-width: 640px) {
+  .vehicules-swiper {
+    --swiper-navigation-sides-offset: 14px;
+    padding-bottom: 36px;
   }
-  .card { width: 88vw; }
-  .props { grid-template-columns: 1fr; }
-  swiper-container {
-    --button-offset: 8px;
+  .vehicules-swiper::part(pagination) {
+    transform: translateY(6px);
   }
 }

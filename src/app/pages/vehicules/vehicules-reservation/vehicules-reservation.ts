@@ -1,4 +1,7 @@
-import { Component, signal, computed, effect, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component, signal, computed, effect, CUSTOM_ELEMENTS_SCHEMA,
+  ViewChild, ElementRef, NgZone, AfterViewInit
+} from '@angular/core';
 import { Vehicules } from '../../../services/vehicules/vehicules';
 import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { CommonModule } from '@angular/common';
@@ -8,6 +11,7 @@ import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import 'swiper/element/bundle';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import type { SwiperContainer } from 'swiper/element';
 
 @Component({
   selector: 'app-vehicules-reservation',
@@ -17,15 +21,170 @@ import { FooterComponent } from '../../../shared/footer/footer';
   styleUrl: './vehicules-reservation.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class VehiculesReservation {
-  constructor(private vehiculeService: Vehicules, private router: Router) {
-    this.initDefaultDates();
+export class VehiculesReservation implements AfterViewInit {
+  @ViewChild('sc', { static: false }) swiperContainer!: ElementRef<SwiperContainer>;
 
-    // Charger la liste “en service” une seule fois
+  // ====== DEBUG minimal ======
+  private DBG = true;
+  private log = (...a: any[]) => { if (this.DBG) console.log('[VR]', ...a); };
+
+  private swiperInitialized = false;
+  private lastSlidesCount: number | null = null;
+
+  // ---------- Swiper bootstrap ----------
+  ngAfterViewInit(): void {
+    // Attendre que Angular ait rendu au moins 1 slide réelle
+    const waitForSlides = () => {
+      const el = this.swiperContainer?.nativeElement as HTMLElement;
+      if (!el) return;
+      const count = el.querySelectorAll('swiper-slide').length;
+      if (count === 0) {
+        requestAnimationFrame(waitForSlides);
+        return;
+      }
+      this.safeInitSwiper();
+    };
+    queueMicrotask(waitForSlides);
+  }
+
+  // Re-initialiser proprement si la longueur change (filtres)
+  reinitWhenListChanges = effect(() => {
+    const count = this.vehiculesDisponible().length;
+    if (this.loading() || count <= 0) return;
+
+    const el = this.swiperContainer?.nativeElement as any;
+    if (!el) return;
+
+    if (this.lastSlidesCount !== null && this.lastSlidesCount !== count) {
+      this.log('Slides count changed', this.lastSlidesCount, '->', count, ':: re-init Swiper');
+      this.destroySwiper();
+      queueMicrotask(() => this.safeInitSwiper());
+    }
+  });
+
+  /** Détruit complètement le swiper (clones, listeners, etc.) */
+  private destroySwiper(): void {
+    const el = this.swiperContainer?.nativeElement as any;
+    const swiper = el?.swiper;
+    if (swiper) {
+      this.log('destroySwiper()');
+      swiper.destroy(true, true);
+    }
+    this.swiperInitialized = false;
+  }
+
+  /** Slides per view désiré selon largeur (fractionnaire pour aider le loop) */
+  private desiredPerView(): number {
+    const w = window.innerWidth || document.documentElement.clientWidth || 1024;
+    // Desktop : 2.5 → prévisu nette, et règles de loop plus tolérantes
+    if (w >= 1024) return 2.5;
+    if (w >= 768)  return 1.6;
+    return 1.1;
+  }
+
+  /** Vrai “init” Swiper avec une config qui laisse Swiper gérer ses clones */
+  private safeInitSwiper(): void {
+    const el = this.swiperContainer?.nativeElement as any;
+    if (!el) return;
+
+    const count = (el.querySelectorAll('swiper-slide')?.length ?? 0);
+    if (count === 0) return;
+
+    // Nettoyer d’éventuels attributs conflictuels du HTML
+    el.removeAttribute?.('loop');
+    el.removeAttribute?.('slides-per-view');
+
+    const perView = this.desiredPerView();
+    const canLoop = count > Math.ceil(perView); // règle simple et fiable
+
+    const params = {
+      slidesPerView: perView,
+      slidesPerGroup: 1,           // mouvement de 1 → pas de “saut”
+      centeredSlides: true,
+      centeredSlidesBounds: false,
+      centerInsufficientSlides: true, // centre propre si peu de slides
+      spaceBetween: 12,
+      speed: 350,
+      watchSlidesProgress: true,
+
+      navigation: true,
+      pagination: { clickable: true },
+      keyboard: { enabled: true },
+
+      loop: canLoop,               // ← on n’active que si c’est safe
+      rewind: !canLoop,            // sinon retour début/fin, pas de clones
+
+      observer: true,
+      observeParents: true,
+
+      breakpoints: {
+        768:  { slidesPerView: 1.6, spaceBetween: 16 },
+        1024: { slidesPerView: 2.2, spaceBetween: 24 },
+      },
+    } as const;
+
+    this.log('init params =', params, 'count =', count);
+    Object.assign(el, params);
+
+    el.initialize();               // Init du web component
+    this.swiperInitialized = true;
+    this.lastSlidesCount = count;
+
+    const swiper = el.swiper;
+    if (!swiper) return;
+
+    // Positionner explicitement sur la 1re vraie slide
+    const placeFirst = () => {
+      if (swiper.params.loop) swiper.slideToLoop(0, 0, false);
+      else swiper.slideTo(0, 0, false);
+      this.updateSwiper(swiper);
+      this.log('placed first; loop=', swiper.params.loop, 'pv=', swiper.params.slidesPerView);
+    };
+    requestAnimationFrame(placeFirst);
+
+    // Recalibrer sur resize/breakpoint (sans forcer loopAdditionalSlides/loopedSlides)
+    const rebuild = () => {
+      const c = (el.querySelectorAll('swiper-slide')?.length ?? 0);
+      const pv = this.desiredPerView();
+      const allowLoop = c > Math.ceil(pv);
+
+      swiper.params.slidesPerView = pv;
+      swiper.params.loop = allowLoop;
+      swiper.params.rewind = !allowLoop;
+
+      if (allowLoop) {
+        swiper.loopDestroy(true);
+        swiper.loopCreate();
+        swiper.slideToLoop(swiper.realIndex ?? 0, 0, false);
+      } else {
+        swiper.slideTo(swiper.activeIndex ?? 0, 0, false);
+      }
+      this.updateSwiper(swiper);
+      this.log('rebuild:', { c, pv, allowLoop });
+    };
+
+    swiper.on('resize', rebuild);
+    swiper.on('breakpoint', rebuild);
+  }
+
+  /** Mises à jour safe (classes/nav/pagination) */
+  private updateSwiper(swiper: any): void {
+    swiper.updateSlides();
+    swiper.updateSize();
+    swiper.updateProgress();
+    swiper.updateSlidesClasses();
+    swiper.navigation?.update?.();
+    swiper.pagination?.render?.();
+    swiper.pagination?.update?.();
+  }
+
+  // ---------- Données & logique existantes ----------
+  constructor(private vehiculeService: Vehicules, private router: Router, private zone: NgZone) {
+    this.initDefaultDates();
     this.loadBaseList();
     this.refreshDisponibilites();
 
-    // Rafraîchir la dispo à chaque changement de date/heure (avec petit debounce)
+    // Rafraîchir la dispo à chaque changement de date/heure
     effect(() => {
       const allFilled = this.allFilled();
       const valid = this.dateValid();
@@ -40,13 +199,12 @@ export class VehiculesReservation {
       this.loading.set(true);
       this.vehiculeService.getEntrepriseByDate(startIso, endIso).subscribe({
         next: (dispos) => {
-          // sécurise l'ID et évite le Set<number|undefined>
           const ids = new Set<number>(dispos.map(v => Number(v.id)).filter((id): id is number => Number.isFinite(id)));
           this.availableIds.set(ids);
         },
         error: (e) => {
           console.error(e);
-          this.availableIds.set(null); // en cas d’erreur, retomber sur la base list
+          this.availableIds.set(null);
         },
         complete: () => this.loading.set(false),
       });
@@ -56,9 +214,8 @@ export class VehiculesReservation {
   vehiculesEnService = signal<VehiculeDTO[]>([]);
   availableIds = signal<Set<number> | null>(null);
   readonly reservationsUser = signal<ReservationVehiculeDto[]>([]);
+  loading = signal<boolean>(false);
 
-
-  // liste filtrée (disponibles)
   vehiculesDisponible = computed<VehiculeDTO[]>(() => {
     const list = this.vehiculesEnService();
     const ids = this.availableIds();
@@ -66,20 +223,14 @@ export class VehiculesReservation {
     if (!list?.length) return [];
     if (!ids) return list;
     if (ids.size === 0) return [];
-
     return list.filter(v => v.id != null && ids.has(v.id));
   });
 
-  // ==================== Modale Confirmation ======================
-
-  /** Ouverture/fermeture de la modale */
+  // ---------------- Modale ----------------
   confirmOpen = signal(false);
   vehiculeToReserve = signal<VehiculeDTO | null>(null);
 
-  /** Titre/texte dynamiques de la modale */
-  confirmTitle = computed(() =>
-    'Confirmer la réservation'
-  );
+  confirmTitle = computed(() => 'Confirmer la réservation');
 
   confirmMessage = computed(() => {
     const vehicule = this.vehiculeToReserve();
@@ -92,33 +243,26 @@ export class VehiculesReservation {
 du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
   });
 
-  /** Ouvre la modale pour le véhicule cliqué */
   openConfirmReserve(vehicule: VehiculeDTO) {
     if (!this.canReserve()) return;
     this.vehiculeToReserve.set(vehicule);
     this.confirmOpen.set(true);
   }
-
-  /** Annule (ferme la modale) */
   cancelReserve() {
     this.confirmOpen.set(false);
     this.vehiculeToReserve.set(null);
   }
 
-  // =================================================================
-
-  loading = signal<boolean>(false);
-
+  // ---------------- Dates / validation ----------------
   dateDebutStr = signal<string>('');
   dateFinStr = signal<string>('');
   timeDebutStr = signal<string>('08:00');
   timeFinStr = signal<string>('19:00');
 
-  readonly HEURES = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
-    '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  readonly HEURES = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
 
   readonly selectedStart = computed(() => this.toLocalDate(this.dateDebutStr(), this.timeDebutStr()));
-  readonly selectedEnd = computed(() => this.toLocalDate(this.dateFinStr(), this.timeFinStr()));
+  readonly selectedEnd   = computed(() => this.toLocalDate(this.dateFinStr(),   this.timeFinStr()));
 
   readonly dateValid = computed(() => {
     const s = this.selectedStart();
@@ -130,8 +274,6 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
     const s = this.selectedStart();
     const e = this.selectedEnd();
     if (!s || !e) return false;
-
-    // Overlap si: s < r.fin && e > r.debut
     return this.reservationsUser().some(r => {
       const rs = new Date(r.dateDebut);
       const re = new Date(r.dateFin);
@@ -151,12 +293,10 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
 
   loadBaseList() {
     this.loading.set(true);
-
     this.vehiculeService.listReservationByUserId().subscribe({
       next: list => this.reservationsUser.set(list ?? []),
       error: err => console.error('reservationsUser error', err),
     });
-
     this.vehiculeService.getEntrepriseByStatut('EN_SERVICE').subscribe({
       next: list => this.vehiculesEnService.set(list ?? []),
       error: e => console.error(e),
@@ -165,40 +305,33 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
   }
 
   private combineDateTime(dateStr: string, timeStr: string) {
-    // retourne 'YYYY-MM-DDTHH:mm:00'
     return `${dateStr}T${timeStr}:00`;
   }
-
   private combineDateTimePayload(dateStr: string, timeStr: string) {
-    // retourne 'YYYY-MM-DD HH:mm:00'
     return `${dateStr} ${timeStr}:00`;
   }
 
   toLocalDate(dateStr: string, timeStr: string): Date | null {
     if (!dateStr || !timeStr) return null;
-    // timeStr attendu "HH:mm"
     const [h, m] = timeStr.split(':').map(Number);
     const [y, mm, dd] = dateStr.split('-').map(Number);
     if ([y, mm, dd, h, m].some(v => Number.isNaN(v))) return null;
-    return new Date(y, (mm - 1), dd, h, m, 0, 0); // Local time
+    return new Date(y, (mm - 1), dd, h, m, 0, 0);
   }
-
   private toLocalDateYMD(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2,'0');
+    const d = String(date.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
   }
-
   toMinutes(hhmm: string): number {
     const [h, m] = hhmm.split(':').map(Number);
     return h * 60 + (m || 0);
   }
 
-  /** Récupère le range courant au format ISO string attendu par le back */
   private currentIsoRange() {
     const debutIso = this.combineDateTime(this.dateDebutStr(), this.timeDebutStr());
-    const finIso = this.combineDateTime(this.dateFinStr(), this.timeFinStr());
+    const finIso   = this.combineDateTime(this.dateFinStr(),   this.timeFinStr());
     return { debutIso, finIso };
   }
 
@@ -208,7 +341,6 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
       this.availableIds.set(new Set());
       return;
     }
-
     this.loading.set(true);
     this.vehiculeService.getEntrepriseByDate(debutIso, finIso).subscribe({
       next: (dispos) => {
@@ -226,56 +358,44 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
   canReserve(): boolean {
     if (!this.allFilled() || !this.dateValid() || this.hasOverlap()) return false;
     const start = new Date(this.combineDateTime(this.dateDebutStr(), this.timeDebutStr())).getTime();
-    const end = new Date(this.combineDateTime(this.dateFinStr(), this.timeFinStr())).getTime();
+    const end   = new Date(this.combineDateTime(this.dateFinStr(),  this.timeFinStr())).getTime();
     return end > start;
   }
 
-  /** Confirme → appelle l’API puis redirige */
   confirmReserve() {
     const vehicule = this.vehiculeToReserve();
     if (!vehicule) return;
-
     const payload = {
       vehiculeId: vehicule.id!,
       dateDebut: this.combineDateTimePayload(this.dateDebutStr(), this.timeDebutStr()),
-      dateFin: this.combineDateTimePayload(this.dateFinStr(), this.timeFinStr())
+      dateFin:   this.combineDateTimePayload(this.dateFinStr(),   this.timeFinStr())
     };
-
     this.vehiculeService.createReservation(payload).subscribe({
       next: () => {
         this.confirmOpen.set(false);
         this.vehiculeToReserve.set(null);
-        // Redirection vers la page liste
         this.router.navigate(['/vehicules']);
       },
-      error: (e) => {
-        console.error(e);
-      },
+      error: (e) => console.error(e),
     });
   }
 
-  // Appelle ça au chargement (constructor ou ngOnInit)
+  // Dates par défaut
   private initDefaultDates() {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
-
-    // Suppose que tu as déjà ça quelque part :
-    // readonly HEURES = ['08:00','09:00',...,'19:00'];
     const firstSlot = this.HEURES[0];
-    const lastSlot = this.HEURES[this.HEURES.length - 1];
+    const lastSlot  = this.HEURES[this.HEURES.length - 1];
     const lastSlotMin = this.toMinutes(lastSlot);
 
     let startDate = new Date(now);
     let startTime: string;
 
     if (now.getHours() <= 6) {
-      // Règle 1 : tôt le matin → premier créneau
       startTime = firstSlot;
     } else {
-      // Règle 2 : prochain créneau strictement après l’heure actuelle
       const next = this.HEURES.find(t => this.toMinutes(t) > nowMin);
-      if (!next || this.toMinutes(next) >= 19 * 60) {
-        // Règle 3 : si >= 19:00 (ou plus de créneau) → demain à premier créneau
+      if (!next || this.toMinutes(next) >= lastSlotMin) {
         startDate.setDate(startDate.getDate() + 1);
         startTime = firstSlot;
       } else {
@@ -283,12 +403,9 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
       }
     }
 
-    // Applique dans tes signaux
     const startDateStr = this.toLocalDateYMD(startDate);
     this.dateDebutStr.set(startDateStr);
     this.timeDebutStr.set(startTime);
-
-    // Fin par défaut = même jour à 19:00
     this.dateFinStr.set(startDateStr);
     this.timeFinStr.set('19:00');
   }

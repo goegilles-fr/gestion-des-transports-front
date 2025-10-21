@@ -1,81 +1,120 @@
 <app-navbar></app-navbar>
 
 <section class="page">
-    <header class="header">
-        <h1>Réserver un véhicule d’entreprise</h1>
-    </header>
-    <!-- filtres / sélection de plage -->
-    <div class="filters">
-        <label class="field">
-            <span>Date début :</span>
-            <input type="date" [value]="dateDebutStr()" (change)="dateDebutStr.set($event.target.value)">
+  <header class="header">
+    <h1>Réserver un véhicule d’entreprise</h1>
+  </header>
 
-            <span class="label">Heure de début :</span>
-            <select #tdeb [value]="timeDebutStr()" (change)="timeDebutStr.set(tdeb.value)">
-                @for(heure of HEURES; track $index) {
-                <option [value]="heure" [selected]="heure === timeDebutStr()">{{ heure }}</option>
-                }
-            </select>
-        </label>
+  <!-- Filtres / sélection de plage -->
+  <div class="filters">
+    <label class="field">
+      <span>Date début :</span>
+      <input type="date" [value]="dateDebutStr()" (change)="dateDebutStr.set($event.target.value)" />
 
-        <label class="field">
-            <span>Date fin</span>
-            <input type="date" [value]="dateFinStr()" (change)="dateFinStr.set($event.target.value)">
-
-            <span class="label">Heure de fin :</span>
-            <select #tfin [value]="timeFinStr()" (change)="timeFinStr.set(tfin.value)">
-                @for(heure of HEURES; track $index) {
-                <option [value]="heure" [selected]="heure === timeFinStr()">{{ heure }}</option>
-                }
-            </select>
-        </label>
-
-        @if (warnMsg()) {
-        <p class="warn">{{ warnMsg() }}</p>
+      <span class="label">Heure de début :</span>
+      <select #tdeb [value]="timeDebutStr()" (change)="timeDebutStr.set(tdeb.value)">
+        @for (heure of HEURES; track $index) {
+          <option [value]="heure" [selected]="heure === timeDebutStr()">{{ heure }}</option>
         }
-    </div>
-    @if (loading()) {
-    <p class="muted">Chargement…</p>
-    } @else {
-    <swiper-container navigation="true" pagination="true" keyboard="true" space-between="16" slides-per-view="1"
-        style="--swiper-navigation-color:#222; --swiper-pagination-color:#222; width:100%; height:auto;">
-        @for (vehicule of vehiculesDisponible(); track vehicule.id ?? $index) {
-        <swiper-slide>
-            <article class="card">
-                <header class="card-header">
-                    <h3>{{ vehicule.marque }} {{ vehicule.modele }}</h3>
-                    <span class="immat">{{ vehicule.immatriculation }}</span>
-                </header>
+      </select>
+    </label>
 
-                <div class="card-body">
-                    <img class="photo" [src]="vehicule.photo || 'https://placehold.co/640x360?text=Photo'"
-                        alt="Photo du véhicule" loading="lazy">
-                    <ul class="props">
-                        <li><strong>Places :</strong> {{ vehicule.nbPlaces }}</li>
-                        <li><strong>CO₂ :</strong> {{ vehicule.co2ParKm ?? '—' }}</li>
-                        <li><strong>Catégorie :</strong> {{ vehicule.categorie ?? '—' }}</li>
-                        <li><strong>Motorisation :</strong> {{ vehicule.motorisation ?? '—' }}</li>
-                    </ul>
-                </div>
+    <label class="field">
+      <span>Date fin</span>
+      <input type="date" [value]="dateFinStr()" (change)="dateFinStr.set($event.target.value)" />
 
-                <footer class="card-footer">
-                    <button type="button" class="btn" [disabled]="!canReserve()" (click)="openConfirmReserve(vehicule)">
-                        Réserver
-                    </button>
-                </footer>
-            </article>
-        </swiper-slide>
-        } @empty {
-        <swiper-slide>
-            <div class="empty">Aucun véhicule disponible pour ces dates.</div>
-        </swiper-slide>
+      <span class="label">Heure de fin :</span>
+      <select #tfin [value]="timeFinStr()" (change)="timeFinStr.set(tfin.value)">
+        @for (heure of HEURES; track $index) {
+          <option [value]="heure" [selected]="heure === timeFinStr()">{{ heure }}</option>
         }
-    </swiper-container>
+      </select>
+    </label>
+
+    @if (warnMsg()) {
+      <p class="warn">{{ warnMsg() }}</p>
     }
+  </div>
+
+  <!-- Swiper -->
+  <swiper-container
+    #sc
+    class="vehicules-swiper"
+    init="false"
+    navigation="true"
+    pagination="true"
+    keyboard="true"
+    style="--swiper-navigation-color:#222; --swiper-pagination-color:#222; width:100%; height:auto;"
+  >
+    @if (vehiculesDisponible().length > 0) {
+      @for (vehicule of vehiculesDisponible(); track vehicule.id ?? $index) {
+        <swiper-slide>
+          <article class="card">
+            <header class="card-header">
+              <h3>{{ vehicule.marque }} {{ vehicule.modele }}</h3>
+              <span class="immat">{{ vehicule.immatriculation }}</span>
+            </header>
+
+            <div class="card-body">
+              <img
+                class="photo"
+                [src]="vehicule.photo || 'https://placehold.co/640x360?text=Photo'"
+                alt="Photo du véhicule"
+                loading="lazy"
+              />
+
+              <!-- ✅ Version verticale : 1 info par ligne -->
+              <div style="display:flex; flex-direction:column; gap:8px; color:var(--ink-700);">
+                <p style="margin:0; line-height:1.35;">
+                  <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Catégorie :</strong>
+                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.categorie ?? '—' }}</span>
+                </p>
+                <p style="margin:0; line-height:1.35;">
+                  <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Motorisation :</strong>
+                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.motorisation ?? '—' }}</span>
+                </p>
+                <p style="margin:0; line-height:1.35;">
+                  <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">CO₂ :</strong>
+                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.co2ParKm ?? '—' }}</span>
+                </p>
+                <p style="margin:0; line-height:1.35;">
+                  <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Places :</strong>
+                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.nbPlaces }}</span>
+                </p>
+              </div>
+              <!-- /fin version verticale -->
+            </div>
+
+            <footer class="card-footer">
+              <button
+                type="button"
+                class="btn"
+                [disabled]="!canReserve()"
+                (click)="openConfirmReserve(vehicule)"
+              >
+                Réserver
+              </button>
+            </footer>
+          </article>
+        </swiper-slide>
+      }
+    } @else {
+      <swiper-slide>
+        <div class="empty">Aucun véhicule disponible pour ces dates.</div>
+      </swiper-slide>
+    }
+  </swiper-container>
 </section>
 
-<app-confirm-dialog [open]="confirmOpen()" [title]="confirmTitle()" [message]="confirmMessage()"
-    confirmLabel="Confirmer" cancelLabel="Annuler" (confirm)="confirmReserve()" (cancel)="cancelReserve()">
+<app-confirm-dialog
+  [open]="confirmOpen()"
+  [title]="confirmTitle()"
+  [message]="confirmMessage()"
+  confirmLabel="Confirmer"
+  cancelLabel="Annuler"
+  (confirm)="confirmReserve()"
+  (cancel)="cancelReserve()"
+>
 </app-confirm-dialog>
 
 <app-footer></app-footer>
