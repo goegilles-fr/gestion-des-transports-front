@@ -3,85 +3,112 @@
 
 <div class="modal" role="dialog" aria-modal="true" aria-labelledby="vehiculeEditTitle">
 
-    <form class="form" (ngSubmit)="onSave()">
-        <h3 id="vehiculeEditTitle" class="form-title">{{ title }}</h3>
-        <div class="form-grid">
-            <label class="form-field">
-                <span class="field-label">Marque</span>
-                <input name="marque" [(ngModel)]="vehicule().marque" autocomplete="off" required />
-            </label>
+  <form class="form" (ngSubmit)="onSave()">
+    <h3 id="vehiculeEditTitle" class="form-title">{{ title }}</h3>
 
-            <label class="form-field">
-                <span class="field-label">Modèle</span>
-                <input name="modele" [(ngModel)]="vehicule().modele" autocomplete="off" required />
-            </label>
+    <!-- Messages de succès/erreur -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
 
-            <label class="form-field">
-                <span class="field-label">Immatriculation</span>
-                <input name="immatriculation" [(ngModel)]="vehicule().immatriculation" autocomplete="off" required />
-            </label>
+    <div class="form-grid">
+      <label class="form-field">
+        <span class="field-label">Marque</span>
+        <input name="marque" [(ngModel)]="vehicule().marque" autocomplete="off" required/>
+      </label>
 
-            <label class="form-field">
-                <span class="field-label">Places</span>
-                <input type="number" name="nbPlaces" [(ngModel)]="vehicule().nbPlaces" min="1" />
-            </label>
+      <label class="form-field">
+        <span class="field-label">Modèle</span>
+        <input name="modele" [(ngModel)]="vehicule().modele" autocomplete="off" required/>
+      </label>
 
-            <label class="form-field">
-                <span class="field-label">CO₂ / km</span>
-                <input type="number" name="co2ParKm" [(ngModel)]="vehicule().co2ParKm" min="0" />
-            </label>
+      <label class="form-field">
+        <span class="field-label">Immatriculation</span>
+        <input name="immatriculation" [(ngModel)]="vehicule().immatriculation" autocomplete="off" required/>
+      </label>
 
-            <label class="form-field">
-                <span class="label">Motorisation</span>
-                <select name="motorisation" [(ngModel)]="vehicule().motorisation" required>
-                    @for(motorisation of MOTORISATIONS; track $index) {
-                    <option [ngValue]="motorisation">{{ motorisation }}</option>
-                    }
-                </select>
-            </label>
+      <label class="form-field">
+        <span class="field-label">Places</span>
+        <input type="number" name="nbPlaces" [(ngModel)]="vehicule().nbPlaces" min="1"/>
+      </label>
 
-            <!-- Champ Statut visible seulement pour les vehicule d'entreprise -->
-            @if (showStatut) {
-            <label class="form-field">
-                <span class="field-label">Statut</span>
-                <select name="statut" [(ngModel)]="vehicule().statut" required>
-                    @for(s of STATUTS; track $index) {
-                    <option [ngValue]="s">{{ s.replace('_',' ').toLowerCase() | titlecase }}</option>
-                    }
-                </select>
-            </label>
-            }
+      <label class="form-field">
+        <span class="field-label">CO₂ / km</span>
+        <input type="number" name="co2ParKm" [(ngModel)]="vehicule().co2ParKm" min="0"/>
+      </label>
+
+      <label class="form-field">
+        <span class="label">Motorisation</span>
+        <select name="motorisation" [(ngModel)]="vehicule().motorisation" required>
+          @for(motorisation of MOTORISATIONS; track $index) {
+          <option [ngValue]="motorisation">{{ motorisation }}</option>
+          }
+        </select>
+      </label>
+
+      <!-- Champ Statut visible seulement pour les vehicule d'entreprise -->
+      @if (showStatut) {
+      <label class="form-field">
+        <span class="field-label">Statut</span>
+        <select name="statut" [(ngModel)]="vehicule().statut" required>
+          @for(s of STATUTS; track $index) {
+          <option [ngValue]="s">{{ s.replace('_',' ').toLowerCase() | titlecase }}</option>
+          }
+        </select>
+      </label>
+      }
 
 
-            <label class="form-field">
-                <span class="field-label">URL photo</span>
-                <input name="photo" [(ngModel)]="vehicule().photo" placeholder="https://…" />
-            </label>
+      <label class="form-field">
+        <span class="field-label">URL photo</span>
+        <input
+          name="photo"
+          [(ngModel)]="vehicule().photo"
+          placeholder="https://…"
+          maxlength="255" />
 
-            <label class="field">
-                <span class="field__label">Catégorie</span>
-                <select name="categorie" [(ngModel)]="vehicule().categorie" required>
-                    @for(category of CATEGORIES; track $index) {
-                    <option [ngValue]="category">{{ category }}</option>
-                    }
-                </select>
-            </label>
+        <!-- Avertissement à partir de 200 caractères -->
+        <span class="field-error" *ngIf="(vehicule().photo?.length || 0) >= 200 && (vehicule().photo?.length || 0) < 255">
+          ⚠️ Attention : {{ vehicule().photo?.length }}/255 caractères ({{ 255 - (vehicule().photo?.length || 0) }} restants)
+        </span>
 
-            @if(vehicule().photo) {
-            <div class="preview form-field">
-                <img [src]="vehicule().photo" alt="Aperçu du véhicule" />
-            </div>
-            }
-        </div>
+        <!-- Erreur à 255 : URL probablement tronquée -->
+        <span class="field-error" *ngIf="(vehicule().photo?.length || 0) === 255">
+          🚫 URL trop longue et probablement incomplète. Utilisez une URL plus courte ou un service de raccourcissement d'URL.
+        </span>
+      </label>
 
-        <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" (click)="onCancel()">Annuler</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!vehicule().marque.trim()
-                                                                        || !vehicule().modele.trim()
-                                                                        || !vehicule().immatriculation.trim()
-                                                                        || !vehicule().nbPlaces
-                                                                        ">Enregistrer</button>
-        </div>
-    </form>
+      <label class="field">
+        <span class="field__label">Catégorie</span>
+        <select name="categorie" [(ngModel)]="vehicule().categorie" required>
+          @for(category of CATEGORIES; track $index) {
+          <option [ngValue]="category">{{ category }}</option>
+          }
+        </select>
+      </label>
+
+      @if(vehicule().photo) {
+      <div class="preview form-field">
+        <img [src]="vehicule().photo" alt="Aperçu du véhicule"/>
+      </div>
+      }
+    </div>
+
+    <div class="modal-actions">
+
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Annuler</button>
+      <button type="submit" class="btn btn-primary"
+              [disabled]="!vehicule().marque.trim()
+       || !vehicule().modele.trim()
+       || !vehicule().immatriculation.trim()
+       || !vehicule().nbPlaces
+       || (vehicule().photo?.length || 0) === 255">
+        Enregistrer
+      </button>
+    </div>
+  </form>
 </div>
 }

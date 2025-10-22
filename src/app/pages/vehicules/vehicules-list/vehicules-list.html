@@ -54,7 +54,7 @@
       <p>Vous n’avez pas encore de véhicule personnel.</p>
       <div class="cta">
         <button type="button" class="btn-primary" (click)="openCreationVehicule()">
-          Ajouter mon véhicule
+          Déclarer mon véhicule personnel
         </button>
       </div>
     </div>
@@ -106,14 +106,14 @@
             <td class="actions-col">
               @if (isUpcoming(row)) {
               <!-- réservations à venir : annuler -->
-              
+
               <button type="button" class="icon-btn" title="Annuler la réservation" (click)="openAnnulation(row)">
                 <i class="icon-delete">🗑️</i>
               </button>
               } @else if (isCurrent(row)) {
               <!-- réservation en cours : terminer -->
               <button type="button" class="icon-btn" title="Terminer la réservation" (click)="openFinalisation(row)">
-                
+
                 <i class="icon-delete">🗑️</i>
               </button>
               } @else {
@@ -138,7 +138,7 @@
 
   <!-- CTA -->
   <div class="cta">
-    <button type="button" class="btn-primary" (click)="goToReservation()">RÉSERVER UN VÉHICULE</button>
+    <button type="button" class="btn-primary" (click)="goToReservation()">RÉSERVER UN VÉHICULE DE SOCIÉTÉ</button>
   </div>
 
 </div>
@@ -148,12 +148,26 @@
   (cancel)="closeModale()"></app-confirm-dialog>
 
 @if(vehiculeToEdit(); as editing) {
-<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="modaleTitle()" (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()"></app-vehicule-edit>
+<app-vehicule-edit
+  [open]="!!vehiculeToEdit()"
+  [model]="editing"
+  [title]="modaleTitle()"
+  [successMessage]="vehiculeSuccessMessage()"
+  [errorMessage]="vehiculeErrorMessage()"
+  (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()">
+</app-vehicule-edit>
 }
+
 @if(creationVehicule()) {
-<app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()"></app-vehicule-edit>
+<app-vehicule-edit
+  [open]="!!creationVehicule()"
+  [title]="modaleTitle()"
+  [successMessage]="vehiculeSuccessMessage()"
+  [errorMessage]="vehiculeErrorMessage()"
+  (confirm)="onSaveEdit($event)"
+  (cancel)="closeEdit()">
+</app-vehicule-edit>
 }
 
 <app-footer></app-footer>

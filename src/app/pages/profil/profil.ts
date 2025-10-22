@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,9 @@ import { AuthService } from '../../services/auth/auth';
 import { NavbarComponent } from '../../shared/navbar/navbar';
 import { FooterComponent } from '../../shared/footer/footer';
 import { ProfilService, UserProfil, ProfilUpdateRequest } from '../../services/profil/profil';
+import { VehiculeEdit } from '../vehicules/modales/vehicule-edit/vehicule-edit';
+import { VehiculeDTO } from '../../core/models/vehicule-dto';
+import { Vehicules } from '../../services/vehicules/vehicules';
 
 @Component({
   selector: 'app-profil',
@@ -16,13 +19,15 @@ import { ProfilService, UserProfil, ProfilUpdateRequest } from '../../services/p
     CommonModule,
     ReactiveFormsModule,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    VehiculeEdit
   ],
   templateUrl: './profil.html',
   styleUrls: ['./profil.css']
 })
 export class ProfilComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private vehiculeService = inject(Vehicules);
 
   profilForm: FormGroup;
   currentUser: any = null;
@@ -31,6 +36,26 @@ export class ProfilComponent implements OnInit, OnDestroy {
   isSaving = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+
+  // Propriétés pour la modale véhicule
+  showVehiculeModal = false;
+  vehiculeToEdit: VehiculeDTO = {
+    id: 0,
+    marque: '',
+    modele: '',
+    immatriculation: '',
+    nbPlaces: 0,
+    co2ParKm: 0,
+    motorisation: 'THERMIQUE',
+    photo: '',
+    categorie: 'COMPACTE',
+    statut: null,
+    utilisateurId: 0
+  };
+
+  // Messages pour la modale véhicule
+    vehiculeSuccessMessage = '';
+    vehiculeErrorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -215,31 +240,72 @@ export class ProfilComponent implements OnInit, OnDestroy {
   }
 
   onDeclareVehicle(): void {
-    // Redirection vers la page de déclaration de véhicule personnel
-    this.router.navigate(['/vehicules/personnel']);
+    // Ouvrir la modale au lieu de rediriger
+    this.showVehiculeModal = true;
+  }
+
+  // Gérer la fermeture de la modale
+  onVehiculeModalCancel(): void {
+    this.showVehiculeModal = false;
+  }
+
+  // Gérer la sauvegarde du véhicule
+  onVehiculeModalConfirm(vehicule: VehiculeDTO): void {
+    console.log('Véhicule à sauvegarder:', vehicule);
+
+    // Supprimer l'id pour la création
+    if ('id' in vehicule) {
+      delete vehicule.id;
+    }
+
+    this.vehiculeService.createPerso(vehicule).subscribe({
+      next: (vehiculeCreated) => {
+        console.log('Véhicule créé:', vehiculeCreated);
+        this.vehiculeSuccessMessage = '✅ Véhicule déclaré avec succès !';
+
+        // Fermer la modale après 2 secondes
+        setTimeout(() => {
+          this.showVehiculeModal = false;
+          this.vehiculeSuccessMessage = '';
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur création véhicule:', error);
+        // Message d'erreur personnalisé
+        if (error.error?.message?.includes('Data too long')) {
+          this.vehiculeErrorMessage = '❌ L\'URL de la photo est trop longue (max 255 caractères)';
+        } else {
+          this.vehiculeErrorMessage = '❌ Erreur lors de la déclaration du véhicule';
+        }
+
+        // Effacer le message après 3 secondes
+        setTimeout(() => {
+          this.vehiculeErrorMessage = '';
+        }, 3000);
+      }
+    });
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+      this.authService.logout();
+      this.router.navigate(['/login']);
   }
 
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+      this.router.navigate([route]);
   }
 
   private markFormGroupTouched(): void {
-    Object.keys(this.profilForm.controls).forEach(key => {
-      const control = this.profilForm.get(key);
-      control?.markAsTouched();
+      Object.keys(this.profilForm.controls).forEach(key => {
+        const control = this.profilForm.get(key);
+        control?.markAsTouched();
 
-      // Pour les groupes imbriqués comme adresse
-      if (control instanceof FormGroup) {
-        Object.keys(control.controls).forEach(subKey => {
-          control.get(subKey)?.markAsTouched();
-        });
-      }
-    });
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(subKey => {
+            control.get(subKey)?.markAsTouched();
+          });
+        }
+      });
   }
 
   getUserDisplayName(): string {

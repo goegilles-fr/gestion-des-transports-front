@@ -164,7 +164,7 @@
           (click)="onDeclareVehicle()">
           DÉCLARER MON VÉHICULE PERSONNEL
         </button>
-        
+
         <button
           type="button"
           class="btn btn-password"
@@ -201,3 +201,15 @@
   <app-footer></app-footer>
 
 </div>
+
+<!-- Modale de déclaration de véhicule -->
+<app-vehicule-edit
+  [open]="showVehiculeModal"
+  [model]="vehiculeToEdit"
+  [title]="'Déclarer mon véhicule personnel'"
+  [showStatut]="false"
+  [successMessage]="vehiculeSuccessMessage"
+  [errorMessage]="vehiculeErrorMessage"
+  (confirm)="onVehiculeModalConfirm($event)"
+  (cancel)="onVehiculeModalCancel()">
+</app-vehicule-edit>
