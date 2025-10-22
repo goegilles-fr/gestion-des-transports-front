@@ -11,6 +11,7 @@ import { Mdp } from './pages/auth/mdp/mdp';
 import { MdpReset } from './pages/auth/mdp-reset/mdp-reset';
 import { MdpChange } from './pages/auth/mdp-change/mdp-change';
 import { Utilisateurs } from './pages/admin/utilisateurs/utilisateurs';
+import { RechercheAnnonceComponent } from './pages/annonces/recherche-annonce/recherche-annonce';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -46,6 +47,11 @@ export const routes: Routes = [
   {
   path: 'utilisateurs',
   component: Utilisateurs,
+  canActivate: [AuthGuard]
+ },
+ {
+  path: 'covoiturages',
+  component: RechercheAnnonceComponent,
   canActivate: [AuthGuard]
  },
  {
