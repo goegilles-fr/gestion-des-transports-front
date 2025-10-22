@@ -1,0 +1,133 @@
+<app-navbar></app-navbar>
+
+<section class="page">
+  <header class="header">
+    <h1>Rechercher un covoiturage</h1>
+  </header>
+
+  <!-- Formulaire de recherche -->
+  <div class="filters">
+    <!-- Adresse de départ -->
+    <fieldset class="field">
+      <legend>Adresse de départ</legend>
+
+      <div class="row">
+        <input type="text" inputmode="numeric" placeholder="N°"
+               [value]="depNumero() ?? ''"
+               (input)="onNumberInput($event, depNumero)" class="w-20" />
+
+        <input type="text" placeholder="Rue / voie"
+               [value]="depRue()"
+               (input)="onTextInput($event, depRue)" class="flex-1" />
+      </div>
+
+      <div class="row">
+        <input type="text" inputmode="numeric" placeholder="Code postal"
+               [value]="depCp()"
+               (input)="onTextInput($event, depCp)" class="w-28" />
+
+        <input type="text" placeholder="Ville"
+               [value]="depVille()"
+               (input)="onTextInput($event, depVille)" class="flex-1" />
+      </div>
+    </fieldset>
+
+    <!-- Adresse d'arrivée -->
+    <fieldset class="field">
+      <legend>Adresse d’arrivée</legend>
+
+      <div class="row">
+        <input type="text" inputmode="numeric" placeholder="N°"
+               [value]="arrNumero() ?? ''"
+               (input)="onNumberInput($event, arrNumero)" class="w-20" />
+
+        <input type="text" placeholder="Rue / voie"
+               [value]="arrRue()"
+               (input)="onTextInput($event, arrRue)" class="flex-1" />
+      </div>
+
+      <div class="row">
+        <input type="text" inputmode="numeric" placeholder="Code postal"
+               [value]="arrCp()"
+               (input)="onTextInput($event, arrCp)" class="w-28" />
+
+        <input type="text" placeholder="Ville"
+               [value]="arrVille()"
+               (input)="onTextInput($event, arrVille)" class="flex-1" />
+      </div>
+    </fieldset>
+
+    <!-- Date / heure / flexibilité -->
+    <fieldset class="field">
+      <legend>Quand ?</legend>
+
+      <div class="row">
+        <label class="col">
+          <span class="label">Date de départ</span>
+          <input type="date" [value]="dateStr()" (input)="onTextInput($event, dateStr)" />
+        </label>
+
+        <label class="col">
+          <span class="label">Heure</span>
+          <input type="time" [value]="timeStr()" (input)="onTextInput($event, timeStr)" />
+        </label>
+
+        <label class="col">
+          <span class="label">Flexibilité (± heures)</span>
+          <input type="number" min="0" step="1" [value]="flexHeures()" (input)="onFlexInput($event)" />
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="button" class="btn" (click)="rechercher()">Rechercher</button>
+    </div>
+
+    @if (errorMsg()) {
+      <p class="warn">{{ errorMsg() }}</p>
+    }
+  </div>
+
+  <!-- Résultats -->
+  @if (loading()) {
+    <p class="muted">Chargement…</p>
+  } @else if (results().length === 0) {
+    <p class="muted">Aucune annonce ne correspond aux critères.</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Conducteur</th>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th>Heure de départ</th>
+            <th>Places dispo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of results(); track a['annonce']?.id) {
+            <tr>
+              <td>{{ conducteurName(a['annonce']?.id) || '—' }}</td>
+              <td>{{ formatAdresse(a['annonce']?.adresseDepart) }}</td>
+              <td>{{ formatAdresse(a['annonce']?.adresseArrivee) }}</td>
+              <td>{{ formatHeureDepart(a['annonce']?.heureDepart || '') }}</td>
+              <td>{{ placesDispo(a) }}</td>
+              <td>
+                <button type="button"
+                        class="btn small"
+                        [disabled]="placesDispo(a) <= 0"
+                        (click)="reserver(a)">
+                  Réserver
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<app-footer></app-footer>
