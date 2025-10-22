@@ -84,8 +84,8 @@ export class CreateAnnonceComponent implements OnInit {
     this.annonceForm = this.fb.group({
       dateDepart: ['', [Validators.required, this.dateNotInPastValidator.bind(this)]], // AJOUT validateur
       heureDepart: ['', Validators.required],
-      dureeTrajet: ['', [Validators.required, Validators.min(1)]],
-      distance: ['', [Validators.required, Validators.min(1)]],
+      dureeTrajet: ['', [Validators.min(1)]],
+      distance: ['', [Validators.min(1)]],
 
       // Adresse départ
       numeroDepart: ['', [Validators.required, Validators.min(1)]],
@@ -201,30 +201,35 @@ export class CreateAnnonceComponent implements OnInit {
 
     const formValue = this.annonceForm.value;
     const dateTimeDepart = `${formValue.dateDepart}T${formValue.heureDepart}:00.000Z`;
+    const annonceRequest: any = {
+  id: 0,
+  heureDepart: dateTimeDepart,
+  adresseDepart: {
+    id: 0,
+    numero: Number(formValue.numeroDepart),
+    libelle: formValue.libelleDepart,
+    codePostal: formValue.codePostalDepart,
+    ville: formValue.villeDepart
+  },
+  adresseArrivee: {
+    id: 0,
+    numero: Number(formValue.numeroArrivee),
+    libelle: formValue.libelleArrivee,
+    codePostal: formValue.codePostalArrivee,
+    ville: formValue.villeArrivee
+  },
+  vehiculeServiceId: this.useVehiculeEntreprise && this.vehiculeEntreprise
+    ? this.vehiculeEntreprise.id
+    : null
+};
 
-    const annonceRequest: AnnonceRequest = {
-      id: 0,
-      heureDepart: dateTimeDepart,
-      dureeTrajet: Number(formValue.dureeTrajet),
-      distance: Number(formValue.distance),
-      adresseDepart: {
-        id: 0,
-        numero: Number(formValue.numeroDepart),
-        libelle: formValue.libelleDepart,
-        codePostal: formValue.codePostalDepart,
-        ville: formValue.villeDepart
-      },
-      adresseArrivee: {
-        id: 0,
-        numero: Number(formValue.numeroArrivee),
-        libelle: formValue.libelleArrivee,
-        codePostal: formValue.codePostalArrivee,
-        ville: formValue.villeArrivee
-      },
-      vehiculeServiceId: this.useVehiculeEntreprise && this.vehiculeEntreprise
-        ? this.vehiculeEntreprise.id
-        : null
-    };
+// Ajouter durée et distance SEULEMENT si renseignées
+if (formValue.dureeTrajet) {
+  annonceRequest.dureeTrajet = Number(formValue.dureeTrajet);
+}
+if (formValue.distance) {
+  annonceRequest.distance = Number(formValue.distance);
+}
 
     this.createAnnonceService.creerAnnonce(annonceRequest).subscribe({
       next: (response) => {
@@ -236,10 +241,27 @@ export class CreateAnnonceComponent implements OnInit {
           this.router.navigate(['/covoiturages']);
         }, 2000);
       },
-      error: (error) => {
-        console.error('Erreur lors de la création de l\'annonce:', error);
-        this.errorMessage = 'Erreur lors de la création de l\'annonce. Veuillez réessayer.';
-        this.loading = false;
+     error: (error) => {
+  console.error('Erreur lors de la création de l\'annonce:', error);
+  
+  // Gestion spécifique de l'erreur 400
+  if (error.status === 400) {
+    // Le backend retourne le message directement en text/plain dans error.error
+    if (typeof error.error === 'string') {
+       console.error(error.error);
+      // Utiliser directement le message du backend
+      this.errorMessage = error.error;
+    } else if (error.error && error.error.message) {
+      // Fallback si le format change
+      this.errorMessage = error.error.message;
+    } else {
+      this.errorMessage = 'Requête invalide. Veuillez vérifier les informations saisies.';
+    }
+  } else {
+    this.errorMessage = 'Erreur lors de la création de l\'annonce. Veuillez réessayer.';
+  }
+  
+  this.loading = false;
       }
     });
   }
