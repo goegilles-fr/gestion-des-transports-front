@@ -201,7 +201,7 @@ export class CreateAnnonceComponent implements OnInit {
 
     const formValue = this.annonceForm.value;
     const dateTimeDepart = `${formValue.dateDepart}T${formValue.heureDepart}:00.000Z`;
-    const annonceRequest: any = {
+    const annonceRequest: AnnonceRequest  = {
   id: 0,
   heureDepart: dateTimeDepart,
   adresseDepart: {

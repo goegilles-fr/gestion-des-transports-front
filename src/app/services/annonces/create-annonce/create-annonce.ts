@@ -48,8 +48,8 @@ export interface VehiculeEntreprise {
 export interface AnnonceRequest {
   id: number;
   heureDepart: string;
-  dureeTrajet: number;
-  distance: number;
+  dureeTrajet?: number;  
+  distance?: number;    
   adresseDepart: Adresse;
   adresseArrivee: Adresse;
   vehiculeServiceId: number | null;
