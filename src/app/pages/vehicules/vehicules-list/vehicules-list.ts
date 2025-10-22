@@ -86,6 +86,10 @@ export class VehiculesList implements OnInit {
   reservationToEdit = signal<ReservationVehiculeDto | null>(null);
   modaleTitle = signal<string>('');
 
+  // Messages pour la modale
+    vehiculeSuccessMessage = signal<string>('');
+    vehiculeErrorMessage = signal<string>('');
+
   // Pour afficher les infos véhicule dans la modale
   selectedVehiculeForDelete = computed<VehiculeDTO | null>(() => {
     const r = this.reservationToDelete();
@@ -199,7 +203,7 @@ export class VehiculesList implements OnInit {
   }
 
   openCreationVehicule() {
-    this.modaleTitle.set("Ajouter un vehicule personnel");
+    this.modaleTitle.set("Déclarer mon vehicule personnel");
     this.creationVehicule.set(true);
   }
 
@@ -276,38 +280,65 @@ export class VehiculesList implements OnInit {
   }
 
   onSaveEdit(vehicule: VehiculeDTO) {
-    const oldVehicule = this.vehiculeToEdit();
-    if (this.creationVehicule()) {
-      if ('id' in vehicule) {
-        delete vehicule.id;
+      const oldVehicule = this.vehiculeToEdit();
+      if (this.creationVehicule()) {
+        if ('id' in vehicule) {
+          delete vehicule.id;
+        }
+        this.vehiculeService.createPerso(vehicule).subscribe({
+          next: (vehicule) => {
+            this.vehiculePersoList.set([vehicule]);
+            this.vehiculeSuccessMessage.set('✅ Véhicule créé avec succès !');
+
+            // Fermer la modale après 2 secondes
+            setTimeout(() => {
+              this.creationVehicule.set(false);
+              this.vehiculeSuccessMessage.set('');
+            }, 2000);
+          },
+          error: (e) => {
+            console.error(e);
+            // Message d'erreur personnalisé
+            if (e.error?.message?.includes('Data too long')) {
+              this.vehiculeErrorMessage.set('❌ L\'URL de la photo est trop longue (max 255 caractères)');
+            } else {
+              this.vehiculeErrorMessage.set('❌ Erreur lors de la création du véhicule');
+            }
+
+            // Effacer le message après 3 secondes
+            setTimeout(() => {
+              this.vehiculeErrorMessage.set('');
+            }, 3000);
+          }
+        })
       }
-      this.vehiculeService.createPerso(vehicule).subscribe({
-        next: (vehicule) => {
-          this.vehiculePersoList.set([vehicule]);
-          this.creationVehicule.set(false);
-        },
-        error: (e) => {
-          console.error(e);
-          this.creationVehicule.set(false);
-        }
-      })
+      else if (!oldVehicule?.id || oldVehicule == vehicule) {
+        this.vehiculeToEdit.set(null);
+      }
+      else {
+        this.vehiculeService.updatePerso(vehicule).subscribe({
+          next: (vehicule) => {
+            this.vehiculePersoList.set([vehicule]);
+            this.vehiculeSuccessMessage.set('✅ Véhicule modifié avec succès !');
+
+            // Fermer la modale après 2 secondes
+            setTimeout(() => {
+              this.vehiculeToEdit.set(null);
+              this.vehiculeSuccessMessage.set('');
+            }, 2000);
+          },
+          error: (e) => {
+            console.error(e);
+            this.vehiculeErrorMessage.set('❌ Erreur lors de la modification du véhicule');
+
+            // Effacer le message après 3 secondes
+            setTimeout(() => {
+              this.vehiculeErrorMessage.set('');
+            }, 3000);
+          }
+        })
+      }
     }
-    else if (!oldVehicule?.id || oldVehicule == vehicule) {
-      this.vehiculeToEdit.set(null);
-    }
-    else {
-      this.vehiculeService.updatePerso(vehicule).subscribe({
-        next: (vehicule) => {
-          this.vehiculePersoList.set([vehicule]);
-          this.vehiculeToEdit.set(null);
-        },
-        error: (e) => {
-          console.error(e);
-          this.vehiculeToEdit.set(null);
-        }
-      })
-    }
-  }
 
   goToReservation() {
     this.router.navigate(['/vehicules/reservation']);

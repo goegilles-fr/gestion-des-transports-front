@@ -2,7 +2,6 @@ import { Component, computed, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StatutVehicule, VehiculeDTO } from '../../../core/models/vehicule-dto';
-import { VehiculesEntrepriseEdit } from '../vehicules-entreprise-edit/vehicules-entreprise-edit';
 import { Vehicules } from '../../../services/vehicules/vehicules';
 import { VehiculeEdit } from '../modales/vehicule-edit/vehicule-edit';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
@@ -11,7 +10,7 @@ import { FooterComponent } from '../../../shared/footer/footer';
 @Component({
   selector: 'app-vehicule-entreprise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VehiculesEntrepriseEdit, VehiculeEdit, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent],
   templateUrl: './vehicules-entreprise-list.html',
   styleUrls: ['./vehicules-entreprise-list.css']
 })

@@ -20,6 +20,10 @@ export class VehiculeEdit {
   @Input() cancelLabel = 'Annuler';
   @Input() showStatut = false;
 
+  // Messages de succès/erreur
+  @Input() successMessage = '';
+  @Input() errorMessage = '';
+
   STATUTS: Array<'EN_SERVICE' | 'EN_REPARATION' | 'HORS_SERVICE'> = [
     'EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'
   ];
