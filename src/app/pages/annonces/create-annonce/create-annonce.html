@@ -58,7 +58,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="dureeTrajet">Durée du trajet *</label>
+              <label for="dureeTrajet">Durée du trajet</label>
               <div class="input-with-suffix">
                 <input
                   type="number"
@@ -69,14 +69,17 @@
                   [class.error]="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
                 <span class="suffix">minutes</span>
               </div>
+              <span class="hint">
+                Optionnel - calculé automatiquement
+              </span>
               <span class="error-message"
-                    *ngIf="annonceForm.get('dureeTrajet')?.invalid && annonceForm.get('dureeTrajet')?.touched">
-              La durée est requise (min. 1 minute)
-            </span>
+                    *ngIf="annonceForm.get('dureeTrajet')?.hasError('min') && annonceForm.get('dureeTrajet')?.touched">
+                La durée doit être d'au moins 1 minute
+              </span>
             </div>
 
             <div class="form-group">
-              <label for="distance">Distance *</label>
+              <label for="distance">Distance</label>
               <div class="input-with-suffix">
                 <input
                   type="number"
@@ -87,10 +90,13 @@
                   [class.error]="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
                 <span class="suffix">kilomètres</span>
               </div>
+              <span class="hint">
+                Optionnel - calculé automatiquement
+              </span>
               <span class="error-message"
-                    *ngIf="annonceForm.get('distance')?.invalid && annonceForm.get('distance')?.touched">
-              La distance est requise (min. 1 km)
-            </span>
+                    *ngIf="annonceForm.get('distance')?.hasError('min') && annonceForm.get('distance')?.touched">
+                La distance doit être d'au moins 1 km
+              </span>
             </div>
           </div>
         </div>
