@@ -23,7 +23,8 @@
 
 /* carte modale */
 .modal{
-  width: min(520px, 92%);
+  width: min(92vw, 640px); 
+  max-height: 80vh;
   background: var(--white);
   border-radius: 22px;
   border: 3px solid var(--teal-600);
@@ -32,6 +33,7 @@
   color: var(--ink-900);
   transform: scale(.98);
   animation: pop-in .18s ease-out forwards;
+  overflow: hidden;
 }
 
 @keyframes pop-in {
@@ -48,10 +50,14 @@
 }
 
 .modal-message{
-  margin: 0 0 14px;
+  white-space: pre-line;
+  word-break: break-word;
+  max-height: 60vh;
+  overflow: auto;
+  margin: 0.5rem 0 1rem;
+  line-height: 1.4;
   text-align: center;
   color: var(--ink-700);
-  line-height: 1.45;
 }
 
 /* actions */

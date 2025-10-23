@@ -11,7 +11,7 @@ import { FooterComponent } from '../../../shared/footer/footer';
 @Component({
   selector: 'app-vehicule-entreprise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VehiculesEntrepriseEdit, VehiculeEdit, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent],
   templateUrl: './vehicules-entreprise-list.html',
   styleUrls: ['./vehicules-entreprise-list.css']
 })

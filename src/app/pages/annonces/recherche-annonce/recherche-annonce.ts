@@ -14,11 +14,12 @@ import { catchError, map, tap, finalize } from 'rxjs/operators';
 
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-recherche-annonce',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, ConfirmDialog],
   templateUrl: './recherche-annonce.html',
   styleUrls: ['./recherche-annonce.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -52,6 +53,49 @@ export class RechercheAnnonceComponent {
   results = signal<Annonce[]>([]);
 
   conducteurNameByAnnonce = signal<Record<number, string>>({});
+
+  // ---------- Confirm Modal ----------
+
+  annonceAReserver = signal<Annonce | null>(null);
+  modaleTitle = signal<string>('');
+  modaleContent = signal<string>('');
+
+  openModale(annonce: Annonce) {
+    this.annonceAReserver.set(annonce);
+
+    const adresseDepart = this.formatAdresse(annonce.annonce.adresseDepart);
+    const adresseArrivee = this.formatAdresse(annonce.annonce.adresseArrivee);
+    const heureDepart = this.formatHeureDepart(annonce.annonce.heureDepart);
+
+    this.modaleTitle.set(`Réserver une place`);
+    
+    const lines = [
+    'Confirmez-vous la réservation pour l’annonce suivante :',
+    '',
+    `Adresse de départ :`,
+    adresseDepart,
+    '',
+    `Adresse d’arrivée :`,
+    adresseArrivee,
+    '',
+    `Heure de départ :`,
+    heureDepart
+  ];
+
+  this.modaleContent.set(lines.join('\n'));
+  }
+
+  confirmModale() {
+    const annonce = this.annonceAReserver();
+    if (annonce) {
+      this.reserver(annonce);
+    }
+    this.closeModale();
+  }
+
+  closeModale() {
+    this.annonceAReserver.set(null);
+  }
 
   constructor(
     private service: RechercheAnnonceService,
@@ -149,7 +193,10 @@ export class RechercheAnnonceComponent {
       return d >= min && d <= max;
     });
 
-    // 2) adresses si champs saisis
+    // 2) places disponibles
+    filtered = filtered.filter(a => this.placesDispo(a) > 0);
+
+    // 3) adresses si champs saisis
     if (this.hasAnyField(depQuery)) {
       filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseDepart, depQuery));
     }
@@ -157,14 +204,14 @@ export class RechercheAnnonceComponent {
       filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseArrivee, arrQuery));
     }
 
-    // 3) tri par proximité (abs(diff) avec l’heure choisie)
+    // 4) tri par proximité (abs(diff) avec l’heure choisie)
     filtered.sort((a, b) => {
       const da = Math.abs(new Date(a.annonce.heureDepart).getTime() - base.getTime());
       const db = Math.abs(new Date(b.annonce.heureDepart).getTime() - base.getTime());
       return da - db;
     });
 
-    // 4) exclusion via participants + {prenom, nom} du profil
+    // 5) exclusion via participants + {prenom, nom} du profil
     this.excludeMyAnnoncesByName(filtered).subscribe({
       next: ({ annonces, conducteurNames }) => {
         this.results.set(annonces);
@@ -277,7 +324,7 @@ export class RechercheAnnonceComponent {
   });
 
   placesDispo(a: Annonce) {
-    return Math.max(0, (a?.placesTotales ?? 0) - (a?.placesOccupees ?? 0));
+    return Math.max(0, (a?.placesTotales ?? 0) - (a?.placesOccupees ?? 0) - 1);
   }
 
   formatAdresse(a?: Adresse) {
