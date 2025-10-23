@@ -8,9 +8,6 @@ import { AuthService } from '../../services/auth/auth';
 import { NavbarComponent } from '../../shared/navbar/navbar';
 import { FooterComponent } from '../../shared/footer/footer';
 import { ProfilService, UserProfil, ProfilUpdateRequest } from '../../services/profil/profil';
-import { VehiculeEdit } from '../vehicules/modales/vehicule-edit/vehicule-edit';
-import { VehiculeDTO } from '../../core/models/vehicule-dto';
-import { Vehicules } from '../../services/vehicules/vehicules';
 
 @Component({
   selector: 'app-profil',
@@ -19,15 +16,13 @@ import { Vehicules } from '../../services/vehicules/vehicules';
     CommonModule,
     ReactiveFormsModule,
     NavbarComponent,
-    FooterComponent,
-    VehiculeEdit
+    FooterComponent
   ],
   templateUrl: './profil.html',
   styleUrls: ['./profil.css']
 })
 export class ProfilComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private vehiculeService = inject(Vehicules);
 
   profilForm: FormGroup;
   currentUser: any = null;
@@ -36,26 +31,6 @@ export class ProfilComponent implements OnInit, OnDestroy {
   isSaving = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-
-  // Propriétés pour la modale véhicule
-  showVehiculeModal = false;
-  vehiculeToEdit: VehiculeDTO = {
-    id: 0,
-    marque: '',
-    modele: '',
-    immatriculation: '',
-    nbPlaces: 0,
-    co2ParKm: 0,
-    motorisation: 'THERMIQUE',
-    photo: '',
-    categorie: 'COMPACTE',
-    statut: null,
-    utilisateurId: 0
-  };
-
-  // Messages pour la modale véhicule
-    vehiculeSuccessMessage = '';
-    vehiculeErrorMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -117,7 +92,6 @@ export class ProfilComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (profil: UserProfil) => {
-          console.log('Profil chargé:', profil);
           this.originalProfil = profil;
           this.populateForm(profil);
           this.isLoading = false;
@@ -190,21 +164,15 @@ export class ProfilComponent implements OnInit, OnDestroy {
       }
     };
 
-    console.log('Payload envoyé:', payload);
-
     this.profilService.updateUserProfil(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedProfil) => {
-          console.log('Profil sauvegardé:', updatedProfil);
           this.successMessage = 'Profil mis à jour avec succès.';
           this.originalProfil = updatedProfil;
 
           // Rafraîchir le profil utilisateur dans AuthService pour mettre à jour la navbar
           this.authService.refreshUserProfile().subscribe({
-            next: () => {
-              console.log('Navbar mise à jour avec le nouveau profil');
-            },
             error: (error) => {
               console.error('Erreur actualisation navbar:', error);
             }
@@ -237,53 +205,6 @@ export class ProfilComponent implements OnInit, OnDestroy {
       this.successMessage = null;
       this.profilForm.markAsPristine();
     }
-  }
-
-  onDeclareVehicle(): void {
-    // Ouvrir la modale au lieu de rediriger
-    this.showVehiculeModal = true;
-  }
-
-  // Gérer la fermeture de la modale
-  onVehiculeModalCancel(): void {
-    this.showVehiculeModal = false;
-  }
-
-  // Gérer la sauvegarde du véhicule
-  onVehiculeModalConfirm(vehicule: VehiculeDTO): void {
-    console.log('Véhicule à sauvegarder:', vehicule);
-
-    // Supprimer l'id pour la création
-    if ('id' in vehicule) {
-      delete vehicule.id;
-    }
-
-    this.vehiculeService.createPerso(vehicule).subscribe({
-      next: (vehiculeCreated) => {
-        console.log('Véhicule créé:', vehiculeCreated);
-        this.vehiculeSuccessMessage = '✅ Véhicule déclaré avec succès !';
-
-        // Fermer la modale après 2 secondes
-        setTimeout(() => {
-          this.showVehiculeModal = false;
-          this.vehiculeSuccessMessage = '';
-        }, 2000);
-      },
-      error: (error) => {
-        console.error('Erreur création véhicule:', error);
-        // Message d'erreur personnalisé
-        if (error.error?.message?.includes('Data too long')) {
-          this.vehiculeErrorMessage = '❌ L\'URL de la photo est trop longue (max 255 caractères)';
-        } else {
-          this.vehiculeErrorMessage = '❌ Erreur lors de la déclaration du véhicule';
-        }
-
-        // Effacer le message après 3 secondes
-        setTimeout(() => {
-          this.vehiculeErrorMessage = '';
-        }, 3000);
-      }
-    });
   }
 
   logout(): void {
