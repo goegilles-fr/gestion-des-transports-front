@@ -67,10 +67,10 @@
           @if (password?.invalid && password?.touched) {
           <div class="error-message">
             @if (password?.errors?.['required']) {
-            <span>Le mot de passe est requis</span>
+              <span>Le mot de passe est requis</span>
             }
             @if (password?.errors?.['minlength']) {
-            <span>Le mot de passe doit contenir au moins 6 caractères</span>
+              <span>Le mot de passe doit contenir au moins 6 caractères</span>
             }
           </div>
           }
