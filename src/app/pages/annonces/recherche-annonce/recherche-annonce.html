@@ -109,16 +109,15 @@
         <tbody>
           @for (a of results(); track a['annonce']?.id) {
             <tr>
-              <td>{{ conducteurName(a['annonce']?.id) || '—' }}</td>
-              <td>{{ formatAdresse(a['annonce']?.adresseDepart) }}</td>
-              <td>{{ formatAdresse(a['annonce']?.adresseArrivee) }}</td>
-              <td>{{ formatHeureDepart(a['annonce']?.heureDepart || '') }}</td>
+              <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
+              <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
+              <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
+              <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
               <td>{{ placesDispo(a) }}</td>
               <td>
                 <button type="button"
                         class="btn small"
-                        [disabled]="placesDispo(a) <= 0"
-                        (click)="reserver(a)">
+                        (click)="openModale(a)">
                   Réserver
                 </button>
               </td>
@@ -129,5 +128,9 @@
     </div>
   }
 </section>
+
+<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()"
+  [message]="modaleContent()" confirmLabel="Reserver" cancelLabel="Annuler" (confirm)="confirmModale()"
+  (cancel)="closeModale()"></app-confirm-dialog>
 
 <app-footer></app-footer>
