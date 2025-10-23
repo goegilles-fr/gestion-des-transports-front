@@ -58,16 +58,45 @@ export class MesReservationsComponent implements OnInit {
   chargerReservations(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.pagedReservations = [];
 
     this.reservationService.getMesReservations().subscribe({
       next: (response: ReservationResponse) => {
-        this.reservations = response;
-        console.log('Réservations chargées:', this.reservations);
+        // Vérifier si la réponse est un tableau
+        if (Array.isArray(response)) {
+          this.reservations = response;
+        } else {
+          this.reservations = [];
+        }
+
+        // Si aucune réservation, terminer le chargement sans erreur
+        if (!this.reservations || this.reservations.length === 0) {
+          this.isLoading = false;
+          this.updatePagedReservations();
+          return;
+        }
+
         this.chargerVehicules();
       },
       error: (error: any) => {
         console.error('Erreur lors du chargement des réservations:', error);
-        this.errorMessage = 'Impossible de charger les réservations. Veuillez réessayer.';
+
+        // Vérifier si c'est juste une liste vide
+        const isEmptyList = error.status === 400 &&
+                           typeof error.error === 'string' &&
+                           error.error.includes('Aucune réservation trouvée');
+
+        if (error.status === 404 || error.status === 204 || isEmptyList) {
+          // Cas normal : pas de réservations
+          this.reservations = [];
+          this.errorMessage = ''; // Pas de message d'erreur
+        } else {
+          // Vraie erreur serveur
+          this.errorMessage = 'Impossible de charger les réservations. Veuillez réessayer.';
+          this.reservations = [];
+        }
+
+        this.updatePagedReservations();
         this.isLoading = false;
       }
     });
@@ -119,8 +148,6 @@ export class MesReservationsComponent implements OnInit {
 
     forkJoin(observables).subscribe({
       next: (results: any[]) => {
-        console.log('Résultats chargés:', results);
-
         let currentIndex = 0;
 
         if (hasVehiculePerso && results.length > 0) {
@@ -149,7 +176,6 @@ export class MesReservationsComponent implements OnInit {
           currentIndex++;
         });
 
-        console.log('Réservations avec véhicules, conducteurs et passagers:', this.reservations);
         this.isLoading = false;
         this.updatePagedReservations();
       },
@@ -246,7 +272,7 @@ export class MesReservationsComponent implements OnInit {
 
   // Rediriger vers la page de recherche de covoiturage
   rechercherCovoiturage(): void {
-    console.log('Redirection vers recherche de covoiturage');
+    this.router.navigate(['/covoiturages']);
   }
 
   // Calculer le nombre total de pages
