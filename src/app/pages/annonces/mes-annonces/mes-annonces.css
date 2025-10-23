@@ -229,7 +229,7 @@
   gap: 10px;
   align-items: center;
   justify-content: center;
-  min-height: 97px; /* Correspond à la hauteur de la photo */
+  min-height: 97px;
   padding: 8px 12px;
 }
 
