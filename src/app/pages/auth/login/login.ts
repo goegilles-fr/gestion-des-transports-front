@@ -48,8 +48,6 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(credentials).subscribe({
       next: (response: any) => {
-        console.log('Connexion réussie:', response);
-
         // Attend le premier utilisateur valide puis se désabonne automatiquement
         this.authService.currentUser$.pipe(
           filter((user: any) => !!user), // Attend qu'un utilisateur existe
@@ -60,7 +58,6 @@ export class LoginComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Erreur de connexion:', error);
         this.error = error.message || 'Erreur de connexion';
         this.loading = false;
       }
