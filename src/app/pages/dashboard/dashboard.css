@@ -40,7 +40,7 @@
   gap: 25px;
 }
 
-/* Action Cards avec style bulle - TOUTES LA MÊME TAILLE */
+/* Action Cards avec style bulle */
 .action-card {
   background: white;
   border-radius: 12px;
@@ -95,13 +95,6 @@
   flex: 1;
 }
 
-/* Boutons TOUJOURS collés en bas - comme un footer */
-.card-content > button,
-.card-content > .participants-button-container {
-  margin-top: auto;
-  flex-shrink: 0;
-}
-
 /* État sans données */
 .no-data {
   color: #666;
@@ -134,7 +127,7 @@
   transform: translateY(-1px);
 }
 
-/* États avec données - POLICE AGRANDIE */
+/* États avec données */
 .reservation-info,
 .annonce-info,
 .vehicle-info {
@@ -241,7 +234,7 @@
   color: white;
 }
 
-/* Card participants - HAUTEUR FIXE SANS ASCENSEUR */
+/* Card participants */
 .participants-card {
   background: white;
   border-radius: 12px;
@@ -278,7 +271,7 @@
   flex-shrink: 0;
 }
 
-/* CONDUCTEUR SUR UNE SEULE LIGNE AVEC ICÔNE */
+/* Conducteur sur une seule ligne avec icône */
 .conducteur-info {
   padding-bottom: 8px;
   border-bottom: 2px solid #E6F7FB;
@@ -377,7 +370,7 @@
   color: white;
 }
 
-/* Card photo - HAUTEUR FIXE AVEC BOUTON MASQUER */
+/* Card photo */
 .photo-card {
   background: white;
   border-radius: 12px;
@@ -395,8 +388,11 @@
   justify-content: space-between;
 }
 
-.photo-card .btn-masquer {
-  margin-top: auto;
+.photo-card h4 {
+  margin: 0 0 6px 0;
+  color: #0B84A2;
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .photo-content {
@@ -404,13 +400,6 @@
   gap: 15px;
   flex: 1;
   overflow: hidden;
-}
-
-.photo-card h4 {
-  margin: 0 0 6px 0;
-  color: #0B84A2;
-  font-size: 15px;
-  flex-shrink: 0;
 }
 
 .photo-card img {
@@ -442,7 +431,8 @@
 }
 
 /* États de chargement et d'erreur */
-.loading-container, .error-container {
+.loading-container,
+.error-container {
   display: flex;
   justify-content: center;
   align-items: center;

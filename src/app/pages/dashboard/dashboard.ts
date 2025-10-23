@@ -113,7 +113,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
 
           this.currentUser = user;
-          console.log('Loading dashboard for user:', user.email);
 
           // Ne charger qu'une seule fois
           if (!this.reservationsVehicules || this.reservationsVehicules.length === 0) {
@@ -139,15 +138,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (reservations: ReservationAvecVehicule[]) => {
-          console.log('Réservations chargées:', reservations);
           this.reservationsVehicules = reservations;
 
           // Déterminer la réservation en cours et la prochaine
           this.reservationEnCours = this.dashboardService.getReservationEnCours(reservations);
           this.prochaineReservation = this.dashboardService.getProchaineReservation(reservations);
-
-          console.log('Réservation en cours:', this.reservationEnCours);
-          console.log('Prochaine réservation:', this.prochaineReservation);
 
           // Forcez la détection de changement
           this.cdr.detectChanges();
@@ -177,7 +172,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (covoiturages: any[]) => {
-          console.log('Covoiturages avec véhicules chargés:', covoiturages);
           this.covoiturages = covoiturages;
 
           this.prochaineAnnonceCovoiturage = this.dashboardService.getProchaineAnnonceCovoiturage(covoiturages);
@@ -199,13 +193,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (reservations: Covoiturage[]) => {
-          console.log('Réservations covoiturage chargées:', reservations);
           this.reservationsCovoiturage = reservations;
 
           // Déterminer la prochaine réservation
           this.prochaineReservationCovoiturage = this.dashboardService.getProchaineReservationCovoiturage(reservations);
-
-          console.log('Prochaine réservation covoiturage:', this.prochaineReservationCovoiturage);
 
           this.isLoadingReservationsCovoiturage = false;
         },
@@ -463,7 +454,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (participants: any) => {
-            console.log('Participants annonce chargés:', participants);
             this.participantsAnnonce = participants;
             this.showParticipantsAnnonce = true;
             this.isLoadingParticipants = false;
@@ -483,7 +473,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (participants: any) => {
-            console.log('Participants réservation chargés:', participants);
             this.participantsReservation = participants;
             this.showParticipantsReservation = true;
             this.isLoadingParticipants = false;
