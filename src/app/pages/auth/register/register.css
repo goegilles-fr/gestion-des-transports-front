@@ -1,14 +1,62 @@
 /* Conteneur principal */
 .register-container {
-  height: 100vh;
+  min-height: 100vh;
   background: #0B84A2;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
+  flex-direction: column;
   font-family: 'Arial', sans-serif;
-  overflow: hidden;
-  box-sizing: border-box;
+}
+
+/* Header */
+.register-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 60px;
+  color: white;
+}
+
+.logo-container {
+  flex: 0 0 auto;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: white;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-text {
+  flex: 1;
+  text-align: center;
+  margin: 0 40px;
+}
+
+.header-text h1 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  letter-spacing: 1px;
+}
+
+.header-text h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* Conteneur du formulaire */
+.register-form-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 /* Card principale */
@@ -19,8 +67,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 750px;
-  max-height: 95vh;
-  overflow-y: auto;
   box-sizing: border-box;
 }
 
@@ -119,10 +165,6 @@
   margin-bottom: 10px;
 }
 
-.half-width {
-  flex: 1;
-}
-
 /* Largeurs spécifiques pour numéro et rue */
 .numero-width {
   flex: 0 0 70px;
@@ -179,7 +221,7 @@
 }
 
 .password-input {
-  padding-right: 40px; /* Espace pour l'icône */
+  padding-right: 40px;
 }
 
 .password-toggle {
@@ -252,15 +294,35 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .register-container {
+  .register-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+  .header-text {
+    margin: 20px 0;
+  }
+
+  .header-text h1 {
+    font-size: 24px;
+  }
+
+  .header-text h2 {
+    font-size: 18px;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .register-form-container {
     padding: 10px;
-    align-items: flex-start;
-    padding-top: 15px;
   }
 
   .register-card {
     padding: 20px 15px;
-    max-height: 98vh;
   }
 
   .form-sections {
@@ -284,7 +346,6 @@
     height: auto;
   }
 
-  .half-width,
   .numero-width,
   .rue-width {
     width: 100%;
@@ -300,6 +361,14 @@
 }
 
 @media (max-width: 480px) {
+  .header-text h1 {
+    font-size: 20px;
+  }
+
+  .header-text h2 {
+    font-size: 16px;
+  }
+
   .register-card {
     padding: 15px 12px;
   }

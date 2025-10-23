@@ -64,12 +64,10 @@ export class RegisterComponent {
 
       this.authService.register(registerData).subscribe({
         next: (response) => {
-          console.log('Inscription réussie:', response);
           // Redirection vers la page de login
           this.router.navigate(['/login']);
         },
         error: (error) => {
-          console.error('Erreur lors de l\'inscription:', error);
           this.errorMessage = this.getErrorMessage(error);
           this.isLoading = false;
         },
@@ -104,7 +102,7 @@ export class RegisterComponent {
   }
 
   onCancel() {
-    // Retour à la page de login ou page précédente
+    // Retour à la page de login
     this.router.navigate(['/login']);
   }
 
