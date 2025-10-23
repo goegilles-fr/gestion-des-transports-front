@@ -41,6 +41,7 @@
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 14px;
+  animation: slideIn 0.3s ease-out;
 }
 
 .alert-error {
@@ -172,6 +173,10 @@
   font-style: italic;
 }
 
+.form-group input:valid:not(:placeholder-shown) {
+  border-color: #28a745;
+}
+
 .field-info {
   color: #666;
   font-size: 11px;
@@ -191,16 +196,6 @@ input[readonly] {
   font-size: 12px;
   font-weight: 500;
   margin-top: 4px;
-}
-
-/* Section véhicule personnel */
-.vehicle-declaration {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-  margin-bottom: 0;
 }
 
 /* Boutons */
@@ -226,6 +221,11 @@ input[readonly] {
   cursor: not-allowed;
 }
 
+.btn:focus-visible {
+  outline: 2px solid #0B84A2;
+  outline-offset: 2px;
+}
+
 /* Bouton principal */
 .btn-primary {
   background: #0B84A2;
@@ -248,40 +248,24 @@ input[readonly] {
   transform: translateY(-1px);
 }
 
-/* Bouton véhicule */
-.btn-vehicle {
+/* Bouton mot de passe */
+.password-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.btn-password {
   background: #0B84A2;
   color: white;
   padding: 15px 30px;
   font-size: 12px;
-  width: 280px; /* Largeur minimale identique pour les deux boutons */
-  white-space: nowrap; /* Empêche le texte de passer à la ligne */
+  width: 280px;
+  white-space: nowrap;
 }
 
-.btn-password {
-  background: #6c757d;
-  color: white;
-  padding: 15px 30px;
-  font-size: 12px;
-  margin-left: 0px;
-  width: 280px; /* Largeur minimale identique pour les deux boutons */
-  white-space: nowrap; /* Empêche le texte de passer à la ligne */
-}
-
-.btn-password:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-}
-
-@media (max-width: 768px) {
-  .btn-password {
-    margin-left: 0;
-    margin-top: 15px;
-  }
-}
-
-.btn-vehicle:hover {
+.btn-password:hover:not(:disabled) {
   background: #0a6d87;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(11, 132, 162, 0.3);
@@ -322,6 +306,18 @@ input[readonly] {
   margin: 0;
 }
 
+/* Animation pour les messages */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .profil-main {
@@ -336,6 +332,11 @@ input[readonly] {
 
   .section-content {
     padding: 30px 20px 20px 20px;
+  }
+
+  .section-header h3 {
+    font-size: 11px;
+    padding: 6px 12px;
   }
 
   .form-row {
@@ -357,72 +358,32 @@ input[readonly] {
     width: 100%;
   }
 
+  .btn-password {
+    width: 100%;
+  }
+
   .page-title h1 {
-      font-size: 20px;
-    }
+    font-size: 20px;
+  }
+}
 
-    .vehicle-declaration {
-    flex-direction: column;
-    gap: 15px;
-    }
-
-    .btn-vehicle,
-    .btn-password {
-      width: 100%;
-      min-width: auto;
-    }
-
-    .section-header h3 {
-      font-size: 11px;
-      padding: 6px 12px;
-    }
+@media (max-width: 480px) {
+  .form-group input {
+    padding: 10px 14px;
+    font-size: 13px;
   }
 
-  @media (max-width: 480px) {
-    .form-group input {
-      padding: 10px 14px;
-      font-size: 13px;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      font-size: 11px;
-    }
-
-    .page-title h1 {
-      font-size: 18px;
-    }
-
-    .alert {
-      font-size: 12px;
-      padding: 10px 14px;
-    }
+  .btn {
+    padding: 10px 16px;
+    font-size: 11px;
   }
 
-  /* Animation pour les messages */
+  .page-title h1 {
+    font-size: 18px;
+  }
+
   .alert {
-    animation: slideIn 0.3s ease-out;
+    font-size: 12px;
+    padding: 10px 14px;
   }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* États des champs */
-  .form-group input:valid:not(:placeholder-shown) {
-    border-color: #28a745;
-  }
-
-  /* Focus visible pour l'accessibilité */
-  .btn:focus-visible,
-  .form-group input:focus-visible {
-    outline: 2px solid #0B84A2;
-    outline-offset: 2px;
-  }
+}

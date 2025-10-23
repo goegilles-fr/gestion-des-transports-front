@@ -81,7 +81,6 @@
                 <span>L'adresse email d'entreprise ne peut pas être modifiée</span>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -150,21 +149,12 @@
                 <span *ngIf="ville?.errors?.['minlength']">La ville doit contenir au moins 2 caractères</span>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
 
-     <!-- Boutons Véhicule Personnel et Mot de passe -->
-      <div class="vehicle-declaration">
-        <button
-          type="button"
-          class="btn btn-vehicle"
-          (click)="onDeclareVehicle()">
-          DÉCLARER MON VÉHICULE PERSONNEL
-        </button>
-
+      <!-- Bouton Changer mot de passe (centré en haut) -->
+      <div class="password-action">
         <button
           type="button"
           class="btn btn-password"
@@ -174,7 +164,7 @@
         </button>
       </div>
 
-      <!-- Boutons Actions -->
+      <!-- Boutons Actions (Valider et Annuler côte à côte) -->
       <div class="form-actions">
         <button
           type="submit"
@@ -201,15 +191,3 @@
   <app-footer></app-footer>
 
 </div>
-
-<!-- Modale de déclaration de véhicule -->
-<app-vehicule-edit
-  [open]="showVehiculeModal"
-  [model]="vehiculeToEdit"
-  [title]="'Déclarer mon véhicule personnel'"
-  [showStatut]="false"
-  [successMessage]="vehiculeSuccessMessage"
-  [errorMessage]="vehiculeErrorMessage"
-  (confirm)="onVehiculeModalConfirm($event)"
-  (cancel)="onVehiculeModalCancel()">
-</app-vehicule-edit>
