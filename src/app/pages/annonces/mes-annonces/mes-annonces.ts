@@ -42,7 +42,7 @@ export class MesAnnoncesComponent implements OnInit {
   showEditModal = false;
   annonceToEdit: Annonce | null = null;
 
-  // AJOUT : Propriétés de filtrage
+  // Propriétés de filtrage
   filterType: 'avenir' | 'passees' = 'avenir';
   annoncesAvenir: Annonce[] = [];
   annoncesPassees: Annonce[] = [];
@@ -85,9 +85,6 @@ export class MesAnnoncesComponent implements OnInit {
         this.chargerVehicules();
       },
       error: (error: any) => {
-        console.error('Erreur lors du chargement des annonces:', error);
-
-        // MODIFICATION : error.error est directement une string, pas un objet
         const isEmptyList = error.status === 400 &&
                            typeof error.error === 'string' &&
                            error.error.includes('Aucune annonce trouvée');
@@ -142,16 +139,15 @@ export class MesAnnoncesComponent implements OnInit {
     });
 
     Promise.all(promises).finally(() => {
-      this.separerAnnonces(); // AJOUT : Séparer les annonces
+      this.separerAnnonces();
       this.isLoading = false;
       this.updatePagedAnnonces();
-      console.log('Annonces avec véhicules:', this.annonces);
     });
   }
 
   private vehiculePersoCache: any = null;
 
-  // AJOUT : Séparer les annonces entre passées et à venir
+  // Séparer les annonces entre passées et à venir
   private separerAnnonces(): void {
     const maintenant = new Date();
 
@@ -170,19 +166,19 @@ export class MesAnnoncesComponent implements OnInit {
     );
   }
 
-  // AJOUT : Changer de filtre
+  // Changer de filtre
   setFilter(type: 'avenir' | 'passees'): void {
     this.filterType = type;
     this.currentPage = 1; // Réinitialiser à la page 1
     this.updatePagedAnnonces();
   }
 
-  // MODIFICATION : Récupérer les annonces filtrées
+  // Récupérer les annonces filtrées
   private getFilteredAnnonces(): Annonce[] {
     return this.filterType === 'avenir' ? this.annoncesAvenir : this.annoncesPassees;
   }
 
-  // MODIFICATION : Méthode à appeler après le chargement des annonces
+  // Méthode à appeler après le chargement des annonces
   private updatePagedAnnonces(): void {
     const filteredAnnonces = this.getFilteredAnnonces();
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -204,14 +200,13 @@ export class MesAnnoncesComponent implements OnInit {
     }
   }
 
-  // AJOUT : Vérifier si une annonce est passée
+  // Vérifier si une annonce est passée
   isAnnoncePassee(annonce: Annonce): boolean {
     return new Date(annonce.annonce.heureDepart) < new Date();
   }
 
   // Ouvrir la modale de détail
   voirDetails(annonce: Annonce): void {
-    console.log('Clic sur détails, annonce:', annonce);
     this.selectedAnnonce = annonce;
     this.showDetailModal = true;
   }
@@ -270,14 +265,13 @@ export class MesAnnoncesComponent implements OnInit {
     this.annonceService.supprimerAnnonce(this.annonceToDelete.annonce.id).subscribe({
       next: () => {
         this.annonces = this.annonces.filter(a => a.annonce.id !== this.annonceToDelete!.annonce.id);
-        this.separerAnnonces(); // AJOUT : Re-séparer après suppression
+        this.separerAnnonces(); // Re-séparer après suppression
         this.updatePagedAnnonces();
         this.showDeleteModal = false;
         this.annonceToDelete = null;
         alert('L\'annonce a été supprimée avec succès. Un email a été envoyé aux participants.');
       },
       error: (error: any) => {
-        console.error('Erreur lors de la suppression:', error);
         alert('Impossible de supprimer l\'annonce. Veuillez réessayer.');
         this.showDeleteModal = false;
         this.annonceToDelete = null;
@@ -332,7 +326,7 @@ export class MesAnnoncesComponent implements OnInit {
     return `${annonce.placesOccupees} / ${annonce.placesTotales}`;
   }
 
-  // MODIFICATION : Calculer le nombre total de pages selon le filtre
+  // Calculer le nombre total de pages selon le filtre
   get totalPages(): number {
     const filteredAnnonces = this.getFilteredAnnonces();
     return Math.ceil(filteredAnnonces.length / this.itemsPerPage);
