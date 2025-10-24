@@ -6,11 +6,12 @@ import { Vehicules } from '../../../services/vehicules/vehicules';
 import { VehiculeEdit } from '../modales/vehicule-edit/vehicule-edit';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent, ConfirmDialog],
   templateUrl: './vehicules-entreprise-list.html',
   styleUrls: ['./vehicules-entreprise-list.css']
 })
@@ -86,7 +87,6 @@ export class VehiculeEntrepriseList {
 
   onDelete(id?: number) {
     if (id == null) return;
-    if (!confirm('Supprimer ce véhicule ?')) return;
 
     this.vehiculeService.deleteEntreprise(id).subscribe({
       next: () => {
@@ -131,5 +131,28 @@ export class VehiculeEntrepriseList {
         }
       })
     }
+  }
+
+  // Confirmation modale suppression
+  vehiculeToDelete = signal<VehiculeDTO | null>(null);
+
+  modaleContent = signal<string>('');
+
+  openModale(vehicule: VehiculeDTO) {
+    this.vehiculeToDelete.set(vehicule);
+    this.modaleContent.set(`Êtes-vous sûr de vouloir supprimer le véhicule ${vehicule.marque} ${vehicule.modele} (immatriculation : ${vehicule.immatriculation}) ? Cette action est irréversible.`);
+  }
+
+  confirmModale() {
+    const vehicule = this.vehiculeToDelete();
+    if (vehicule && vehicule.id) {
+      this.onDelete(vehicule.id);
+    }
+    this.closeModale();
+  }
+
+  closeModale() {
+    this.vehiculeToDelete.set(null);
+    this.modaleContent.set('');
   }
 }

@@ -56,7 +56,7 @@
     <button class="action-btn edit-btn" title="Modifier" (click)="openEdit(vehicule)">
       <i class="icon-edit">✏️</i>
     </button>
-    <button class="action-btn delete-btn" title="Supprimer" (click)="onDelete(vehicule.id)">
+    <button class="action-btn delete-btn" title="Supprimer" (click)="openModale(vehicule)">
       <i class="icon-delete">🗑️</i>
     </button>
     }
@@ -105,6 +105,10 @@
 <app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
   (cancel)="closeEdit()"></app-vehicule-edit>
 }
+
+<app-confirm-dialog [open]="!!vehiculeToDelete()" [title]="modaleTitle()"
+  [message]="modaleContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
+  (cancel)="closeModale()"></app-confirm-dialog>
 
 
 <app-footer></app-footer>
