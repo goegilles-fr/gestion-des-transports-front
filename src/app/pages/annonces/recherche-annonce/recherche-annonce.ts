@@ -68,21 +68,21 @@ export class RechercheAnnonceComponent {
     const heureDepart = this.formatHeureDepart(annonce.annonce.heureDepart);
 
     this.modaleTitle.set(`Réserver une place`);
-    
-    const lines = [
-    'Confirmez-vous la réservation pour l’annonce suivante :',
-    '',
-    `Adresse de départ :`,
-    adresseDepart,
-    '',
-    `Adresse d’arrivée :`,
-    adresseArrivee,
-    '',
-    `Heure de départ :`,
-    heureDepart
-  ];
 
-  this.modaleContent.set(lines.join('\n'));
+    const lines = [
+      'Confirmez-vous la réservation pour l’annonce suivante :',
+      '',
+      `Adresse de départ :`,
+      adresseDepart,
+      '',
+      `Adresse d’arrivée :`,
+      adresseArrivee,
+      '',
+      `Heure de départ :`,
+      heureDepart
+    ];
+
+    this.modaleContent.set(lines.join('\n'));
   }
 
   confirmModale() {
@@ -106,7 +106,7 @@ export class RechercheAnnonceComponent {
     // this.loadProfil();
   }
 
-  // ====== Chargements unitaires (optionnels) ======
+  // ====== Chargements unitaires ======
   private loadAll() {
     return this.service.listAnnonces().pipe(
       tap((data: Annonce[]) => {
@@ -314,6 +314,22 @@ export class RechercheAnnonceComponent {
     if ([y, m, day, hh, mm].some(v => Number.isNaN(v))) return null;
     return new Date(y, m - 1, day, hh, mm, 0, 0);
   });
+
+  // Expose "aujourd'hui" au template pour l'attribut [min]
+  readonly todayStr = this.todayYMD();
+
+  // True si la date+heure choisies sont dans le passé (strict)
+  readonly isPastSelected = computed(() => {
+    const d = this.selectedDateTime();
+    if (!d) return false;
+    const now = new Date();
+    return d.getTime() < now.getTime();
+  });
+
+  // Petit message de warning utilisé dans le template)
+  readonly dateWarn = computed(() =>
+    this.isPastSelected() ? 'La date et l’heure doivent être dans le futur.' : ''
+  );
 
   private rangeMinMax = computed(() => {
     const base = this.selectedDateTime();
