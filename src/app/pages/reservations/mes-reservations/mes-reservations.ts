@@ -24,7 +24,6 @@ export class MesReservationsComponent implements OnInit {
   errorMessage = '';
   showDeleteModal = false;
   reservationToDelete: Reservation | null = null;
-  vehiculePersoCache: any = null;
 
   // Propriétés pour la modale de détail
   showDetailModal = false;
@@ -106,20 +105,18 @@ export class MesReservationsComponent implements OnInit {
   chargerVehicules(): void {
     const observables: any[] = [];
 
-    const hasVehiculePerso = this.reservations.some(r => !r.annonce.vehiculeServiceId);
-
-    if (hasVehiculePerso) {
+    this.reservations.forEach(reservation => {
+      // Charger d'abord les participants pour obtenir le conducteur
       observables.push(
-        this.reservationService.getVehiculePerso().pipe(
+        this.reservationService.getParticipants(reservation.annonce.id).pipe(
           catchError((error: any) => {
-            console.error('Erreur chargement véhicule perso:', error);
+            console.error(`Erreur chargement participants pour annonce ${reservation.annonce.id}:`, error);
             return of(null);
           })
         )
       );
-    }
 
-    this.reservations.forEach(reservation => {
+      // Charger le véhicule (société ou personnel)
       if (reservation.annonce.vehiculeServiceId) {
         observables.push(
           this.reservationService.getVehiculeSociete(reservation.annonce.vehiculeServiceId).pipe(
@@ -129,16 +126,11 @@ export class MesReservationsComponent implements OnInit {
             })
           )
         );
+      } else {
+        // Pour un véhicule perso, on doit d'abord récupérer le conducteur
+        // On marquera la réservation pour charger le véhicule plus tard
+        observables.push(of(null)); // Placeholder pour maintenir l'ordre
       }
-
-      observables.push(
-        this.reservationService.getParticipants(reservation.annonce.id).pipe(
-          catchError((error: any) => {
-            console.error(`Erreur chargement participants pour annonce ${reservation.annonce.id}:`, error);
-            return of(null);
-          })
-        )
-      );
     });
 
     if (observables.length === 0) {
@@ -149,21 +141,11 @@ export class MesReservationsComponent implements OnInit {
     forkJoin(observables).subscribe({
       next: (results: any[]) => {
         let currentIndex = 0;
+        const vehiculesPersoToLoad: { reservation: any, conducteurId: number }[] = [];
 
-        if (hasVehiculePerso && results.length > 0) {
-          this.vehiculePersoCache = results[currentIndex];
-          currentIndex++;
-        }
-
+        // Premier passage : assigner participants et véhicules de société
         this.reservations.forEach(reservation => {
-          if (reservation.annonce.vehiculeServiceId) {
-            reservation.vehicule = results[currentIndex];
-            currentIndex++;
-          } else {
-            reservation.vehicule = this.vehiculePersoCache;
-          }
-
-          // Assigner le conducteur et les passagers
+          // Assigner les participants
           const participants = results[currentIndex];
           if (participants) {
             if (participants.conducteur) {
@@ -174,10 +156,49 @@ export class MesReservationsComponent implements OnInit {
             }
           }
           currentIndex++;
+
+          // Assigner le véhicule
+          if (reservation.annonce.vehiculeServiceId) {
+            reservation.vehicule = results[currentIndex];
+          } else if (reservation.conducteur?.id) {
+            // Marquer pour chargement ultérieur du véhicule perso
+            vehiculesPersoToLoad.push({
+            reservation: reservation,
+            conducteurId: reservation.conducteur.id
+            });
+          }
+          currentIndex++;
         });
 
-        this.isLoading = false;
-        this.updatePagedReservations();
+        // Deuxième passage : charger les véhicules personnels des conducteurs
+        if (vehiculesPersoToLoad.length > 0) {
+          const vehiculePersoObservables = vehiculesPersoToLoad.map(item =>
+            this.reservationService.getVehiculePersoById(item.conducteurId).pipe(
+              catchError((error: any) => {
+                console.error(`Erreur chargement véhicule perso du conducteur ${item.conducteurId}:`, error);
+                return of(null);
+              })
+            )
+          );
+
+          forkJoin(vehiculePersoObservables).subscribe({
+            next: (vehiculesPerso: any[]) => {
+              vehiculesPersoToLoad.forEach((item, index) => {
+                item.reservation.vehicule = vehiculesPerso[index];
+              });
+              this.isLoading = false;
+              this.updatePagedReservations();
+            },
+            error: (error: any) => {
+              console.error('Erreur lors du chargement des véhicules perso:', error);
+              this.isLoading = false;
+              this.updatePagedReservations();
+            }
+          });
+        } else {
+          this.isLoading = false;
+          this.updatePagedReservations();
+        }
       },
       error: (error: any) => {
         console.error('Erreur lors du chargement:', error);

@@ -21,11 +21,13 @@ export interface Vehicule {
 }
 
 export interface Conducteur {
+  id: number; // ✅ Correspond à l'id renvoyé par le backend
   nom: string;
   prenom: string;
 }
 
 export interface Passager {
+  id: number; // L'id utilisateur du passager
   nom: string;
   prenom: string;
 }
