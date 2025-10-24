@@ -1,12 +1,17 @@
 import { Component, inject, OnInit, signal, computed, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { Vehicules } from '../../../services/vehicules/vehicules';
+import { AnnonceService } from '../../../services/annonces/mes-annonces/annonce';
 import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
+import { AnnonceDetails, AnnonceResponse, Annonce } from '../../../models/annonce';
+
 import { forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { Router } from '@angular/router';
+
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
-import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 
@@ -21,11 +26,20 @@ type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null }
 })
 export class VehiculesList implements OnInit {
   private vehiculeService = inject(Vehicules);
+  private annonceService = inject(AnnonceService);
   private router = inject(Router);
 
   vehiculePersoList = signal<VehiculeDTO[]>([]);
   reservations = signal<ReservationVehiculeDto[]>([]);
   reservationRows = signal<ReservationRow[]>([]);
+
+  // ================ Tableau annonces ================
+
+  mesAnnonces = signal<Annonce[]>([]);
+
+  private vehiculeIdFromAnnonce(a: Annonce): number | null {
+    return a?.annonce?.vehiculeServiceId ?? null;
+  }
 
   // ================ Tableau reservations ================
 
@@ -87,8 +101,8 @@ export class VehiculesList implements OnInit {
   modaleTitle = signal<string>('');
 
   // Messages pour la modale
-    vehiculeSuccessMessage = signal<string>('');
-    vehiculeErrorMessage = signal<string>('');
+  vehiculeSuccessMessage = signal<string>('');
+  vehiculeErrorMessage = signal<string>('');
 
   // Pour afficher les infos véhicule dans la modale
   selectedVehiculeForDelete = computed<VehiculeDTO | null>(() => {
@@ -140,6 +154,36 @@ export class VehiculesList implements OnInit {
     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
   }
 
+  // ================ Helper suppression ================
+
+  canDeletePersonalVehicle(): { allowed: boolean; reason?: string } {
+    const annonces = this.mesAnnonces();
+    const hasAnnonceUsingPersonal = annonces.some(a => this.vehiculeIdFromAnnonce(a) == null);
+
+    if (hasAnnonceUsingPersonal) {
+      return {
+        allowed: false,
+        reason:
+          'Impossible de supprimer votre véhicule personnel : au moins une de vos annonces utilise actuellement le véhicule personnel.',
+      };
+    }
+    return { allowed: true };
+  }
+
+  canCancelReservationOfVehicle(vehiculeId: number): { allowed: boolean; reason?: string } {
+    const annonces = this.mesAnnonces();
+    const usedByAnnonce = annonces.some(a => this.vehiculeIdFromAnnonce(a) === vehiculeId);
+
+    if (usedByAnnonce) {
+      return {
+        allowed: false,
+        reason:
+          'Impossible d’annuler la réservation : ce véhicule est référencé dans au moins une de vos annonces.',
+      };
+    }
+    return { allowed: true };
+  }
+
   // ================ Initiallisation ================
 
   ngOnInit(): void {
@@ -175,23 +219,55 @@ export class VehiculesList implements OnInit {
       next: rows => this.reservationRows.set(rows),
       error: err => console.error(err)
     });
+
+    this.annonceService.getMesAnnonces().subscribe({
+      next: (list) => this.mesAnnonces.set(Array.isArray(list) ? list : []),
+      error: (e) => {
+        console.error('[VEHICULES] getMesAnnonces() failed:', e);
+        this.mesAnnonces.set([]);
+      }
+    });
   }
 
   // ================ Modale ================
 
   openAnnulation(row: ReservationRow) {
+    const id = Number(row.vehiculeId);
+    if (!Number.isFinite(id)) return;
+
+    const guard = this.canCancelReservationOfVehicle(id);
+    if (!guard.allowed) {
+      alert(guard.reason);
+      return;
+    }
+
     this.modaleTitle.set("Annuler la reservation");
     this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous annuler la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous annuler cette réservation ?');
     this.reservationToDelete.set(row);
   }
 
   openFinalisation(row: ReservationRow) {
+    const id = Number(row.vehiculeId);
+    if (!Number.isFinite(id)) return;
+
+    const guard = this.canCancelReservationOfVehicle(id);
+    if (!guard.allowed) {
+      alert(guard.reason);
+      return;
+    }
+
     this.modaleTitle.set("Terminer la réservation");
     this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous terminer la réservation du véhicule ' + (this.selectedVehiculeForDelete()?.marque || '') + ' ' + (this.selectedVehiculeForDelete()?.modele || '') + ' ?') : 'Voulez-vous terminer cette réservation ?');
     this.reservationToEdit.set(row);
   }
 
   openSuppression(vehicule: VehiculeDTO) {
+    const guard = this.canDeletePersonalVehicle();
+    if (!guard.allowed) {
+      alert(guard.reason);
+      return;
+    }
+
     this.modaleTitle.set("Supprimer votre vehicule personnel");
     this.deleteContent.set(this.selectedVehiculeForDelete() ? ('Voulez-vous supprimer votre vehicule ' + (this.vehiculePersoToDelete()?.marque || '') + ' ' + (this.vehiculePersoToDelete()?.modele || '') + ' ?') : 'Voulez-vous supprimer votre vehicule personnel ?');
     this.vehiculePersoToDelete.set(vehicule);
@@ -280,65 +356,65 @@ export class VehiculesList implements OnInit {
   }
 
   onSaveEdit(vehicule: VehiculeDTO) {
-      const oldVehicule = this.vehiculeToEdit();
-      if (this.creationVehicule()) {
-        if ('id' in vehicule) {
-          delete vehicule.id;
+    const oldVehicule = this.vehiculeToEdit();
+    if (this.creationVehicule()) {
+      if ('id' in vehicule) {
+        delete vehicule.id;
+      }
+      this.vehiculeService.createPerso(vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehiculePersoList.set([vehicule]);
+          this.vehiculeSuccessMessage.set('✅ Véhicule créé avec succès !');
+
+          // Fermer la modale après 2 secondes
+          setTimeout(() => {
+            this.creationVehicule.set(false);
+            this.vehiculeSuccessMessage.set('');
+          }, 2000);
+        },
+        error: (e) => {
+          console.error(e);
+          // Message d'erreur personnalisé
+          if (e.error?.message?.includes('Data too long')) {
+            this.vehiculeErrorMessage.set('❌ L\'URL de la photo est trop longue (max 255 caractères)');
+          } else {
+            this.vehiculeErrorMessage.set('❌ Erreur lors de la création du véhicule');
+          }
+
+          // Effacer le message après 3 secondes
+          setTimeout(() => {
+            this.vehiculeErrorMessage.set('');
+          }, 3000);
         }
-        this.vehiculeService.createPerso(vehicule).subscribe({
-          next: (vehicule) => {
-            this.vehiculePersoList.set([vehicule]);
-            this.vehiculeSuccessMessage.set('✅ Véhicule créé avec succès !');
-
-            // Fermer la modale après 2 secondes
-            setTimeout(() => {
-              this.creationVehicule.set(false);
-              this.vehiculeSuccessMessage.set('');
-            }, 2000);
-          },
-          error: (e) => {
-            console.error(e);
-            // Message d'erreur personnalisé
-            if (e.error?.message?.includes('Data too long')) {
-              this.vehiculeErrorMessage.set('❌ L\'URL de la photo est trop longue (max 255 caractères)');
-            } else {
-              this.vehiculeErrorMessage.set('❌ Erreur lors de la création du véhicule');
-            }
-
-            // Effacer le message après 3 secondes
-            setTimeout(() => {
-              this.vehiculeErrorMessage.set('');
-            }, 3000);
-          }
-        })
-      }
-      else if (!oldVehicule?.id || oldVehicule == vehicule) {
-        this.vehiculeToEdit.set(null);
-      }
-      else {
-        this.vehiculeService.updatePerso(vehicule).subscribe({
-          next: (vehicule) => {
-            this.vehiculePersoList.set([vehicule]);
-            this.vehiculeSuccessMessage.set('✅ Véhicule modifié avec succès !');
-
-            // Fermer la modale après 2 secondes
-            setTimeout(() => {
-              this.vehiculeToEdit.set(null);
-              this.vehiculeSuccessMessage.set('');
-            }, 2000);
-          },
-          error: (e) => {
-            console.error(e);
-            this.vehiculeErrorMessage.set('❌ Erreur lors de la modification du véhicule');
-
-            // Effacer le message après 3 secondes
-            setTimeout(() => {
-              this.vehiculeErrorMessage.set('');
-            }, 3000);
-          }
-        })
-      }
+      })
     }
+    else if (!oldVehicule?.id || oldVehicule == vehicule) {
+      this.vehiculeToEdit.set(null);
+    }
+    else {
+      this.vehiculeService.updatePerso(vehicule).subscribe({
+        next: (vehicule) => {
+          this.vehiculePersoList.set([vehicule]);
+          this.vehiculeSuccessMessage.set('✅ Véhicule modifié avec succès !');
+
+          // Fermer la modale après 2 secondes
+          setTimeout(() => {
+            this.vehiculeToEdit.set(null);
+            this.vehiculeSuccessMessage.set('');
+          }, 2000);
+        },
+        error: (e) => {
+          console.error(e);
+          this.vehiculeErrorMessage.set('❌ Erreur lors de la modification du véhicule');
+
+          // Effacer le message après 3 secondes
+          setTimeout(() => {
+            this.vehiculeErrorMessage.set('');
+          }, 3000);
+        }
+      })
+    }
+  }
 
   goToReservation() {
     this.router.navigate(['/vehicules/reservation']);
