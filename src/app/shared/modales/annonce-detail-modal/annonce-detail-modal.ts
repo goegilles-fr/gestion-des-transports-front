@@ -32,7 +32,6 @@ export class AnnonceDetailModalComponent implements OnChanges {
     this.isLoadingPassagers = true;
     this.dashboardService.getParticipants(this.annonce.annonce.id).subscribe({
       next: (participants: any) => {
-        console.log('Participants chargés:', participants);
         this.passagers = participants.passagers || participants.filter((p: any) => p.role !== 'CONDUCTEUR') || [];
         this.isLoadingPassagers = false;
       },

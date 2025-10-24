@@ -24,7 +24,7 @@
           <div class="passagers-label">
             <span class="passager-icon">👤</span>
             <span>Passagers ({{ passagers.length }})</span>
-            <!-- AJOUT : Affichage Complet ou Places disponibles -->
+            <!-- Affichage Complet ou Places disponibles -->
             <span class="places-status" [class.complet]="isComplet()" [class.disponible]="!isComplet()">
       {{ getPlacesStatus() }}
     </span>
@@ -39,7 +39,7 @@
         <div class="no-passagers" *ngIf="!passagers || passagers.length === 0">
           <span class="passager-icon">👤</span>
           <span>Aucun passager pour le moment</span>
-          <!-- AJOUT : Affichage des places disponibles quand pas de passagers -->
+          <!-- Affichage des places disponibles quand pas de passagers -->
           <span class="places-status disponible">
             {{ getPlacesStatus() }}
           </span>
