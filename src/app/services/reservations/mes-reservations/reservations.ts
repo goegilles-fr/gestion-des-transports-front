@@ -34,6 +34,11 @@ export class ReservationService {
     return this.http.get<Participants>(`${this.apiUrl}/${annonceId}/participants`);
   }
 
+  // Récupérer le véhicule personnel du conducteur
+  getVehiculePersoById(utilisateurId: number): Observable<any> {
+    return this.http.get(`${this.utilisateurUrl}/${utilisateurId}/vehicule-perso`);
+  }
+
   // Annuler une réservation
   annulerReservation(annonceId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/reserve/${annonceId}`);
