@@ -111,8 +111,7 @@ export class VehiculesReservation implements AfterViewInit {
       pagination: { clickable: true },
       keyboard: { enabled: true },
 
-      loop: canLoop,               // ← on n’active que si c’est safe
-      rewind: !canLoop,            // sinon retour début/fin, pas de clones
+      loop: false,
 
       observer: true,
       observeParents: true,

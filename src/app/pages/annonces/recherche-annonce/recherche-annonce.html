@@ -12,23 +12,19 @@
       <legend>Adresse de départ</legend>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°"
-               [value]="depNumero() ?? ''"
-               (input)="onNumberInput($event, depNumero)" class="w-20" />
+        <input type="text" inputmode="numeric" placeholder="N°" [value]="depNumero() ?? ''"
+          (input)="onNumberInput($event, depNumero)" class="w-20" />
 
-        <input type="text" placeholder="Rue / voie"
-               [value]="depRue()"
-               (input)="onTextInput($event, depRue)" class="flex-1" />
+        <input type="text" placeholder="Rue / voie" [value]="depRue()" (input)="onTextInput($event, depRue)"
+          class="flex-1" />
       </div>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal"
-               [value]="depCp()"
-               (input)="onTextInput($event, depCp)" class="w-28" />
+        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="depCp()"
+          (input)="onTextInput($event, depCp)" class="w-28" />
 
-        <input type="text" placeholder="Ville"
-               [value]="depVille()"
-               (input)="onTextInput($event, depVille)" class="flex-1" />
+        <input type="text" placeholder="Ville" [value]="depVille()" (input)="onTextInput($event, depVille)"
+          class="flex-1" />
       </div>
     </fieldset>
 
@@ -37,23 +33,19 @@
       <legend>Adresse d’arrivée</legend>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°"
-               [value]="arrNumero() ?? ''"
-               (input)="onNumberInput($event, arrNumero)" class="w-20" />
+        <input type="text" inputmode="numeric" placeholder="N°" [value]="arrNumero() ?? ''"
+          (input)="onNumberInput($event, arrNumero)" class="w-20" />
 
-        <input type="text" placeholder="Rue / voie"
-               [value]="arrRue()"
-               (input)="onTextInput($event, arrRue)" class="flex-1" />
+        <input type="text" placeholder="Rue / voie" [value]="arrRue()" (input)="onTextInput($event, arrRue)"
+          class="flex-1" />
       </div>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal"
-               [value]="arrCp()"
-               (input)="onTextInput($event, arrCp)" class="w-28" />
+        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="arrCp()"
+          (input)="onTextInput($event, arrCp)" class="w-28" />
 
-        <input type="text" placeholder="Ville"
-               [value]="arrVille()"
-               (input)="onTextInput($event, arrVille)" class="flex-1" />
+        <input type="text" placeholder="Ville" [value]="arrVille()" (input)="onTextInput($event, arrVille)"
+          class="flex-1" />
       </div>
     </fieldset>
 
@@ -77,60 +69,62 @@
           <input type="number" min="0" step="1" [value]="flexHeures()" (input)="onFlexInput($event)" />
         </label>
       </div>
+      @if (dateWarn()) {
+      <p class="warn-inline">{{ dateWarn() }}</p>
+      }
     </fieldset>
 
+
     <div class="actions">
-      <button type="button" class="btn" (click)="rechercher()">Rechercher</button>
+      <button type="button" class="btn" (click)="rechercher()" [disabled]="isPastSelected()">Rechercher</button>
     </div>
 
     @if (errorMsg()) {
-      <p class="warn">{{ errorMsg() }}</p>
+    <p class="warn">{{ errorMsg() }}</p>
     }
   </div>
 
   <!-- Résultats -->
   @if (loading()) {
-    <p class="muted">Chargement…</p>
+  <p class="muted">Chargement…</p>
   } @else if (results().length === 0) {
-    <p class="muted">Aucune annonce ne correspond aux critères.</p>
+  <p class="muted">Aucune annonce ne correspond aux critères.</p>
   } @else {
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Conducteur</th>
-            <th>Départ</th>
-            <th>Arrivée</th>
-            <th>Heure de départ</th>
-            <th>Places dispo</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (a of results(); track a['annonce']?.id) {
-            <tr>
-              <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
-              <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
-              <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
-              <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
-              <td>{{ placesDispo(a) }}</td>
-              <td>
-                <button type="button"
-                        class="btn small"
-                        (click)="openModale(a)">
-                  Réserver
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Conducteur</th>
+          <th>Départ</th>
+          <th>Arrivée</th>
+          <th>Heure de départ</th>
+          <th>Places dispo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of results(); track a['annonce']?.id) {
+        <tr>
+          <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
+          <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
+          <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
+          <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
+          <td>{{ placesDispo(a) }}</td>
+          <td>
+            <button type="button" class="btn small" (click)="openModale(a)">
+              Réserver
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   }
 </section>
 
-<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()"
-  [message]="modaleContent()" confirmLabel="Reserver" cancelLabel="Annuler" (confirm)="confirmModale()"
+<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()" [message]="modaleContent()"
+  confirmLabel="Reserver" cancelLabel="Annuler" (confirm)="confirmModale()"
   (cancel)="closeModale()"></app-confirm-dialog>
 
 <app-footer></app-footer>
