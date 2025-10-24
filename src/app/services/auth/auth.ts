@@ -30,10 +30,10 @@ export class AuthService {
   private baseUrl = 'https://dev.goegilles.fr';
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   // Nom du cookie pour stocker le JWT
   private readonly NOM_COOKIE_JWT = 'jwt_token';
-  
+
   private http = inject(HttpClient);
   private cookieService = inject(CookieService);
 
@@ -47,15 +47,15 @@ export class AuthService {
    */
   private verifierTokenExistant(): void {
     const token = this.cookieService.obtenirCookie(this.NOM_COOKIE_JWT);
-    
+
     if (token) {
       const infoUtilisateur = this.decoderToken(token);
-      
+
       if (infoUtilisateur && this.estTokenValide(infoUtilisateur)) {
         // IMPORTANT: Définir l'utilisateur IMMÉDIATEMENT depuis le JWT
         // Cela permet au AuthGuard de fonctionner sans attendre l'API
         this.currentUserSubject.next(infoUtilisateur);
-        
+
         // Ensuite, charger le profil complet en arrière-plan
         this.chargerProfilUtilisateur().subscribe({
           next: (profilComplet: any) => {
@@ -67,8 +67,6 @@ export class AuthService {
           },
           error: (erreur: any) => {
             console.error('Erreur lors de la récupération du profil au démarrage:', erreur);
-            // Ne pas déconnecter si le JWT est valide, juste garder les données de base
-            console.log('Utilisation des données JWT de base uniquement');
           }
         });
       } else {
@@ -87,17 +85,17 @@ export class AuthService {
           if (reponse && reponse.jwt) {
             // Décoder le JWT pour obtenir la date d'expiration
             const infoUtilisateur = this.decoderToken(reponse.jwt);
-            
+
             // Calculer la date d'expiration du cookie basée sur le JWT
             let dateExpiration: Date | undefined;
             if (infoUtilisateur && infoUtilisateur.exp) {
               // exp est en secondes, convertir en millisecondes
               dateExpiration = new Date(infoUtilisateur.exp * 1000);
             }
-            
+
             // Stocker le JWT dans un cookie avec la même expiration que le JWT
             this.cookieService.definirCookie(
-              this.NOM_COOKIE_JWT, 
+              this.NOM_COOKIE_JWT,
               reponse.jwt,
               undefined, // pas de jours
               dateExpiration // date d'expiration du JWT
@@ -107,16 +105,12 @@ export class AuthService {
 
             this.obtenirProfilUtilisateur().subscribe({
               next: (profil) => {
-                console.log('Profil complet récupéré:', profil);
                 this.currentUserSubject.next(profil);
               },
               error: (erreur) => {
                 console.error('Erreur profil:', erreur);
-                console.log('Utilisation des données JWT de base');
               }
             });
-
-            console.log('Connexion réussie:', reponse);
           }
         }),
         catchError((erreur: any) => {
@@ -209,8 +203,8 @@ export class AuthService {
    * Nécessite une authentification (token JWT)
    */
   changerMotDePasse(nouveauMotDePasse: string): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/api/utilisateurs/changepassword`, { 
-      newpassword: nouveauMotDePasse 
+    return this.http.put<any>(`${this.baseUrl}/api/utilisateurs/changepassword`, {
+      newpassword: nouveauMotDePasse
     })
       .pipe(
         catchError((erreur: any) => {
@@ -236,7 +230,6 @@ export class AuthService {
   chargerProfilUtilisateur(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/api/utilisateurs/profile`).pipe(
       map((profil: any) => {
-        console.log('Profil API reçu:', profil);
         return {
           id: profil.id,
           email: profil.email,
@@ -258,16 +251,13 @@ export class AuthService {
    * Déconnecte l'utilisateur et supprime le cookie JWT
    */
   deconnexion(): void {
-    console.log('Déconnexion en cours...');
-    
     // Supprimer le cookie JWT
     this.cookieService.supprimerCookie(this.NOM_COOKIE_JWT);
-    
+
     // Nettoyer sessionStorage au cas où il reste des données
     sessionStorage.clear();
-    
+
     this.currentUserSubject.next(null);
-    console.log('Utilisateur déconnecté');
   }
 
   // Alias pour compatibilité
@@ -295,7 +285,6 @@ export class AuthService {
   rafraichirProfilUtilisateur(): Observable<any> {
     return this.obtenirProfilUtilisateur().pipe(
       tap((profil) => {
-        console.log('Profil rafraîchi:', profil);
         this.currentUserSubject.next(profil);
       }),
       catchError((erreur: any) => {
@@ -316,7 +305,7 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     const token = this.cookieService.obtenirCookie(this.NOM_COOKIE_JWT);
-    
+
     if (!token) return false;
 
     try {
@@ -340,8 +329,6 @@ export class AuthService {
       const payload = token.split('.')[1];
       const payloadDecode = atob(payload);
       const payloadParse = JSON.parse(payloadDecode);
-
-      console.log('JWT payload:', payloadParse);
 
       return {
         id: payloadParse.userId || payloadParse.id || payloadParse.sub,
