@@ -173,3 +173,20 @@ input:focus {
   .table-wrap { overflow-x: auto; }
   .table { min-width: 900px; }
 }
+
+/* Petit warning sous le field "Quand ?" */
+.warn-inline {
+  margin-top: 8px;
+  background: #fee;
+  color: #c33;
+  border: 1px solid #f6caca;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* S’assure que le warning prend toute la largeur du field */
+.field .warn-inline {
+  grid-column: 1 / -1;
+}
