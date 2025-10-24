@@ -48,8 +48,8 @@ export interface VehiculeEntreprise {
 export interface AnnonceRequest {
   id: number;
   heureDepart: string;
-  dureeTrajet?: number;  
-  distance?: number;    
+  dureeTrajet?: number;
+  distance?: number;
   adresseDepart: Adresse;
   adresseArrivee: Adresse;
   vehiculeServiceId: number | null;
@@ -100,7 +100,7 @@ export class CreateAnnonceService {
     );
   }
 
-  // AJOUT : Méthode pour modifier une annonce
+  // Méthode pour modifier une annonce
   modifierAnnonce(id: number, annonce: AnnonceRequest): Observable<any> {
     return this.http.put<any>(
       `${this.baseUrl}/api/covoit/${id}`,
