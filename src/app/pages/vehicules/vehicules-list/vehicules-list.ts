@@ -1,20 +1,24 @@
 import { Component, inject, OnInit, signal, computed, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 
+// Services
 import { Vehicules } from '../../../services/vehicules/vehicules';
 import { AnnonceService } from '../../../services/annonces/mes-annonces/annonce';
+
+// Models
 import { VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import { AnnonceDetails, AnnonceResponse, Annonce } from '../../../models/annonce';
 
-import { forkJoin, map, of, switchMap, tap } from 'rxjs';
-import { Router } from '@angular/router';
-
-import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
-import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
+// UI
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
+import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
 
+// Types
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
 
 @Component({
@@ -25,18 +29,24 @@ type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null }
   styleUrl: './vehicules-list.css'
 })
 export class VehiculesList implements OnInit {
+
+  // ================ Injections ================
   private vehiculeService = inject(Vehicules);
   private annonceService = inject(AnnonceService);
   private router = inject(Router);
 
+  // ================ States ================
+
+  // Tableau véhicules personnels
   vehiculePersoList = signal<VehiculeDTO[]>([]);
+  // Tableau réservations
   reservations = signal<ReservationVehiculeDto[]>([]);
+  // Tableau réservations enrichies (avec véhicule entreprise)
   reservationRows = signal<ReservationRow[]>([]);
 
-  // ================ Tableau annonces ================
-
+  // Mes annonces
   mesAnnonces = signal<Annonce[]>([]);
-
+  // Récupère l'id du véhicule entreprise utilisé dans une annonce (ou null si véhicule perso)
   private vehiculeIdFromAnnonce(a: Annonce): number | null {
     return a?.annonce?.vehiculeServiceId ?? null;
   }
@@ -51,7 +61,7 @@ export class VehiculesList implements OnInit {
     this.isCurrent(r) ? 0 : (this.isUpcoming(r) ? 1 : 2);
 
   sortedReservations = computed(() => {
-    const rows = this.reservationRows?.() ?? []; // respecte ton API existante
+    const rows = this.reservationRows?.() ?? [];
     return [...rows].sort((a, b) => {
       const ra = this.statusRank(a), rb = this.statusRank(b);
       if (ra !== rb) return ra - rb;
@@ -61,22 +71,17 @@ export class VehiculesList implements OnInit {
       if (ra === 0) return sa - sb;
       // futures: du plus proche au plus tard
       if (ra === 1) return sa - sb;
-      // passées: du plus proche (récemment terminé) au plus ancien
+      // passées: du plus proche au plus ancien
       return sb - sa;
     });
   });
 
+  // Nombre total de pages
   totalPages = computed(() => Math.max(1, Math.ceil(this.sortedReservations().length / this.pageSize)));
-
+  // Réservations à afficher sur la page courante
   pagedReservations = computed(() => {
     const start = (this.page() - 1) * this.pageSize;
     return this.sortedReservations().slice(start, start + this.pageSize);
-  });
-
-  private readonly _pageEffect: EffectRef = effect((): void => {
-    const p = this.page();
-    const t = this.totalPages();
-    if (p > t) this.page.set(t);
   });
 
   // Contrôles pagination
@@ -87,7 +92,7 @@ export class VehiculesList implements OnInit {
     this.page.set(Math.max(1, Math.min(t, n)));
   }
 
-  // ================ Modale ================
+  // ================ States Modale ================
 
   // État de la modale de suppression
   reservationToDelete = signal<ReservationVehiculeDto | null>(null);
@@ -137,13 +142,6 @@ export class VehiculesList implements OnInit {
 
   private ts(x: string | Date): number { return new Date(x).getTime(); }
 
-  isCurrent = (r: any): boolean => {
-    const now = Date.now();
-    return this.ts(r.dateDebut) <= now && now <= this.ts(r.dateFin);
-  };
-  isUpcoming = (r: any): boolean => Date.now() < this.ts(r.dateDebut);
-  isPast = (r: any): boolean => Date.now() > this.ts(r.dateFin);
-
   private formatLocal(d: Date) {
     const yyyy = d.getFullYear();
     const MM = String(d.getMonth() + 1).padStart(2, '0');
@@ -154,8 +152,18 @@ export class VehiculesList implements OnInit {
     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
   }
 
+  // États de réservation (en cours, à venir, passée)
+  isCurrent = (r: any): boolean => {
+    const now = Date.now();
+    return this.ts(r.dateDebut) <= now && now <= this.ts(r.dateFin);
+  };
+  isUpcoming = (r: any): boolean => Date.now() < this.ts(r.dateDebut);
+  isPast = (r: any): boolean => Date.now() > this.ts(r.dateFin);
+
+
   // ================ Helper suppression ================
 
+  // Vérifie si le véhicule personnel peut être supprimé (aucune annonce ne l'utilise)
   canDeletePersonalVehicle(): { allowed: boolean; reason?: string } {
     const annonces = this.mesAnnonces();
     const hasAnnonceUsingPersonal = annonces.some(a => this.vehiculeIdFromAnnonce(a) == null);
@@ -170,6 +178,7 @@ export class VehiculesList implements OnInit {
     return { allowed: true };
   }
 
+  // Vérifie si la réservation d'un véhicule peut être annulée (aucune annonce ne l'utilise)
   canCancelReservationOfVehicle(vehiculeId: number): { allowed: boolean; reason?: string } {
     const annonces = this.mesAnnonces();
     const usedByAnnonce = annonces.some(a => this.vehiculeIdFromAnnonce(a) === vehiculeId);
@@ -187,11 +196,13 @@ export class VehiculesList implements OnInit {
   // ================ Initiallisation ================
 
   ngOnInit(): void {
+    // Charger les véhicules personnels
     this.vehiculeService.getPersoByUserId().subscribe({
       next: list => this.vehiculePersoList.set(list ?? []),
       error: e => console.error(e)
     });
 
+    // Charger les réservations
     this.vehiculeService.listReservationByUserId().pipe(
       // 1) Side effects locaux
       tap(list => {
@@ -231,6 +242,7 @@ export class VehiculesList implements OnInit {
 
   // ================ Modale ================
 
+  // Ouvre la modale d'annulation de réservation
   openAnnulation(row: ReservationRow) {
     const id = Number(row.vehiculeId);
     if (!Number.isFinite(id)) return;
@@ -246,6 +258,7 @@ export class VehiculesList implements OnInit {
     this.reservationToDelete.set(row);
   }
 
+  // Ouvre la modale de finalisation de réservation
   openFinalisation(row: ReservationRow) {
     const id = Number(row.vehiculeId);
     if (!Number.isFinite(id)) return;
@@ -261,6 +274,7 @@ export class VehiculesList implements OnInit {
     this.reservationToEdit.set(row);
   }
 
+  // Ouvre la modale de suppression de véhicule personnel
   openSuppression(vehicule: VehiculeDTO) {
     const guard = this.canDeletePersonalVehicle();
     if (!guard.allowed) {
@@ -273,30 +287,37 @@ export class VehiculesList implements OnInit {
     this.vehiculePersoToDelete.set(vehicule);
   }
 
+  // Ouvre la modale d'édition de véhicule personnel
   openEditVehicule(vehicule: VehiculeDTO) {
     this.modaleTitle.set("Modifier votre vehicule personnel");
     this.vehiculeToEdit.set(vehicule);
   }
 
+  // Ouvre la modale de création de véhicule personnel
   openCreationVehicule() {
     this.modaleTitle.set("Déclarer mon vehicule personnel");
     this.creationVehicule.set(true);
   }
 
+  // Ferme toutes les modales
   closeModale() {
     this.reservationToDelete.set(null);
     this.vehiculePersoToDelete.set(null);
     this.reservationToEdit.set(null);
   }
 
+  // Ferme la modale d'édition de véhicule
   closeEdit() {
     this.vehiculeToEdit.set(null);
     this.creationVehicule.set(false);
   }
 
+  // Confirme l'action dans la modale (acte de suppression ou d'édition)
   confirmModale() {
     const reservationToDelete = this.reservationToDelete();
     const reservationToEdit = this.reservationToEdit();
+
+    // Suppression réservation
     if (!reservationToDelete?.id) {
       this.reservationToDelete.set(null);
     }
@@ -315,6 +336,7 @@ export class VehiculesList implements OnInit {
       });
     }
 
+    // Édition réservation
     if (!reservationToEdit?.id) {
       this.reservationToEdit.set(null);
     }
@@ -337,6 +359,7 @@ export class VehiculesList implements OnInit {
       });
     }
 
+    // Suppression véhicule personnel
     const vehicule = this.vehiculePersoToDelete();
     if (!vehicule?.id) {
       this.vehiculePersoToDelete.set(null);
@@ -355,8 +378,10 @@ export class VehiculesList implements OnInit {
     }
   }
 
+  // Sauvegarde les modifications dans la modale d'édition ou de creation de véhicule personnel
   onSaveEdit(vehicule: VehiculeDTO) {
     const oldVehicule = this.vehiculeToEdit();
+    // Création
     if (this.creationVehicule()) {
       if ('id' in vehicule) {
         delete vehicule.id;
@@ -391,6 +416,7 @@ export class VehiculesList implements OnInit {
     else if (!oldVehicule?.id || oldVehicule == vehicule) {
       this.vehiculeToEdit.set(null);
     }
+    // Modification
     else {
       this.vehiculeService.updatePerso(vehicule).subscribe({
         next: (vehicule) => {

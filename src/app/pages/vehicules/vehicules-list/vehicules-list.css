@@ -156,7 +156,6 @@ app-footer {
   align-items: center;
   justify-content: center;
   height: 100%;
-  /* Le conteneur flex hérite de la couleur de fond de la cellule parente */
   background: inherit;
 }
 

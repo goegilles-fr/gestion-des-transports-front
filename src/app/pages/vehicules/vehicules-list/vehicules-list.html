@@ -136,17 +136,18 @@
     </div>
   </section>
 
-  <!-- CTA -->
   <div class="cta">
     <button type="button" class="btn-primary" (click)="goToReservation()">RÉSERVER UN VÉHICULE DE SOCIÉTÉ</button>
   </div>
 
 </div>
 
+<!-- MODALE DE CONFIRMATION DE SUPPRESSION ET D'ÉDITION -->
 <app-confirm-dialog [open]="!!reservationToDelete() || !!reservationToEdit() || !!vehiculePersoToDelete()" [title]="modaleTitle()"
   [message]="deleteContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
   (cancel)="closeModale()"></app-confirm-dialog>
 
+<!-- MODALE D'ÉDITION OU DE CRÉATION DE VÉHICULE PERSONNEL -->
 @if(vehiculeToEdit(); as editing) {
 <app-vehicule-edit
   [open]="!!vehiculeToEdit()"
