@@ -1,4 +1,6 @@
-/* Styles appliqués au host component pour le fond gris */
+/* =========================================================
+   Layout global (fond gris)
+   ========================================================= */
 :host {
   display: flex;
   flex-direction: column;
@@ -18,7 +20,9 @@
   background: #EDEDED;
 }
 
-/* Titre de la page */
+/* =========================================================
+   Titres / sections
+   ========================================================= */
 .page-title,
 .panel__title {
   font-size: 18px;
@@ -31,12 +35,11 @@
   text-transform: uppercase;
 }
 
-/* Section panel */
-.panel {
-  margin-bottom: 28px;
-}
+.panel { margin-bottom: 28px; }
 
-/* Zone de filtres */
+/* =========================================================
+   Filtres
+   ========================================================= */
 .filters-container,
 .filters {
   margin-bottom: 20px;
@@ -56,10 +59,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: white;
+  background: #fff;
   padding: 12px 16px;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
 
 .filter span {
@@ -73,8 +76,8 @@
   font-size: 14px;
   border: 2px solid #ddd;
   border-radius: 6px;
-  transition: all 0.3s ease;
-  background: white;
+  transition: all .3s ease;
+  background: #fff;
   color: #333;
   cursor: pointer;
 }
@@ -82,9 +85,10 @@
 .filter select:focus {
   outline: none;
   border-color: #0B84A2;
-  box-shadow: 0 0 0 3px rgba(11, 132, 162, 0.1);
+  box-shadow: 0 0 0 3px rgba(11,132,162,.1);
 }
 
+/* Lien de réinitialisation */
 .link-reset {
   background: transparent;
   border: none;
@@ -94,66 +98,54 @@
   padding: 4px 8px;
   font-size: 14px;
   text-decoration: underline;
-  transition: opacity 0.2s;
+  transition: opacity .2s;
 }
+.link-reset:hover { opacity: .8; }
 
-.link-reset:hover {
-  opacity: 0.8;
-}
-
-/* Conteneur de la carte/tableau */
+/* =========================================================
+   Cartes / Tableaux
+   ========================================================= */
 .card {
-  background: white;
+  background: #fff;
   border-radius: 8px;
   overflow: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
   margin-bottom: 30px;
   max-height: 600px;
 }
 
-/* Tableau des véhicules */
+/* Tableau générique */
 .table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* En-tête du tableau */
+/* En-tête du tableau — COULEUR FIXE #0B84A2 */
 .table thead {
   background-color: #0B84A2;
-  color: white;
+  color: #fff;
   position: sticky;
   top: 0;
   z-index: 10;
 }
-
 .table thead th {
   padding: 10px 12px;
   text-align: center;
   font-weight: 600;
   font-size: 14px;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255,255,255,.3);
   vertical-align: middle;
 }
-
-.table thead th:last-child {
-  border-right: none;
-}
+.table thead th:last-child { border-right: none; }
 
 /* Corps du tableau */
 .table tbody tr {
   border-bottom: 2px solid #0B84A2;
-  transition: background-color 0.2s;
+  transition: background-color .2s;
 }
+.table tbody tr:hover { background-color: #f5f5f5; }
+.table tbody tr:last-child { border-bottom: none; }
 
-.table tbody tr:hover {
-  background-color: #f5f5f5;
-}
-
-.table tbody tr:last-child {
-  border-bottom: none;
-}
-
-/* Cellules du tableau */
 .table tbody td {
   padding: 8px 12px;
   font-size: 14px;
@@ -161,49 +153,35 @@
   border-right: 1px solid #E6F7FB;
   text-align: left;
 }
-
 .table tbody td:last-child,
 .table tbody td:nth-last-child(2),
 .table tbody td:nth-last-child(3) {
   border-right: none;
 }
 
-/* Alternance des couleurs de fond pour les cellules impaires */
-.table tbody tr td:nth-child(odd) {
-  background-color: #E6F7FB;
-}
+/* Alternance des colonnes impaires */
+.table tbody tr td:nth-child(odd) { background-color: #E6F7FB; }
+.table tbody tr:hover td { filter: brightness(.97); }
 
-.table tbody tr:hover td {
-  filter: brightness(0.97);
-}
-
-/* Cellule d'immatriculation en gras */
+/* Immat en valeur */
 .table tbody td.immat {
   font-weight: 700;
   color: #333;
-  letter-spacing: 0.04em;
+  letter-spacing: .04em;
 }
 
-/* Cellule de photo */
-.photo-cell {
-  width: 120px;
-  text-align: center;
-}
-
+/* Colonne photo */
+.photo-cell { width: 120px; text-align: center; }
 .photo-cell .thumb {
-  width: 120px;
-  height: 76px;
-  object-fit: cover;
-  border-radius: 7px;  
+  width: 120px; height: 76px;
+  object-fit: cover; border-radius: 7px;
   background: #f8f8f8;
 }
 
-/* Colonne des actions */
-.actions-col {
-  width: 110px;
-  text-align: center;
-}
-
+/* =========================================================
+   Actions / Boutons d’icônes
+   ========================================================= */
+.actions-col { width: 110px; text-align: center; }
 
 .actions-cell {
   display: flex;
@@ -213,65 +191,35 @@
   justify-content: center;
 }
 
-/* Boutons d'action */
 .action-btn,
 .icon-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  padding: 0;
-  background: transparent;
+  width: 32px; height: 32px;
+  border: none; border-radius: 6px;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all .2s; padding: 0; background: transparent;
 }
-
 .action-btn:hover:not(:disabled),
 .icon-btn:hover:not(:disabled) {
   transform: scale(1.15);
-  background: rgba(11, 132, 162, 0.1);
+  background: rgba(11,132,162,.1);
 }
-
 .action-btn:disabled,
 .icon-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  opacity: .4; cursor: not-allowed;
 }
+.icon-btn svg { width: 20px; height: 20px; fill: #555; }
 
-.icon-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: #555;
-}
+/* Emojis (édition / suppression) */
+.edit-btn { color: #f5a623; }
+.edit-btn:hover:not(:disabled) { color: #d68910; }
+.delete-btn { color: #e74c3c; }
+.delete-btn:hover:not(:disabled) { color: #c0392b; }
+.icon-edit, .icon-delete { display: block; font-style: normal; font-size: 20px; }
 
-/* Styles pour les boutons avec emojis */
-.edit-btn {
-  color: #f5a623;
-}
-
-.edit-btn:hover:not(:disabled) {
-  color: #d68910;
-}
-
-.delete-btn {
-  color: #e74c3c;
-}
-
-.delete-btn:hover:not(:disabled) {
-  color: #c0392b;
-}
-
-.icon-edit,
-.icon-delete {
-  display: block;
-  font-style: normal;
-  font-size: 20px;
-}
-
-/* Badges de statut */
+/* =========================================================
+   Badges de statut
+   ========================================================= */
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -279,23 +227,16 @@
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: white;
+  letter-spacing: .02em;
+  color: #fff;
 }
+.badge--ok   { background: #1c9b5c; }
+.badge--warn { background: #e2a100; }
+.badge--off  { background: #9aa6ac; }
 
-.badge--ok {
-  background: #1c9b5c;
-}
-
-.badge--warn {
-  background: #e2a100;
-}
-
-.badge--off {
-  background: #9aa6ac;
-}
-
-/* Message cellule vide */
+/* =========================================================
+   État vide / Pagination / CTA
+   ========================================================= */
 .table tbody td.empty {
   text-align: center;
   color: #777;
@@ -305,121 +246,65 @@
 
 /* Pagination */
 .pagination {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-  background: white;
+  display: flex; gap: 12px;
+  align-items: center; justify-content: center;
+  padding: 20px 0; background: #fff;
 }
-
 .pager {
   padding: 8px 16px;
   background: #0B84A2;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: #fff; border: none; border-radius: 6px;
+  font-weight: 600; font-size: 14px;
+  cursor: pointer; transition: all .2s;
 }
-
 .pager:hover:not(:disabled) {
   background: #0a7089;
   transform: translateY(-1px);
 }
-
 .pager:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+  background: #ccc; cursor: not-allowed; opacity: .6;
 }
+.pager__info { font-size: 14px; color: #555; font-weight: 600; }
 
-.pager__info {
-  font-size: 14px;
-  color: #555;
-  font-weight: 600;
-}
-
-/* Bouton CTA principal */
+/* CTA principal — COULEUR FIXE #0B84A2 */
 .cta {
-  display: flex;
-  justify-content: center;
+  display: flex; justify-content: center;
   margin: 22px 0 8px;
 }
-
 .btn-primary {
-  appearance: none;
-  border: none;
-  border-radius: 6px;
-  padding: 12px 26px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  appearance: none; border: none; border-radius: 6px;
+  padding: 12px 26px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
   background: #0B84A2;
-  color: white;
-  box-shadow: 0 2px 8px rgba(11, 132, 162, 0.3);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  font-size: 14px;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(11,132,162,.3);
+  transition: all .2s ease; cursor: pointer; font-size: 14px;
 }
-
 .btn-primary:hover {
   background: #0a7089;
-  box-shadow: 0 4px 12px rgba(11, 132, 162, 0.4);
+  box-shadow: 0 4px 12px rgba(11,132,162,.4);
   transform: translateY(-1px);
 }
+.btn-primary:active { transform: translateY(0); }
 
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Responsive */
+/* =========================================================
+   Responsive
+   ========================================================= */
 @media (max-width: 1200px) {
-  .table {
-    font-size: 13px;
-  }
-
-  .table th,
-  .table td {
-    padding: 10px;
-  }
+  .table { font-size: 13px; }
+  .table th, .table td { padding: 10px; }
 }
 
 @media (max-width: 860px) {
-  .vehicules-page {
-    padding: 15px;
-  }
+  .vehicules-page { padding: 15px; }
+  .card { overflow-x: auto; }
+  .table { min-width: 900px; }
 
-  .card {
-    overflow-x: auto;
-  }
-
-  .table {
-    min-width: 900px;
-  }
-
-  .action-btn,
-  .icon-btn {
-    width: 28px;
-    height: 28px;
-  }
-
-  .icon-btn svg {
-    width: 16px;
-    height: 16px;
-  }
+  .action-btn, .icon-btn { width: 28px; height: 28px; }
+  .icon-btn svg { width: 16px; height: 16px; }
 }
 
 @media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter {
-    width: 100%;
-    justify-content: space-between;
-  }
+  .filters { flex-direction: column; align-items: stretch; }
+  .filter { width: 100%; justify-content: space-between; }
 }

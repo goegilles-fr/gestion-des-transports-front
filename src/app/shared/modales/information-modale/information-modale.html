@@ -1,0 +1,14 @@
+@if(open){
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3 class="modal-title">{{ title }}</h3>
+        <p class="modal-message">{{ message }}</p>
+    
+        <div class="modal-actions">
+          <button type="button" class="btn" (click)="close.emit()">
+            {{ closeLabel }}
+          </button>
+        </div>
+      </div>
+    </div>    
+}
