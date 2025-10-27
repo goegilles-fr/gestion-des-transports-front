@@ -344,7 +344,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'normale';
   }
 
-  // Getters pour les covoiturage
+  // Getters pour les covoiturages
   get hasProchaineReservationCovoiturage(): boolean {
     return !!this.prochaineReservationCovoiturage;
   }
@@ -387,11 +387,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     const annonce = this.prochaineAnnonceCovoiturage.annonce;
     const placesLibres = this.dashboardService.getPlacesLibres(this.prochaineAnnonceCovoiturage);
+    // placesTotales inclut le conducteur, donc -1 pour avoir le nombre de places passagers
+    const placesPassagers = this.prochaineAnnonceCovoiturage.placesTotales - 1;
 
     return {
       dateHeure: this.dashboardService.formatDateHeure(annonce.heureDepart),
       route: `${this.dashboardService.formatAdresse(annonce.adresseDepart)} → ${this.dashboardService.formatAdresse(annonce.adresseArrivee)}`,
-      places: `${placesLibres}/${this.prochaineAnnonceCovoiturage.placesTotales}`,
+      places: `${placesLibres}/${placesPassagers}`,
       vehicule: (this.prochaineAnnonceCovoiturage as any).vehiculeInfo || 'Véhicule non spécifié'
     };
   }

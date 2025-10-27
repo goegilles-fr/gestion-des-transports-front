@@ -26,8 +26,8 @@
             <span>Passagers ({{ passagers.length }})</span>
             <!-- Affichage Complet ou Places disponibles -->
             <span class="places-status" [class.complet]="isComplet()" [class.disponible]="!isComplet()">
-      {{ getPlacesStatus() }}
-    </span>
+              {{ getPlacesStatus() }}
+            </span>
           </div>
           <div class="passagers-list">
             <div class="passager-badge" *ngFor="let passager of passagers">
@@ -87,7 +87,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">Nombre de places passagers</span>
-            <span class="info-value">{{ annonce.vehicule?.nbPlaces }}</span>
+            <span class="info-value">{{ getNbPlacesPassagers() }}</span>
           </div>
         </div>
       </section>

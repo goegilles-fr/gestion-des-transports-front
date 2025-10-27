@@ -31,7 +31,7 @@
       </label>
 
       <label class="form-field">
-        <span class="field-label">Places</span>
+        <span class="field-label">Places (conducteur + passagers)</span>
         <input type="number" name="nbPlaces" [(ngModel)]="vehicule().nbPlaces" min="1"/>
       </label>
 
@@ -41,7 +41,7 @@
       </label>
 
       <label class="form-field">
-        <span class="label">Motorisation</span>
+        <span class="field-label">Motorisation</span>
         <select name="motorisation" [(ngModel)]="vehicule().motorisation" required>
           @for(motorisation of MOTORISATIONS; track $index) {
           <option [ngValue]="motorisation">{{ motorisation }}</option>
@@ -82,7 +82,7 @@
       </label>
 
       <label class="field">
-        <span class="field__label">Catégorie</span>
+        <span class="field-label">Catégorie</span>
         <select name="categorie" [(ngModel)]="vehicule().categorie" required>
           @for(category of CATEGORIES; track $index) {
           <option [ngValue]="category">{{ category }}</option>

@@ -278,16 +278,18 @@ export class DashboardService {
   }
 
   /**
-   * Calcule les places libres
+   * Calcule les places libres pour les passagers (sans compter le conducteur)
    */
   getPlacesLibres(covoiturage: Covoiturage): number {
-    return covoiturage.placesTotales - covoiturage.placesOccupees;
+    // placesTotales inclut le conducteur, donc on soustrait 1 pour avoir les places passagers disponibles
+    const placesPassagers = covoiturage.placesTotales - 1;
+    return placesPassagers - covoiturage.placesOccupees;
   }
 
   /**
-     * Récupère les participants d'une annonce (conducteur + passagers)
-     */
-    getParticipants(annonceId: number): Observable<any> {
-      return this.http.get<any>(`${this.baseUrl}/api/covoit/${annonceId}/participants`);
-    }
+   * Récupère les participants d'une annonce (conducteur + passagers)
+   */
+  getParticipants(annonceId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/covoit/${annonceId}/participants`);
+  }
 }

@@ -323,7 +323,9 @@ export class MesAnnoncesComponent implements OnInit {
   }
 
   getParticipants(annonce: Annonce): string {
-    return `${annonce.placesOccupees} / ${annonce.placesTotales}`;
+    // placesTotales inclut le conducteur, donc on soustrait 1 pour avoir les places passagers
+    const placesPassagers = annonce.placesTotales - 1;
+    return `${annonce.placesOccupees} / ${placesPassagers}`;
   }
 
   // Calculer le nombre total de pages selon le filtre

@@ -87,23 +87,31 @@ export class ReservationDetailModalComponent implements OnChanges {
 
   // Vérifier si c'est complet
   isComplet(): boolean {
-    const nbPlaces = this.reservation?.vehicule?.nbPlaces || 0;
+    // nbPlaces inclut le conducteur, donc on soustrait 1 pour avoir les places passagers
+    const placesPassagers = (this.reservation?.vehicule?.nbPlaces || 0) - 1;
     const nbPassagers = this.passagers?.length || 0;
-    return nbPassagers >= nbPlaces;
+    return nbPassagers >= placesPassagers;
   }
 
   // Obtenir le texte du statut des places
   getPlacesStatus(): string {
-    const nbPlaces = this.reservation?.vehicule?.nbPlaces || 0;
+    // nbPlaces inclut le conducteur, donc on soustrait 1 pour avoir les places passagers
+    const placesPassagers = (this.reservation?.vehicule?.nbPlaces || 0) - 1;
     const nbPassagers = this.passagers?.length || 0;
 
-    if (nbPassagers >= nbPlaces) {
+    if (nbPassagers >= placesPassagers) {
       return 'Complet';
     }
 
-    const placesDisponibles = nbPlaces - nbPassagers;
+    const placesDisponibles = placesPassagers - nbPassagers;
     return placesDisponibles === 1
       ? 'Place disponible : 1'
       : `Places disponibles : ${placesDisponibles}`;
+  }
+
+  // Obtenir le nombre de places passagers (sans le conducteur)
+  getNbPlacesPassagers(): number {
+    // nbPlaces inclut le conducteur, donc on soustrait 1
+    return (this.reservation?.vehicule?.nbPlaces || 0) - 1;
   }
 }
