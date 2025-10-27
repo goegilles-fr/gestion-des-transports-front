@@ -218,6 +218,15 @@
   (cancel)="closeModale()">
 </app-confirm-dialog>
 
+<!-- Modale suppression impossible -->
+<app-information-modale
+  [open]="cantDeleteInfoOpen()"
+  [title]="cantDeleteInfoTitle()"
+  [message]="cantDeleteInfoMessage()"
+  closeLabel="Fermer"
+  (close)="closeInfoModale()">
+</app-information-modale>
+
 <!-- Modale d’édition véhicule (modification) -->
 @if (vehiculeToEdit(); as editing) {
   <app-vehicule-edit

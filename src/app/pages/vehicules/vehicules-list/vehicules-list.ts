@@ -17,6 +17,7 @@ import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
+import { InformationModale } from '../../../shared/modales/information-modale/information-modale';
 
 // Types
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
@@ -24,7 +25,7 @@ type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null }
 @Component({
   selector: 'app-vehicules-list',
   standalone: true,
-  imports: [CommonModule, ConfirmDialog, VehiculeEdit, NavbarComponent, FooterComponent],
+  imports: [CommonModule, ConfirmDialog, VehiculeEdit, NavbarComponent, FooterComponent, InformationModale],
   templateUrl: './vehicules-list.html',
   styleUrl: './vehicules-list.css'
 })
@@ -66,6 +67,11 @@ export class VehiculesList implements OnInit {
   reservationToEdit = signal<ReservationVehiculeDto | null>(null);
   vehiculeToEdit = signal<VehiculeDTO | null>(null);
   creationVehicule = signal<boolean>(false);
+
+  // -- Modale information suppression impossible
+  cantDeleteInfoOpen = signal<boolean>(false)
+  cantDeleteInfoTitle = signal<string>('');
+  cantDeleteInfoMessage = signal<string>('');
 
   // -- Contenus & titres de modales
   deleteContent = signal<string>('');
@@ -278,7 +284,7 @@ export class VehiculesList implements OnInit {
     if (!Number.isFinite(id)) return;
 
     const guard = this.canCancelReservationOfVehicle(id);
-    if (!guard.allowed) { alert(guard.reason); return; }
+    if (!guard.allowed) { this.openCantDeleteInfo(); return; }
 
     this.modaleTitle.set("Annuler la reservation");
     this.deleteContent.set(
@@ -297,7 +303,7 @@ export class VehiculesList implements OnInit {
     if (!Number.isFinite(id)) return;
 
     const guard = this.canCancelReservationOfVehicle(id);
-    if (!guard.allowed) { alert(guard.reason); return; }
+    if (!guard.allowed) { this.openCantDeleteInfo(); return; }
 
     this.modaleTitle.set("Terminer la réservation");
     this.deleteContent.set(
@@ -313,7 +319,7 @@ export class VehiculesList implements OnInit {
   // -- Suppression d’un véhicule personnel
   openSuppression(vehicule: VehiculeDTO) {
     const guard = this.canDeletePersonalVehicle();
-    if (!guard.allowed) { alert(guard.reason); return; }
+    if (!guard.allowed) { this.openCantDeleteInfo(); return; }
 
     this.modaleTitle.set("Supprimer votre vehicule personnel");
     this.deleteContent.set(
@@ -416,6 +422,17 @@ export class VehiculesList implements OnInit {
         }
       })
     }
+  }
+
+  // -- Modale information suppression impossible
+  openCantDeleteInfo() {
+    this.cantDeleteInfoOpen.set(true);
+    this.cantDeleteInfoTitle.set("Suppression impossible");
+    this.cantDeleteInfoMessage.set("Vous ne pouvez pas supprimer ce véhicule car il est actuellement utilisé dans une annonce.");
+  }
+
+  closeInfoModale() {
+    this.cantDeleteInfoOpen.set(false);
   }
 
   /**
