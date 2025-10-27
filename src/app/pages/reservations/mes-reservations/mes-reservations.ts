@@ -323,9 +323,10 @@ export class MesReservationsComponent implements OnInit {
   // Calculer le nombre de passagers (sans compter le conducteur)
   getNombrePassagers(reservation: Reservation): string {
     const passagers = reservation.passagers?.length || 0;
-    // Utiliser les places de l'annonce si disponibles, sinon fallback sur reservation.placesTotales
-    const placesDisponibles = reservation.annonce.placesTotales || reservation.placesTotales;
-    return `${passagers}/${placesDisponibles}`;
+    // placesTotales inclut le conducteur, donc on soustrait 1 pour avoir les places passagers
+    const placesTotales = reservation.annonce.placesTotales || reservation.placesTotales;
+    const placesPassagers = placesTotales - 1;
+    return `${passagers}/${placesPassagers}`;
   }
 
   // Formater une adresse
