@@ -1,27 +1,36 @@
 <app-navbar></app-navbar>
 
 <div class="vehicules-page">
-
+  <!-- =========================================================
+       SECTION : Liste des véhicules d'entreprise
+     ========================================================= -->
   <section class="panel">
     <h2 class="panel__title">VÉHICULES D'ENTREPRISE</h2>
 
-    <!-- Barre de filtre -->
+    <!-- ========== Barre de filtre ========== -->
     <div class="filters">
       <label class="filter">
         <span>Statut&nbsp;:</span>
+
         <select [ngModel]="selected()" (ngModelChange)="selected.set($event)">
           <option [ngValue]="'ALL'">Tous</option>
-          @for(statut of STATUTS; track $index) {
-          <option [ngValue]="statut">{{ statut.replace('_',' ').toLowerCase() | titlecase }}</option>
+          @for (statut of STATUTS; track $index) {
+            <option [ngValue]="statut">
+              {{ statut.replace('_',' ').toLowerCase() | titlecase }}
+            </option>
           }
         </select>
-        <button type="button" class="link-reset" (click)="resetFilter()">réinitialiser</button>
+
+        <button type="button" class="link-reset" (click)="resetFilter()">
+          réinitialiser
+        </button>
       </label>
     </div>
 
-    <!-- Tableau -->
+    <!-- ========== Tableau ========== -->
     <div class="card">
       <table class="table table--entreprise">
+        <!-- ---- En-tête ---- -->
         <thead>
           <tr>
             <th>Marque</th>
@@ -35,80 +44,143 @@
             <th>Statut</th>
           </tr>
         </thead>
+
+        <!-- ---- Corps ---- -->
         <tbody>
-          @for(vehicule of pagedVehicules(); track vehicule.id ?? $index) {
-          <tr>
-            <td>{{ vehicule.marque }}</td>
-            <td>{{ vehicule.modele }}</td>
-            <td class="immat">{{ vehicule.immatriculation }}</td>
-            <td>{{ vehicule.nbPlaces }}</td>
-            <td>{{ vehicule.co2ParKm }}</td>
-            <td>{{ vehicule.motorisation }}</td>
-            <td class="photo-cell">
-              <img [src]="vehicule.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule" class="thumb"
-                loading="lazy">
-            </td>
+          @for (vehicule of pagedVehicules(); track vehicule.id ?? $index) {
+            <tr>
+              <td>{{ vehicule.marque }}</td>
+              <td>{{ vehicule.modele }}</td>
+              <td class="immat">{{ vehicule.immatriculation }}</td>
+              <td>{{ vehicule.nbPlaces }}</td>
+              <td>{{ vehicule.co2ParKm }}</td>
+              <td>{{ vehicule.motorisation }}</td>
 
+              <td class="photo-cell">
+                <img
+                  class="thumb"
+                  [src]="vehicule.photo || 'https://placehold.co/72x48?text=Photo'"
+                  alt="Photo véhicule"
+                  loading="lazy"
+                />
+              </td>
 
-          <td class="actions-col">
-  <div class="actions-cell">
-    @if (vehicule.id != null) {
-    <button class="action-btn edit-btn" title="Modifier" (click)="openEdit(vehicule)">
-      <i class="icon-edit">✏️</i>
-    </button>
-    <button class="action-btn delete-btn" title="Supprimer" (click)="openModale(vehicule)">
-      <i class="icon-delete">🗑️</i>
-    </button>
-    }
-  </div>
-</td>
+              <td class="actions-col">
+                <div class="actions-cell">
+                  @if (vehicule.id != null) {
+                    <button
+                      type="button"
+                      class="action-btn edit-btn"
+                      title="Modifier"
+                      (click)="openEdit(vehicule)"
+                      aria-label="Modifier le véhicule"
+                    >
+                      <i class="icon-edit">✏️</i>
+                    </button>
 
+                    <button
+                      type="button"
+                      class="action-btn delete-btn"
+                      title="Supprimer"
+                      (click)="openModale(vehicule)"
+                      aria-label="Supprimer le véhicule"
+                    >
+                      <i class="icon-delete">🗑️</i>
+                    </button>
+                  }
+                </div>
+              </td>
 
-            <td>
-              <span class="badge" [class.badge--ok]="vehicule.statut==='EN_SERVICE'"
-                [class.badge--warn]="vehicule.statut==='EN_REPARATION'"
-                [class.badge--off]="vehicule.statut==='HORS_SERVICE'">
-                {{ (vehicule.statut ?? 'INCONNU').replace('_',' ').toLowerCase() | titlecase }}
-              </span>
-            </td>
-          </tr>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge--ok]="vehicule.statut === 'EN_SERVICE'"
+                  [class.badge--warn]="vehicule.statut === 'EN_REPARATION'"
+                  [class.badge--off]="vehicule.statut === 'HORS_SERVICE'"
+                >
+                  {{ (vehicule.statut ?? 'INCONNU').replace('_',' ').toLowerCase() | titlecase }}
+                </span>
+              </td>
+            </tr>
           }
-          @if(filtered().length === 0) {
-          <tr>
-            <td colspan="9" class="empty">Aucun véhicule pour ce filtre.</td>
-          </tr>
+
+          @if (filtered().length === 0) {
+            <tr>
+              <td colspan="9" class="empty">Aucun véhicule pour ce filtre.</td>
+            </tr>
           }
         </tbody>
       </table>
+
+      <!-- ========== Pagination ========== -->
       <div class="pagination">
-        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
-        <span class="pager__info">Page {{ page() }} / {{ totalPages() }}</span>
-        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+        <button
+          type="button"
+          class="pager"
+          (click)="prevPage()"
+          [disabled]="page() === 1"
+        >
+          Précédent
+        </button>
+
+        <span class="pager__info">
+          Page {{ page() }} / {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          class="pager"
+          (click)="nextPage()"
+          [disabled]="page() === totalPages()"
+        >
+          Suivant
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- =========================================================
+       CTA principal
+     ========================================================= -->
   <div class="cta">
     <button type="button" class="btn-primary" (click)="openCreate()">
       ENREGISTRER UN NOUVEAU VÉHICULE
     </button>
   </div>
-
 </div>
 
-@if(vehiculeToEdit(); as editing) {
-<app-vehicule-edit [open]="!!vehiculeToEdit()" [model]="editing" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()"></app-vehicule-edit>
-}
-@if(creationVehicule()) {
-<app-vehicule-edit [open]="!!creationVehicule()" [title]="modaleTitle()" [showStatut]="true" (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()"></app-vehicule-edit>
+<!-- =========================================================
+     Modales
+     ========================================================= -->
+@if (vehiculeToEdit(); as editing) {
+  <app-vehicule-edit
+    [open]="!!vehiculeToEdit()"
+    [model]="editing"
+    [title]="modaleTitle()"
+    [showStatut]="true"
+    (confirm)="onSaveEdit($event)"
+    (cancel)="closeEdit()"
+  ></app-vehicule-edit>
 }
 
-<app-confirm-dialog [open]="!!vehiculeToDelete()" [title]="modaleTitle()"
-  [message]="modaleContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
-  (cancel)="closeModale()"></app-confirm-dialog>
+@if (creationVehicule()) {
+  <app-vehicule-edit
+    [open]="!!creationVehicule()"
+    [title]="modaleTitle()"
+    [showStatut]="true"
+    (confirm)="onSaveEdit($event)"
+    (cancel)="closeEdit()"
+  ></app-vehicule-edit>
+}
 
+<app-confirm-dialog
+  [open]="!!vehiculeToDelete()"
+  [title]="modaleTitle()"
+  [message]="modaleContent()"
+  confirmLabel="Supprimer"
+  cancelLabel="Annuler"
+  (confirm)="confirmModale()"
+  (cancel)="closeModale()"
+></app-confirm-dialog>
 
 <app-footer></app-footer>

@@ -1,9 +1,44 @@
-/* Styles appliqués au host component */
+/* ==========================================================================
+   Thème & reset local
+   ========================================================================== */
 :host {
+  /* Palette */
+  --bg-page: #ededed;
+  --ink-900: #333;
+  --ink-700: #555;
+  --ink-500: #777;
+
+  --brand: #0b84a2;
+  --brand-strong: #0a7089;
+
+  --card-bg: #fff;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  --line-soft: #e6f7fb;
+  --row-alt: #e5f6fa;
+
+  --state-current: #bdf1c4;
+  --state-current-alt: #9fdfa4;
+  --state-past: #c4c4c4;
+  --state-past-alt: #b3b3b3;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+
+  --spacing-1: 6px;
+  --spacing-2: 8px;
+  --spacing-3: 10px;
+  --spacing-4: 12px;
+  --spacing-5: 16px;
+  --spacing-6: 20px;
+  --spacing-7: 22px;
+  --spacing-8: 28px;
+  --spacing-9: 30px;
+
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #EDEDED;
+  background: var(--bg-page);
 }
 
 /* Le header et le footer ne doivent pas s'étirer */
@@ -12,202 +47,166 @@ app-footer {
   flex: 0 0 auto;
 }
 
-/* Le contenu central prend tout l'espace restant */
+/* ==========================================================================
+   Page container
+   ========================================================================== */
 .vehicules-page {
   flex: 1 0 auto;
   max-width: 1400px;
-  margin: 0 auto;
   width: 100%;
-  padding: 30px 20px;
+  margin: 0 auto;
+  padding: var(--spacing-9) var(--spacing-4);
   display: flex;
   flex-direction: column;
-  background: #EDEDED;
-  color: #333;
+  background: var(--bg-page);
+  color: var(--ink-900);
 }
 
-/* Section panel */
-.panel {
-  margin-bottom: 28px;
-}
+/* ==========================================================================
+   Titres / panneaux
+   ========================================================================== */
+.panel { margin-bottom: var(--spacing-8); }
 
 .panel__title {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #333;
-  margin-top: 0.1rem;
-  margin-bottom: 1.8rem;
+  margin: 0.1rem 0 1.8rem 0;
   text-align: center;
   text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: var(--ink-900);
 }
 
-/* Conteneur de la carte/tableau */
+/* ==========================================================================
+   Carte (contenant tableau)
+   ========================================================================== */
 .card {
-  background: white;
-  border-radius: 8px;
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
   overflow: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-  max-height: 600px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: var(--spacing-9);
+  max-height: 600px; /* garde l'en-tête sticky visible */
 }
 
-/* Tableau des véhicules */
+/* ==========================================================================
+   Tableau
+   ========================================================================== */
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
 }
 
-/* En-tête du tableau */
+/* En-tête sticky */
 .table thead {
-  background-color: #0B84A2;
-  color: white;
+  background: var(--brand);
+  color: #fff;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .table thead th {
-  padding: 10px 12px;
+  padding: var(--spacing-3) var(--spacing-4);
   text-align: center;
   font-weight: 600;
-  font-size: 14px;
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   vertical-align: middle;
 }
-
-.table thead th:first-child {
-  text-align: left;
-}
-
+.table thead th:first-child { text-align: left; }
 .table thead th:last-child,
 .table thead th:nth-last-child(2),
-.table thead th:nth-last-child(3) {
-  border-right: none;
-}
+.table thead th:nth-last-child(3) { border-right: none; }
 
-/* Corps du tableau */
+/* Lignes */
 .table tbody tr {
-  border-bottom: 2px solid #0B84A2;
-  transition: background-color 0.2s;
+  border-bottom: 2px solid var(--brand);
+  transition: background-color .2s ease;
 }
+.table tbody tr:hover { background-color: #f5f5f5; }
+.table tbody tr:last-child { border-bottom: none; }
 
-.table tbody tr:hover {
-  background-color: #f5f5f5;
-}
-
-.table tbody tr:last-child {
-  border-bottom: none;
-}
-
-/* Cellules du tableau */
+/* Cellules */
 .table tbody td {
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #555;
-  border-right: 1px solid #E6F7FB;
+  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--ink-700);
+  border-right: 1px solid var(--line-soft);
   text-align: left;
 }
-
 .table tbody td:last-child,
 .table tbody td:nth-last-child(2),
-.table tbody td:nth-last-child(3) {
-  border-right: none;
-}
+.table tbody td:nth-last-child(3) { border-right: none; }
 
-/* Alternance des couleurs de fond pour les cellules impaires */
+/* Zébrage doux sur colonnes impaires */
 .table tbody tr td:nth-child(odd) {
-  background-color: #e5f6fa;
+  background-color: var(--row-alt);
 }
+.table tbody tr:hover td { filter: brightness(0.97); }
 
-.table tbody tr:hover td {
-  filter: brightness(0.97);
-}
-
-/* Cellule d'immatriculation en gras */
+/* Cellule immatriculation en gras */
 .table tbody td.immat {
   font-weight: 700;
-  color: #333;
-  letter-spacing: 0.04em;
+  color: var(--ink-900);
+  letter-spacing: .04em;
 }
-/* Cellule de photo */
+
+/* ==========================================================================
+   Colonnes spécifiques
+   ========================================================================== */
 .photo-cell {
   width: 120px;
   text-align: center;
 }
-
 .photo-cell .thumb {
   width: 120px;
   height: 76px;
   object-fit: cover;
-  border-radius: 7px;  
+  border-radius: 7px;
   background: #f8f8f8;
 }
 
-/* Colonne des actions */
-.actions-col {
-  width: 110px;
-  text-align: center;
-}
-
+.actions-col { width: 110px; text-align: center; }
 .actions-cell {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: var(--spacing-4);
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: inherit;
+  background: inherit; /* évite la surcouche visuelle */
 }
 
-/* Boutons d'action */
+/* ==========================================================================
+   Boutons d’action (icônes)
+   ========================================================================== */
 .icon-btn {
   width: 32px;
   height: 32px;
+  padding: 0;
+  margin: 0 2px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
+  background: transparent;
   cursor: pointer;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  padding: 0;
-  background: transparent;
-  margin: 0 2px;
-}
 
+  transition: transform .2s ease, background .2s ease, opacity .2s ease;
+}
 .icon-btn:hover:not(:disabled) {
   transform: scale(1.15);
   background: rgba(11, 132, 162, 0.1);
 }
-
 .icon-btn:disabled {
-  opacity: 0.4;
+  opacity: .4;
   cursor: not-allowed;
 }
+.icon-btn svg { width: 20px; height: 20px; fill: var(--ink-700); }
 
-.icon-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: #555;
-}
-
-/* Styles pour les boutons avec emojis */
-.edit-btn {
-  color: #f5a623;
-}
-
-.edit-btn:hover:not(:disabled) {
-  color: #d68910;
-}
-
-.delete-btn {
-  color: #e74c3c;
-}
-
-.delete-btn:hover:not(:disabled) {
-  color: #c0392b;
-}
-
+/* Émojis/icônes “texte” */
 .icon-edit,
 .icon-delete {
   display: block;
@@ -215,173 +214,135 @@ app-footer {
   font-size: 20px;
 }
 
-/* Message cellule vide */
+/* Accent couleurs (optionnel si SVG/emoji) */
+.edit-btn { color: #f5a623; }
+.edit-btn:hover:not(:disabled) { color: #d68910; }
+.delete-btn { color: #e74c3c; }
+.delete-btn:hover:not(:disabled) { color: #c0392b; }
+
+/* Cellule vide “état vide” */
 .table tbody td.empty {
   text-align: center;
-  color: #777;
+  color: var(--ink-500);
   font-style: italic;
-  padding: 60px 20px;
+  padding: 60px var(--spacing-4);
 }
 
-/* État vide du véhicule personnel */
+/* État vide véhicule perso */
 .empty-personal {
   text-align: center;
-  padding: 40px 20px;
-  background: white;
+  padding: 40px var(--spacing-4);
+  background: var(--card-bg);
 }
-
 .empty-personal p {
   margin: 10px 0 20px;
-  color: #555;
+  color: var(--ink-700);
   font-size: 16px;
 }
 
-/* Coloration spéciale pour les réservations */
+/* ==========================================================================
+   Coloration lignes selon état (réservations)
+   ========================================================================== */
 .table--reservations tbody tr.row--current td {
-  background-color: #bdf1c4 !important;
+  background-color: var(--state-current) !important;
 }
-
 .table--reservations tbody tr.row--current td:nth-child(odd) {
-  background-color: #9fdfa4 !important;
+  background-color: var(--state-current-alt) !important;
 }
-
 .table--reservations tbody tr.row--past td {
-  background-color: #c4c4c4 !important;
+  background-color: var(--state-past) !important;
 }
-
 .table--reservations tbody tr.row--past td:nth-child(odd) {
-  background-color: #b3b3b3 !important;
+  background-color: var(--state-past-alt) !important;
 }
 
-/* Pagination */
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
 .pagination {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-4);
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
-  background: white;
+  padding: var(--spacing-6) 0;
+  background: var(--card-bg);
 }
 
 .pager {
-  padding: 8px 16px;
-  background: #0B84A2;
-  color: white;
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--brand);
+  color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform .2s ease, background .2s ease, opacity .2s ease;
 }
-
 .pager:hover:not(:disabled) {
-  background: #0a7089;
+  background: var(--brand-strong);
   transform: translateY(-1px);
 }
-
 .pager:disabled {
   background: #ccc;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: .6;
 }
-
 .pager__info {
   font-size: 14px;
-  color: #555;
+  color: var(--ink-700);
   font-weight: 600;
 }
 
-/* Bouton CTA principal */
+/* ==========================================================================
+   CTA principal
+   ========================================================================== */
 .cta {
   display: flex;
   justify-content: center;
-  margin: 22px 0 8px;
+  margin: var(--spacing-7) 0 var(--spacing-2);
 }
-
 .btn-primary {
   appearance: none;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 12px 26px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: .04em;
   text-transform: uppercase;
-  background: #0B84A2;
-  color: white;
+  background: var(--brand);
+  color: #fff;
   box-shadow: 0 2px 8px rgba(11, 132, 162, 0.3);
-  transition: all 0.2s ease;
   cursor: pointer;
   font-size: 14px;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
 }
-
 .btn-primary:hover {
-  background: #0a7089;
+  background: var(--brand-strong);
   box-shadow: 0 4px 12px rgba(11, 132, 162, 0.4);
   transform: translateY(-1px);
 }
+.btn-primary:active { transform: translateY(0); }
 
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Responsive */
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
 @media (max-width: 1200px) {
-  .table {
-    font-size: 13px;
-  }
-
+  .table { font-size: 13px; }
   .table th,
-  .table td {
-    padding: 8px 10px;
-  }
+  .table td { padding: 8px 10px; }
 }
 
 @media (max-width: 860px) {
-  .vehicules-page {
-    padding: 15px;
-  }
+  .vehicules-page { padding: 15px; }
 
-  .card {
-    overflow-x: auto;
-  }
+  .card { overflow-x: auto; }
+  .table { min-width: 1000px; }
 
-  .table {
-    min-width: 1000px;
-  }
-
-  .icon-btn {
-    width: 28px;
-    height: 28px;
-  }
-
-  .icon-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .table thead {
-    display: none;
-  }
-
-  .table tbody tr {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 12px;
-    padding: 10px 12px;
-  }
-
-  .table tbody td {
-    padding: 6px 0;
-  }
-
-  .actions-col {
-    justify-self: end;
-  }
+  .icon-btn { width: 28px; height: 28px; }
+  .icon-btn svg { width: 16px; height: 16px; }
 }
 
 @media (max-width: 768px) {
-  .empty-personal p {
-    font-size: 14px;
-  }
+  .empty-personal p { font-size: 14px; }
 }

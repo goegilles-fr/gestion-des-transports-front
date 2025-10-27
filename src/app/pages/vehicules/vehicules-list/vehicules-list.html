@@ -2,173 +2,245 @@
 
 <div class="vehicules-page">
 
-  <!-- MON VEHICULE PERSONNEL -->
-  <section class="panel">
-    <h2 class="panel__title">MON VÉHICULE PERSONNEL</h2>
+  <!-- =========================================================
+       SECTION 1 — VÉHICULE PERSONNEL
+       ========================================================= -->
+  <section class="panel" aria-labelledby="title-vehicule-perso">
+    <h2 id="title-vehicule-perso" class="panel__title">MON VÉHICULE PERSONNEL</h2>
 
-    @if(vehiculePersoList() != null && vehiculePersoList().length > 0) {
-    <div class="card">
-      <table class="table table--vehicule">
-        <thead>
-          <tr>
-            <th>Marque</th>
-            <th>Modèle</th>
-            <th>Immatriculation</th>
-            <th>Nombre de places</th>
-            <th>CO₂/km</th>
-            <th>Catégorie</th>
-            <th>Motorisation</th>
-            <th>Photo</th>
-            <th class="actions-col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for(vehiculePerso of vehiculePersoList(); track vehiculePerso.id ?? $index) {
-          <tr>
-            <td>{{ vehiculePerso?.marque || '—' }}</td>
-            <td>{{ vehiculePerso?.modele || '—' }}</td>
-            <td class="immat">{{ vehiculePerso?.immatriculation || '—' }}</td>
-            <td>{{ vehiculePerso?.nbPlaces || '—' }}</td>
-            <td>{{ vehiculePerso?.co2ParKm || '—' }}</td>
-            <td>{{ vehiculePerso?.categorie || '—' }}</td>
-            <td>{{ vehiculePerso?.motorisation || '—' }}</td>
-            <td class="photo-cell">
-              <img [src]="vehiculePerso?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
-                class="thumb" loading="lazy" />
-            </td>
-            <td class="actions-col">
-              <button type="button" class="icon-btn" title="modifier" (click)="openEditVehicule(vehiculePerso)">
-                <i class="icon-edit">✏️</i>
-              </button>
-              <button type="button" class="icon-btn" title="Supprimer" (click)="openSuppression(vehiculePerso)">
-                <i class="icon-delete">🗑️</i>
-              </button>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    } @else {
-    <div class="card empty-personal">
-      <p>Vous n’avez pas encore de véhicule personnel.</p>
-      <div class="cta">
-        <button type="button" class="btn-primary" (click)="openCreationVehicule()">
-          Déclarer mon véhicule personnel
-        </button>
+    @if (vehiculePersoList() != null && vehiculePersoList().length > 0) {
+      <div class="card">
+        <table class="table table--vehicule">
+          <thead>
+            <tr>
+              <th scope="col">Marque</th>
+              <th scope="col">Modèle</th>
+              <th scope="col">Immatriculation</th>
+              <th scope="col">Nombre de places</th>
+              <th scope="col">CO₂/km</th>
+              <th scope="col">Catégorie</th>
+              <th scope="col">Motorisation</th>
+              <th scope="col">Photo</th>
+              <th scope="col" class="actions-col">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (vehiculePerso of vehiculePersoList(); track vehiculePerso.id ?? $index) {
+              <tr>
+                <td>{{ vehiculePerso?.marque || '—' }}</td>
+                <td>{{ vehiculePerso?.modele || '—' }}</td>
+                <td class="immat">{{ vehiculePerso?.immatriculation || '—' }}</td>
+                <td>{{ vehiculePerso?.nbPlaces || '—' }}</td>
+                <td>{{ vehiculePerso?.co2ParKm || '—' }}</td>
+                <td>{{ vehiculePerso?.categorie || '—' }}</td>
+                <td>{{ vehiculePerso?.motorisation || '—' }}</td>
+
+                <!-- Photo -->
+                <td class="photo-cell">
+                  <img
+                    class="thumb"
+                    [src]="vehiculePerso?.photo || 'https://placehold.co/72x48?text=Photo'"
+                    alt="Photo véhicule"
+                    loading="lazy" />
+                </td>
+
+                <!-- Actions -->
+                <td class="actions-col">
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    title="Modifier le véhicule"
+                    (click)="openEditVehicule(vehiculePerso)">
+                    <i class="icon-edit">✏️</i>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    title="Supprimer le véhicule"
+                    (click)="openSuppression(vehiculePerso)">
+                    <i class="icon-delete">🗑️</i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
-    </div>
+    } @else {
+      <!-- État vide -->
+      <div class="card empty-personal">
+        <p>Vous n’avez pas encore de véhicule personnel.</p>
+        <div class="cta">
+          <button type="button" class="btn-primary" (click)="openCreationVehicule()">
+            Déclarer mon véhicule personnel
+          </button>
+        </div>
+      </div>
     }
   </section>
 
 
-  <!-- MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ -->
-  <section class="panel">
-    <h2 class="panel__title">MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ</h2>
+  <!-- =========================================================
+       SECTION 2 — RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ
+       ========================================================= -->
+  <section class="panel" aria-labelledby="title-reservations">
+    <h2 id="title-reservations" class="panel__title">MES RÉSERVATIONS DE VÉHICULES DE SOCIÉTÉ</h2>
 
     <div class="card">
       <table class="table table--reservations">
         <thead>
           <tr>
-            <th>Marque</th>
-            <th>Modèle</th>
-            <th>Immatriculation</th>
-            <th>Nombre de places</th>
-            <th>CO₂/km</th>
-            <th>Catégorie</th>
-            <th>Motorisation</th>
-            <th>Photo</th>
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th class="actions-col">Actions</th>
+            <th scope="col">Marque</th>
+            <th scope="col">Modèle</th>
+            <th scope="col">Immatriculation</th>
+            <th scope="col">Nombre de places</th>
+            <th scope="col">CO₂/km</th>
+            <th scope="col">Catégorie</th>
+            <th scope="col">Motorisation</th>
+            <th scope="col">Photo</th>
+            <th scope="col">Date de début</th>
+            <th scope="col">Date de fin</th>
+            <th scope="col" class="actions-col">Actions</th>
           </tr>
         </thead>
+
         <tbody>
-          @for(row of pagedReservations(); track row.id ?? $index){
-          <tr [class.row--current]="isCurrent(row)" [class.row--past]="isPast(row)">
-            <td>{{ row.vehicule?.marque ?? '—' }}</td>
-            <td>{{ row.vehicule?.modele ?? '—' }}</td>
-            <td class="immat">{{ row.vehicule?.immatriculation ?? '—' }}</td>
-            <td>{{ row.vehicule?.nbPlaces ?? '—' }}</td>
-            <td>{{ row.vehicule?.co2ParKm ?? '—' }}</td>
-            <td>{{ row.vehicule?.categorie ?? '—' }}</td>
-            <td>{{ row.vehicule?.motorisation ?? '—' }}</td>
-            <td class="photo-cell">
-              <img [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'" alt="Photo véhicule"
-                class="thumb" loading="lazy" />
-            </td>
-            <td>
-              <time [attr.datetime]="row.dateDebut">{{ row.dateDebut | date:'dd/MM/yyyy HH:mm' }}</time>
-            </td>
-            <td>
-              <time [attr.datetime]="row.dateFin">{{ row.dateFin | date:'dd/MM/yyyy HH:mm' }}</time>
-            </td>
-            <td class="actions-col">
-              @if (isUpcoming(row)) {
-              <!-- réservations à venir : annuler -->
+          @for (row of pagedReservations(); track row.id ?? $index) {
+            <tr
+              [class.row--current]="isCurrent(row)"
+              [class.row--past]="isPast(row)">
 
-              <button type="button" class="icon-btn" title="Annuler la réservation" (click)="openAnnulation(row)">
-                <i class="icon-delete">🗑️</i>
-              </button>
-              } @else if (isCurrent(row)) {
-              <!-- réservation en cours : terminer -->
-              <button type="button" class="icon-btn" title="Terminer la réservation" (click)="openFinalisation(row)">
+              <!-- Détails véhicule -->
+              <td>{{ row.vehicule?.marque ?? '—' }}</td>
+              <td>{{ row.vehicule?.modele ?? '—' }}</td>
+              <td class="immat">{{ row.vehicule?.immatriculation ?? '—' }}</td>
+              <td>{{ row.vehicule?.nbPlaces ?? '—' }}</td>
+              <td>{{ row.vehicule?.co2ParKm ?? '—' }}</td>
+              <td>{{ row.vehicule?.categorie ?? '—' }}</td>
+              <td>{{ row.vehicule?.motorisation ?? '—' }}</td>
 
-                <i class="icon-delete">🗑️</i>
-              </button>
-              } @else {
-              <!-- réservations passées : aucune action -->
-              }
-            </td>
-          </tr>
+              <!-- Photo -->
+              <td class="photo-cell">
+                <img
+                  class="thumb"
+                  [src]="row.vehicule?.photo || 'https://placehold.co/72x48?text=Photo'"
+                  alt="Photo véhicule"
+                  loading="lazy" />
+              </td>
+
+              <!-- Dates -->
+              <td>
+                <time [attr.datetime]="row.dateDebut">
+                  {{ row.dateDebut | date:'dd/MM/yyyy HH:mm' }}
+                </time>
+              </td>
+              <td>
+                <time [attr.datetime]="row.dateFin">
+                  {{ row.dateFin | date:'dd/MM/yyyy HH:mm' }}
+                </time>
+              </td>
+
+              <!-- Actions selon l’état -->
+              <td class="actions-col">
+                @if (isUpcoming(row)) {
+                  <!-- Réservation à venir : annuler -->
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    title="Annuler la réservation"
+                    (click)="openAnnulation(row)">
+                    <i class="icon-delete">🗑️</i>
+                  </button>
+
+                } @else if (isCurrent(row)) {
+                  <!-- Réservation en cours : terminer -->
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    title="Terminer la réservation"
+                    (click)="openFinalisation(row)">
+                    <i class="icon-delete">🗑️</i>
+                  </button>
+
+                } @else {
+                  <!-- Réservation passée : pas d’action -->
+                }
+              </td>
+            </tr>
           } @empty {
-          <tr>
-            <td colspan="10" class="empty">Aucune réservation.</td>
-          </tr>
+            <tr>
+              <td colspan="11" class="empty">Aucune réservation.</td>
+            </tr>
           }
         </tbody>
       </table>
-      <div class="pagination">
-        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
-        <span class="pager__info">Page {{ page() }} / {{ totalPages() }}</span>
-        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+
+      <!-- Pagination -->
+      <div class="pagination" role="navigation" aria-label="Pagination des réservations">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">
+          Précédent
+        </button>
+
+        <span class="pager__info">
+          Page {{ page() }} / {{ totalPages() }}
+        </span>
+
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">
+          Suivant
+        </button>
       </div>
     </div>
   </section>
 
+  <!-- CTA global -->
   <div class="cta">
-    <button type="button" class="btn-primary" (click)="goToReservation()">RÉSERVER UN VÉHICULE DE SOCIÉTÉ</button>
+    <button type="button" class="btn-primary" (click)="goToReservation()">
+      RÉSERVER UN VÉHICULE DE SOCIÉTÉ
+    </button>
   </div>
-
 </div>
 
-<!-- MODALE DE CONFIRMATION DE SUPPRESSION ET D'ÉDITION -->
-<app-confirm-dialog [open]="!!reservationToDelete() || !!reservationToEdit() || !!vehiculePersoToDelete()" [title]="modaleTitle()"
-  [message]="deleteContent()" confirmLabel="Supprimer" cancelLabel="Annuler" (confirm)="confirmModale()"
-  (cancel)="closeModale()"></app-confirm-dialog>
 
-<!-- MODALE D'ÉDITION OU DE CRÉATION DE VÉHICULE PERSONNEL -->
-@if(vehiculeToEdit(); as editing) {
-<app-vehicule-edit
-  [open]="!!vehiculeToEdit()"
-  [model]="editing"
+<!-- =========================================================
+     MODALES
+     ========================================================= -->
+
+<!-- Modale de confirmation (suppression / finalisation) -->
+<app-confirm-dialog
+  [open]="!!reservationToDelete() || !!reservationToEdit() || !!vehiculePersoToDelete()"
   [title]="modaleTitle()"
-  [successMessage]="vehiculeSuccessMessage()"
-  [errorMessage]="vehiculeErrorMessage()"
-  (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()">
-</app-vehicule-edit>
+  [message]="deleteContent()"
+  confirmLabel="Supprimer"
+  cancelLabel="Annuler"
+  (confirm)="confirmModale()"
+  (cancel)="closeModale()">
+</app-confirm-dialog>
+
+<!-- Modale d’édition véhicule (modification) -->
+@if (vehiculeToEdit(); as editing) {
+  <app-vehicule-edit
+    [open]="!!vehiculeToEdit()"
+    [model]="editing"
+    [title]="modaleTitle()"
+    [successMessage]="vehiculeSuccessMessage()"
+    [errorMessage]="vehiculeErrorMessage()"
+    (confirm)="onSaveEdit($event)"
+    (cancel)="closeEdit()">
+  </app-vehicule-edit>
 }
 
-@if(creationVehicule()) {
-<app-vehicule-edit
-  [open]="!!creationVehicule()"
-  [title]="modaleTitle()"
-  [successMessage]="vehiculeSuccessMessage()"
-  [errorMessage]="vehiculeErrorMessage()"
-  (confirm)="onSaveEdit($event)"
-  (cancel)="closeEdit()">
-</app-vehicule-edit>
+<!-- Modale d’édition véhicule (création) -->
+@if (creationVehicule()) {
+  <app-vehicule-edit
+    [open]="!!creationVehicule()"
+    [title]="modaleTitle()"
+    [successMessage]="vehiculeSuccessMessage()"
+    [errorMessage]="vehiculeErrorMessage()"
+    (confirm)="onSaveEdit($event)"
+    (cancel)="closeEdit()">
+  </app-vehicule-edit>
 }
 
 <app-footer></app-footer>
