@@ -68,6 +68,15 @@
               <td class="actions-col">
                 <div class="actions-cell">
                   @if (vehicule.id != null) {
+                    <button 
+                      type="button" 
+                      class="action-btn" 
+                      title="Voir les réservations" 
+                      (click)="openInformation(vehicule)"
+                      aria-label="Voir les réservations du véhicule">
+                      ℹ️
+                    </button>
+
                     <button
                       type="button"
                       class="action-btn edit-btn"
@@ -172,6 +181,24 @@
     (cancel)="closeEdit()"
   ></app-vehicule-edit>
 }
+
+@if(vehiculeReservations()) {
+  <app-reservations-modale
+    [open]="!!vehiculeReservations()"
+    [title]="'Réservations du véhicule ' + (selectedVehicule()?.immatriculation ?? '')"
+    [reservations]="vehiculeReservations() ?? []"
+    (close)="closeModale()"
+  ></app-reservations-modale>
+}
+
+<!-- Modale suppression impossible -->
+<app-information-modale
+  [open]="cantDeleteInfoOpen()"
+  [title]="cantDeleteInfoTitle()"
+  [message]="cantDeleteInfoMessage()"
+  closeLabel="Fermer"
+  (close)="closeInfoModale()">
+</app-information-modale>
 
 <app-confirm-dialog
   [open]="!!vehiculeToDelete()"

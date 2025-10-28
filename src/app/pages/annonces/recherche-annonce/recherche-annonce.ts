@@ -25,71 +25,78 @@ import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-di
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class RechercheAnnonceComponent {
-  // ---------- Formulaire (signals) ----------
+
+  /* =========================================================================
+   * 1) FORMULAIRE — inputs contrôlés via signals
+   * ========================================================================= */
+  // Adresse de départ
   depNumero = signal<number | null>(null);
-  depRue = signal<string>('');
-  depCp = signal<string>('');
-  depVille = signal<string>('');
+  depRue    = signal<string>('');
+  depCp     = signal<string>('');
+  depVille  = signal<string>('');
 
+  // Adresse d’arrivée
   arrNumero = signal<number | null>(null);
-  arrRue = signal<string>('');
-  arrCp = signal<string>('');
-  arrVille = signal<string>('');
+  arrRue    = signal<string>('');
+  arrCp     = signal<string>('');
+  arrVille  = signal<string>('');
 
-  dateStr = signal<string>(this.todayYMD()); // yyyy-mm-dd
-  timeStr = signal<string>('08:00');         // HH:mm
+  // Date / heure / flex
+  dateStr    = signal<string>(this.todayYMD()); // yyyy-mm-dd
+  timeStr    = signal<string>('08:00');         // HH:mm
   flexHeures = signal<number>(2);               // ± 2h
 
-  // ---------- Données ----------
-  loading = signal<boolean>(false);
+  /* =========================================================================
+   * 2) ÉTATS D'APPLICATION — chargement / erreurs / données
+   * ========================================================================= */
+  loading  = signal<boolean>(false);
   errorMsg = signal<string>('');
 
-  private toutes = signal<Annonce[]>([]);
+  private toutes     = signal<Annonce[]>([]);  // toutes les annonces du back
   private loadedOnce = false;
 
-  private userProfil = signal<UserProfil | null>(null);
+  private userProfil   = signal<UserProfil | null>(null);
   private profilLoaded = false;
 
-  results = signal<Annonce[]>([]);
+  results = signal<Annonce[]>([]); // annonces filtrées pour l’affichage
 
+  // Cache du nom du conducteur par id d’annonce
   conducteurNameByAnnonce = signal<Record<number, string>>({});
 
-  // ---------- Confirm Modal ----------
-
+  /* =========================================================================
+   * 3) MODALE DE CONFIRMATION — réservation
+   * ========================================================================= */
   annonceAReserver = signal<Annonce | null>(null);
-  modaleTitle = signal<string>('');
+  modaleTitle   = signal<string>('');
   modaleContent = signal<string>('');
 
   openModale(annonce: Annonce) {
     this.annonceAReserver.set(annonce);
 
-    const adresseDepart = this.formatAdresse(annonce.annonce.adresseDepart);
+    const adresseDepart  = this.formatAdresse(annonce.annonce.adresseDepart);
     const adresseArrivee = this.formatAdresse(annonce.annonce.adresseArrivee);
-    const heureDepart = this.formatHeureDepart(annonce.annonce.heureDepart);
+    const heureDepart    = this.formatHeureDepart(annonce.annonce.heureDepart);
 
-    this.modaleTitle.set(`Réserver une place`);
+    this.modaleTitle.set('Réserver une place');
 
     const lines = [
       'Confirmez-vous la réservation pour l’annonce suivante :',
       '',
-      `Adresse de départ :`,
+      'Adresse de départ :',
       adresseDepart,
       '',
-      `Adresse d’arrivée :`,
+      'Adresse d’arrivée :',
       adresseArrivee,
       '',
-      `Heure de départ :`,
-      heureDepart
+      'Heure de départ :',
+      heureDepart,
     ];
-
     this.modaleContent.set(lines.join('\n'));
   }
 
   confirmModale() {
     const annonce = this.annonceAReserver();
-    if (annonce) {
-      this.reserver(annonce);
-    }
+    if (annonce) this.reserver(annonce);
     this.closeModale();
   }
 
@@ -97,16 +104,17 @@ export class RechercheAnnonceComponent {
     this.annonceAReserver.set(null);
   }
 
+  /* =========================================================================
+   * 4) CONSTRUCTEUR — services injectés
+   * ========================================================================= */
   constructor(
     private service: RechercheAnnonceService,
     private profilService: ProfilService,
-  ) {
-    // Tu peux charger immédiatement, ou laisser ensureLoaded() s'en charger lors du clic
-    // this.loadAll();
-    // this.loadProfil();
-  }
+  ) { }
 
-  // ====== Chargements unitaires ======
+  /* =========================================================================
+   * 5) CHARGEMENTS — annonces + profil
+   * ========================================================================= */
   private loadAll() {
     return this.service.listAnnonces().pipe(
       tap((data: Annonce[]) => {
@@ -137,12 +145,12 @@ export class RechercheAnnonceComponent {
   }
 
   /**
-   * S’assure que la liste d’annonces ET le profil sont chargés.
-   * Renvoie un Observable<void> que l’on peut .subscribe() avant d’exécuter la recherche.
+   * Garantit que la liste d’annonces ET le profil sont chargés.
+   * Retourne un Observable<void> pour chaîner avec la recherche.
    */
   private ensureLoaded() {
     const loaders = [
-      this.loadedOnce ? of(true) : this.loadAll(),
+      this.loadedOnce   ? of(true) : this.loadAll(),
       this.profilLoaded ? of(true) : this.loadProfil(),
     ];
     this.loading.set(true);
@@ -152,7 +160,9 @@ export class RechercheAnnonceComponent {
     );
   }
 
-  // ====== Recherche (front) ======
+  /* =========================================================================
+   * 6) RECHERCHE — filtrage/tri/exclusion
+   * ========================================================================= */
   rechercher() {
     this.errorMsg.set('');
     this.ensureLoaded().subscribe({
@@ -164,7 +174,7 @@ export class RechercheAnnonceComponent {
     });
   }
 
-  /** Toute la logique de recherche/tri/exclusion isolée ici. */
+  /** Noyau : filtrage par fenêtre horaire, adresses, tri, exclusion. */
   private runSearchCore() {
     const base = this.selectedDateTime();
     const { min, max } = this.rangeMinMax();
@@ -174,6 +184,7 @@ export class RechercheAnnonceComponent {
       return;
     }
 
+    // Requêtes d’adresse (si présentes)
     const depQuery: Partial<Adresse> = {
       numero: this.depNumero() ?? undefined,
       libelle: this.depRue() || undefined,
@@ -187,16 +198,16 @@ export class RechercheAnnonceComponent {
       ville: this.arrVille() || undefined,
     };
 
-    // 1) fenêtre horaire
+    // 1) Fenêtre horaire
     let filtered = this.toutes().filter(a => {
       const d = new Date(a.annonce.heureDepart);
       return d >= min && d <= max;
     });
 
-    // 2) places disponibles
+    // 2) Disponibilités (conserve uniquement > 0)
     filtered = filtered.filter(a => this.placesDispo(a) > 0);
 
-    // 3) adresses si champs saisis
+    // 3) Adresses (si champs saisis)
     if (this.hasAnyField(depQuery)) {
       filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseDepart, depQuery));
     }
@@ -204,14 +215,14 @@ export class RechercheAnnonceComponent {
       filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseArrivee, arrQuery));
     }
 
-    // 4) tri par proximité (abs(diff) avec l’heure choisie)
+    // 4) Tri par proximité à l’heure cible
     filtered.sort((a, b) => {
       const da = Math.abs(new Date(a.annonce.heureDepart).getTime() - base.getTime());
       const db = Math.abs(new Date(b.annonce.heureDepart).getTime() - base.getTime());
       return da - db;
     });
 
-    // 5) exclusion via participants + {prenom, nom} du profil
+    // 5) Exclusion des annonces où l’utilisateur est déjà conducteur/passager
     this.excludeMyAnnoncesByName(filtered).subscribe({
       next: ({ annonces, conducteurNames }) => {
         this.results.set(annonces);
@@ -219,12 +230,14 @@ export class RechercheAnnonceComponent {
       },
       error: (e) => {
         console.error('[ANNONCES] Exclusion par participants échouée:', e);
-        this.results.set(filtered); // fallback : pas d’exclusion
+        this.results.set(filtered); // fallback sans exclusion
       }
     });
   }
 
-  /** Réserver une place sur l’annonce. */
+  /* =========================================================================
+   * 7) ACTION — réserver une place
+   * ========================================================================= */
   reserver(item: Annonce) {
     const id = item?.annonce?.id;
     if (id == null) return;
@@ -241,14 +254,16 @@ export class RechercheAnnonceComponent {
     });
   }
 
-  // ====== EXCLUSION (conducteur/passagers) par prénom + nom ======
+  /* =========================================================================
+   * 8) EXCLUSION — matching {prenom, nom} conducteur/passagers
+   * ========================================================================= */
   private excludeMyAnnoncesByName(list: Annonce[]) {
     const me = this.userProfil();
     const hasName = !!me?.prenom && !!me?.nom;
 
     const requests = list.map(a =>
       this.service.getParticipants(a.annonce.id).pipe(
-        catchError(() => of(null)),
+        catchError(() => of(null)), // tolérance d’erreur : ignore l’annonce en l’état
         map((p): { a: Annonce; p: Participants | null } => ({ a, p }))
       )
     );
@@ -259,16 +274,18 @@ export class RechercheAnnonceComponent {
         const kept: Annonce[] = [];
 
         for (const { a, p } of rows) {
+          // Enrichit le nom du conducteur si disponible
           if (p?.conducteur) {
             const nomAff = this.fullName((p.conducteur as any)?.prenom, (p.conducteur as any)?.nom);
             if (nomAff) conducteurNames[a.annonce.id] = nomAff;
           }
 
+          // Exclut si l’utilisateur (me) est conducteur ou passager
           if (hasName && p) {
             const mine =
               this.samePerson(me!.prenom!, me!.nom!, (p.conducteur as any)?.prenom, (p.conducteur as any)?.nom) ||
               (p.passagers || []).some((x: any) => this.samePerson(me!.prenom!, me!.nom!, x?.prenom, x?.nom));
-            if (mine) continue; // exclure l’annonce
+            if (mine) continue;
           }
 
           kept.push(a);
@@ -279,8 +296,9 @@ export class RechercheAnnonceComponent {
     );
   }
 
-  // ====== Helpers identité ======
-
+  /* =========================================================================
+   * 9) IDENTITÉ — helpers {prenom, nom}
+   * ========================================================================= */
   conducteurName(id?: number): string {
     if (id == null) return '';
     const map = this.conducteurNameByAnnonce();
@@ -294,9 +312,11 @@ export class RechercheAnnonceComponent {
       .toLowerCase()
       .trim();
   }
+
   private samePerson(p1?: string, n1?: string, p2?: string, n2?: string) {
     return !!p1 && !!n1 && !!p2 && !!n2 && this.N(p1) === this.N(p2) && this.N(n1) === this.N(n2);
   }
+
   private fullName(prenom?: string, nom?: string) {
     const p = (prenom ?? '').trim();
     const n = (nom ?? '').trim();
@@ -304,7 +324,9 @@ export class RechercheAnnonceComponent {
     return s || '';
   }
 
-  // ====== Computed / helpers ======
+  /* =========================================================================
+   * 10) COMPUTED — dates et validations
+   * ========================================================================= */
   private selectedDateTime = computed<Date | null>(() => {
     const d = this.dateStr();
     const t = this.timeStr();
@@ -315,10 +337,10 @@ export class RechercheAnnonceComponent {
     return new Date(y, m - 1, day, hh, mm, 0, 0);
   });
 
-  // Expose "aujourd'hui" au template pour l'attribut [min]
+  // Exposé au template (attribut [min] du <input type="date">)
   readonly todayStr = this.todayYMD();
 
-  // True si la date+heure choisies sont dans le passé (strict)
+  // True si la sélection (date+heure) est passée
   readonly isPastSelected = computed(() => {
     const d = this.selectedDateTime();
     if (!d) return false;
@@ -326,11 +348,12 @@ export class RechercheAnnonceComponent {
     return d.getTime() < now.getTime();
   });
 
-  // Petit message de warning utilisé dans le template)
+  // Message d’avertissement présenté sous les champs date/heure
   readonly dateWarn = computed(() =>
     this.isPastSelected() ? 'La date et l’heure doivent être dans le futur.' : ''
   );
 
+  // Intervalle [min, max] autour de la date sélectionnée selon la flexibilité
   private rangeMinMax = computed(() => {
     const base = this.selectedDateTime();
     const flex = Number(this.flexHeures() || 0);
@@ -339,7 +362,11 @@ export class RechercheAnnonceComponent {
     return { min: new Date(base.getTime() - ms), max: new Date(base.getTime() + ms) };
   });
 
+  /* =========================================================================
+   * 11) FORMATAGE & DISPONIBILITÉS
+   * ========================================================================= */
   placesDispo(a: Annonce) {
+    // Le conducteur compte implicitement 1 place (côté logique globale)
     return Math.max(0, (a?.placesTotales ?? 0) - (a?.placesOccupees ?? 0) - 1);
   }
 
@@ -359,7 +386,9 @@ export class RechercheAnnonceComponent {
     });
   }
 
-  // ====== Matching adresses ======
+  /* =========================================================================
+   * 12) MATCHING ADRESSES — insensible à la casse/accents
+   * ========================================================================= */
   private hasAnyField(a?: Partial<Adresse>) {
     if (!a) return false;
     return !!(a.numero || a.libelle || a.codePostal || a.ville);
@@ -382,6 +411,7 @@ export class RechercheAnnonceComponent {
     const contains = (hay: string | number | null | undefined, needle: string | number | null | undefined) =>
       N(hay).includes(N(needle));
 
+    // numero & codePostal: égalité stricte
     if (query.numero != null && N(query.numero) !== '') {
       if (!eq(cand.numero as any, query.numero)) return false;
     }
@@ -389,30 +419,37 @@ export class RechercheAnnonceComponent {
       if (!eq(cand.codePostal as any, query.codePostal)) return false;
     }
 
-    if (query.ville && !contains(cand.ville as any, query.ville)) return false;
+    // ville & libelle: recherche par inclusion
+    if (query.ville   && !contains(cand.ville   as any, query.ville))   return false;
     if (query.libelle && !contains(cand.libelle as any, query.libelle)) return false;
 
     return true;
   }
 
-  // ====== Helpers d’inputs ======
+  /* =========================================================================
+   * 13) HANDLERS D’ENTRÉE — relient le template aux signals
+   * ========================================================================= */
   onTextInput(e: Event, sink: WritableSignal<string>) {
     const v = (e.target as HTMLInputElement).value;
     sink.set(v);
   }
+
   onNumberInput(e: Event, sink: WritableSignal<number | null>) {
     const raw = (e.target as HTMLInputElement).value;
     if (raw === '') { sink.set(null); return; }
     const n = Number(raw);
     sink.set(Number.isFinite(n) ? n : null);
   }
+
   onFlexInput(e: Event) {
     const raw = (e.target as HTMLInputElement).value;
     const n = Number(raw);
     this.flexHeures.set(!Number.isFinite(n) || n < 0 ? 0 : Math.floor(n));
   }
 
-  // ====== Utilitaires ======
+  /* =========================================================================
+   * 14) UTILITAIRES
+   * ========================================================================= */
   private todayYMD() {
     const d = new Date();
     const y = d.getFullYear();

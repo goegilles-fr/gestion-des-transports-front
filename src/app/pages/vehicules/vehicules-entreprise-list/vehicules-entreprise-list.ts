@@ -4,16 +4,19 @@ import { FormsModule } from '@angular/forms';
 
 import { StatutVehicule, VehiculeDTO } from '../../../core/models/vehicule-dto';
 import { Vehicules } from '../../../services/vehicules/vehicules';
+import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 
 import { VehiculeEdit } from '../modales/vehicule-edit/vehicule-edit';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
+import { InformationModale } from '../../../shared/modales/information-modale/information-modale';
+import { ReservationsModale } from '../modales/reservations-modale/reservations-modale';
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent, ConfirmDialog],
+  imports: [CommonModule, FormsModule, VehiculeEdit, NavbarComponent, FooterComponent, ConfirmDialog, InformationModale, ReservationsModale],
   templateUrl: './vehicules-entreprise-list.html',
   styleUrls: ['./vehicules-entreprise-list.css']
 })
@@ -31,6 +34,14 @@ export class VehiculeEntrepriseList {
         console.error(e);
       },
     });
+
+    // Chargement initial de l’ensemble des réservations de véhicules
+    this.vehiculeService.getAllReservation().subscribe({
+      next: (reservations) => this.reservations.set(reservations),
+      error: (e) => {
+        console.error(e);
+      },
+    });
   }
 
   /* ============================================================
@@ -38,6 +49,12 @@ export class VehiculeEntrepriseList {
    * ============================================================ */
   // Liste brute
   vehicules = signal<VehiculeDTO[]>([]);
+  reservations = signal<ReservationVehiculeDto[]>([]);
+
+  // -- Modale information suppression impossible
+  cantDeleteInfoOpen = signal<boolean>(false)
+  cantDeleteInfoTitle = signal<string>('');
+  cantDeleteInfoMessage = signal<string>('');
 
   // Filtre statut
   STATUTS: StatutVehicule[] = ['EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'];
@@ -88,12 +105,14 @@ export class VehiculeEntrepriseList {
   }
 
   /* ============================================================
-   * 5) État & actions Modales (création/édition/suppression)
+   * 5) État & actions Modales (création/édition/suppression/information)
    * ============================================================ */
   // Édition / création
   vehiculeToEdit = signal<VehiculeDTO | null>(null);
   modaleTitle = signal<string>('');
   creationVehicule = signal<boolean>(false);
+  vehiculeReservations = signal<ReservationVehiculeDto[] | null>(null);
+  selectedVehicule = signal<VehiculeDTO | null>(null);
 
   openCreate() {
     this.vehiculeToEdit.set(null);
@@ -106,6 +125,14 @@ export class VehiculeEntrepriseList {
     this.vehiculeToEdit.set({ ...v });
     this.modaleTitle.set('MODIFIER UN VÉHICULE DE SOCIÉTÉ');
   }
+
+  openInformation(vehicule: VehiculeDTO) {
+    this.selectedVehicule.set(vehicule);
+    const reservations = this.reservations().filter(r => r.vehiculeId === vehicule.id);
+    this.vehiculeReservations.set(reservations);
+    this.modaleTitle.set(`RÉSERVATIONS DU VÉHICULE ${vehicule.marque} ${vehicule.modele} (${vehicule.immatriculation})`);
+  }
+
 
   closeEdit() {
     this.vehiculeToEdit.set(null);
@@ -155,6 +182,12 @@ export class VehiculeEntrepriseList {
   modaleContent = signal<string>('');
 
   openModale(vehicule: VehiculeDTO) {
+    if (!vehicule) return;
+    if (!this.checkNoReservations(vehicule.id!)) {
+      this.openCantDeleteInfo();
+      return;
+    }
+
     this.vehiculeToDelete.set(vehicule);
     this.modaleContent.set(
       `Êtes-vous sûr de vouloir supprimer le véhicule ${vehicule.marque} ${vehicule.modele} `
@@ -172,6 +205,8 @@ export class VehiculeEntrepriseList {
 
   closeModale() {
     this.vehiculeToDelete.set(null);
+    this.vehiculeReservations.set(null);
+    this.selectedVehicule.set(null);
     this.modaleContent.set('');
   }
 
@@ -186,5 +221,21 @@ export class VehiculeEntrepriseList {
         alert('Suppression impossible.');
       }
     });
+  }
+
+  checkNoReservations(vehiculeId: number): boolean {
+    const reservations = this.reservations();
+    return !reservations.some(r => r.vehiculeId === vehiculeId);
+  }
+
+  // -- Modale information suppression impossible
+  openCantDeleteInfo() {
+    this.cantDeleteInfoOpen.set(true);
+    this.cantDeleteInfoTitle.set("Suppression impossible");
+    this.cantDeleteInfoMessage.set("Vous ne pouvez pas supprimer ce véhicule car il est actuellement utilisé dans une annonce.");
+  }
+
+  closeInfoModale() {
+    this.cantDeleteInfoOpen.set(false);
   }
 }
