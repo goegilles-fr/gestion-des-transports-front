@@ -35,6 +35,8 @@ jobs:
         env:
           CYPRESS_TEST_USER_EMAIL: ${{ secrets.CYPRESS_TEST_USER_EMAIL }}
           CYPRESS_TEST_USER_PASSWORD: ${{ secrets.CYPRESS_TEST_USER_PASSWORD }}
+          CYPRESS_TEST_USER_EMAIL2: ${{ secrets.CYPRESS_TEST_USER_EMAIL2}}
+          CYPRESS_TEST_USER_PASSWORD2: ${{ secrets.CYPRESS_TEST_USER_PASSWORD2 }}
       
       - name: Upload screenshots on failure
         uses: actions/upload-artifact@v4

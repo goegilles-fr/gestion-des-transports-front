@@ -1,7 +1,7 @@
 describe('Covoit - Test validation formulaire annonce', () => {
   it('devrait afficher les messages d\'erreur de validation', () => {
     // Visiter la page de connexion
-    cy.visit('https://covoit.goegilles.fr/login')
+    cy.visit('/login')
     
     // Connexion
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))

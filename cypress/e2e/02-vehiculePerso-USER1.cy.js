@@ -1,7 +1,7 @@
 describe('Covoit - Test véhicule personnel', () => {
   it('devrait se connecter, créer un véhicule personnel et le supprimer', () => {
     // Visiter la page de connexion
-    cy.visit('https://covoit.goegilles.fr/login')
+    cy.visit('/login')
     
     // Remplir le champ email
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))

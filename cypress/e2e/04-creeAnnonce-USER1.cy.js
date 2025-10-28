@@ -1,7 +1,7 @@
 describe('Covoit - Test création annonce', () => {
   it('devrait se connecter et créer une annonce de covoiturage', () => {
     // Visiter la page de connexion
-    cy.visit('https://covoit.goegilles.fr/login')
+    cy.visit('/login')
     
     // Connexion
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))
@@ -59,7 +59,7 @@ describe('Covoit - Test création annonce', () => {
     cy.url().should('not.include', '/annonces/create')
     
     // Naviguer vers mes annonces via l'URL directement pour éviter les conflits
-    cy.visit('https://covoit.goegilles.fr/mes-annonces')
+    cy.visit('/mes-annonces')
     
     // Vérifier que l'annonce apparaît dans la liste
     cy.contains('Montpellier').should('exist')

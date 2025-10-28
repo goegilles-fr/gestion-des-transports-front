@@ -1,7 +1,7 @@
 describe('Covoit - Test suppression annonce', () => {
   it('devrait supprimer toutes les annonces créées', () => {
     // Visiter la page de connexion
-    cy.visit('https://covoit.goegilles.fr/login')
+    cy.visit('/login')
     
     // Connexion
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))
@@ -13,7 +13,7 @@ describe('Covoit - Test suppression annonce', () => {
     cy.wait(1000)
     
     // Aller directement sur mes annonces
-    cy.visit('https://covoit.goegilles.fr/mes-annonces')
+    cy.visit('/mes-annonces')
     cy.wait(1000)
     
     // S'assurer qu'on est sur le filtre "À venir"
