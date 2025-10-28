@@ -1,130 +1,229 @@
 <app-navbar></app-navbar>
 
-<section class="page">
+<section class="page" aria-labelledby="page-title">
+  <!-- =========================================================
+       En-tête
+  ========================================================== -->
   <header class="header">
-    <h1>Rechercher un covoiturage</h1>
+    <h1 id="page-title">Rechercher un covoiturage</h1>
   </header>
 
-  <!-- Formulaire de recherche -->
-  <div class="filters">
+  <!-- =========================================================
+       Formulaire de recherche
+  ========================================================== -->
+  <form class="filters" (submit)="$event.preventDefault()">
     <!-- Adresse de départ -->
-    <fieldset class="field">
-      <legend>Adresse de départ</legend>
+    <fieldset class="field" aria-labelledby="legend-depart">
+      <legend id="legend-depart">Adresse de départ</legend>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°" [value]="depNumero() ?? ''"
-          (input)="onNumberInput($event, depNumero)" class="w-20" />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="N°"
+          class="w-20"
+          [value]="depNumero() ?? ''"
+          (input)="onNumberInput($event, depNumero)"
+          aria-label="Numéro de voie (départ)"
+        />
 
-        <input type="text" placeholder="Rue / voie" [value]="depRue()" (input)="onTextInput($event, depRue)"
-          class="flex-1" />
+        <input
+          type="text"
+          placeholder="Rue / voie"
+          class="flex-1"
+          [value]="depRue()"
+          (input)="onTextInput($event, depRue)"
+          aria-label="Rue / voie (départ)"
+        />
       </div>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="depCp()"
-          (input)="onTextInput($event, depCp)" class="w-28" />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="Code postal"
+          class="w-28"
+          [value]="depCp()"
+          (input)="onTextInput($event, depCp)"
+          aria-label="Code postal (départ)"
+        />
 
-        <input type="text" placeholder="Ville" [value]="depVille()" (input)="onTextInput($event, depVille)"
-          class="flex-1" />
+        <input
+          type="text"
+          placeholder="Ville"
+          class="flex-1"
+          [value]="depVille()"
+          (input)="onTextInput($event, depVille)"
+          aria-label="Ville (départ)"
+        />
       </div>
     </fieldset>
 
-    <!-- Adresse d'arrivée -->
-    <fieldset class="field">
-      <legend>Adresse d’arrivée</legend>
+    <!-- Adresse d’arrivée -->
+    <fieldset class="field" aria-labelledby="legend-arrivee">
+      <legend id="legend-arrivee">Adresse d’arrivée</legend>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°" [value]="arrNumero() ?? ''"
-          (input)="onNumberInput($event, arrNumero)" class="w-20" />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="N°"
+          class="w-20"
+          [value]="arrNumero() ?? ''"
+          (input)="onNumberInput($event, arrNumero)"
+          aria-label="Numéro de voie (arrivée)"
+        />
 
-        <input type="text" placeholder="Rue / voie" [value]="arrRue()" (input)="onTextInput($event, arrRue)"
-          class="flex-1" />
+        <input
+          type="text"
+          placeholder="Rue / voie"
+          class="flex-1"
+          [value]="arrRue()"
+          (input)="onTextInput($event, arrRue)"
+          aria-label="Rue / voie (arrivée)"
+        />
       </div>
 
       <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="arrCp()"
-          (input)="onTextInput($event, arrCp)" class="w-28" />
+        <input
+          type="text"
+          inputmode="numeric"
+          placeholder="Code postal"
+          class="w-28"
+          [value]="arrCp()"
+          (input)="onTextInput($event, arrCp)"
+          aria-label="Code postal (arrivée)"
+        />
 
-        <input type="text" placeholder="Ville" [value]="arrVille()" (input)="onTextInput($event, arrVille)"
-          class="flex-1" />
+        <input
+          type="text"
+          placeholder="Ville"
+          class="flex-1"
+          [value]="arrVille()"
+          (input)="onTextInput($event, arrVille)"
+          aria-label="Ville (arrivée)"
+        />
       </div>
     </fieldset>
 
     <!-- Date / heure / flexibilité -->
-    <fieldset class="field">
-      <legend>Quand ?</legend>
+    <fieldset class="field" aria-labelledby="legend-quand">
+      <legend id="legend-quand">Quand ?</legend>
 
       <div class="row">
         <label class="col">
           <span class="label">Date de départ</span>
-          <input type="date" [value]="dateStr()" (input)="onTextInput($event, dateStr)" />
+          <input
+            type="date"
+            [attr.min]="todayStr"
+            [value]="dateStr()"
+            (input)="onTextInput($event, dateStr)"
+            aria-describedby="date-warn"
+          />
         </label>
 
         <label class="col">
           <span class="label">Heure</span>
-          <input type="time" [value]="timeStr()" (input)="onTextInput($event, timeStr)" />
+          <input
+            type="time"
+            [value]="timeStr()"
+            (input)="onTextInput($event, timeStr)"
+          />
         </label>
 
         <label class="col">
           <span class="label">Flexibilité (± heures)</span>
-          <input type="number" min="0" step="1" [value]="flexHeures()" (input)="onFlexInput($event)" />
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="flexHeures()"
+            (input)="onFlexInput($event)"
+          />
         </label>
       </div>
+
       @if (dateWarn()) {
-      <p class="warn-inline">{{ dateWarn() }}</p>
+        <p id="date-warn" class="warn-inline">{{ dateWarn() }}</p>
       }
     </fieldset>
 
-
+    <!-- Actions -->
     <div class="actions">
-      <button type="button" class="btn" (click)="rechercher()" [disabled]="isPastSelected()">Rechercher</button>
+      <button
+        type="button"
+        class="btn"
+        (click)="rechercher()"
+        [disabled]="isPastSelected()"
+        aria-disabled="{{ isPastSelected() }}"
+      >
+        Rechercher
+      </button>
     </div>
 
     @if (errorMsg()) {
-    <p class="warn">{{ errorMsg() }}</p>
+      <p class="warn" role="alert">{{ errorMsg() }}</p>
     }
-  </div>
+  </form>
 
-  <!-- Résultats -->
+  <!-- =========================================================
+       Résultats
+  ========================================================== -->
   @if (loading()) {
-  <p class="muted">Chargement…</p>
+    <p class="muted">Chargement…</p>
   } @else if (results().length === 0) {
-  <p class="muted">Aucune annonce ne correspond aux critères.</p>
+    <p class="muted">Aucune annonce ne correspond aux critères.</p>
   } @else {
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Conducteur</th>
-          <th>Départ</th>
-          <th>Arrivée</th>
-          <th>Heure de départ</th>
-          <th>Places dispo</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (a of results(); track a['annonce']?.id) {
-        <tr>
-          <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
-          <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
-          <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
-          <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
-          <td>{{ placesDispo(a) }}</td>
-          <td>
-            <button type="button" class="btn small" (click)="openModale(a)">
-              Réserver
-            </button>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+    <div class="table-wrap" role="region" aria-label="Résultats de recherche">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Conducteur</th>
+            <th scope="col">Départ</th>
+            <th scope="col">Arrivée</th>
+            <th scope="col">Heure de départ</th>
+            <th scope="col">Places dispo</th>
+            <th scope="col" aria-label="Actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of results(); track a['annonce']?.id) {
+          <tr>
+            <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
+            <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
+            <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
+            <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
+            <td>{{ placesDispo(a) }}</td>
+            <td>
+              <button
+                type="button"
+                class="btn small"
+                (click)="openModale(a)"
+                [disabled]="placesDispo(a) <= 0"
+                aria-disabled="{{ placesDispo(a) <= 0 }}"
+              >
+                Réserver
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>
 
-<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()" [message]="modaleContent()"
-  confirmLabel="Reserver" cancelLabel="Annuler" (confirm)="confirmModale()"
-  (cancel)="closeModale()"></app-confirm-dialog>
+<!-- =========================================================
+     Modale de confirmation
+========================================================== -->
+<app-confirm-dialog
+  [open]="!!annonceAReserver()"
+  [title]="modaleTitle()"
+  [message]="modaleContent()"
+  confirmLabel="Reserver"
+  cancelLabel="Annuler"
+  (confirm)="confirmModale()"
+  (cancel)="closeModale()"
+></app-confirm-dialog>
 
 <app-footer></app-footer>

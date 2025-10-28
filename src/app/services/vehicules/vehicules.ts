@@ -75,6 +75,10 @@ export class Vehicules {
 
   // ========================= Reservation Vehicule ===========================
 
+  getAllReservation(): Observable<ReservationVehiculeDto[]> {
+    return this.http.get<ReservationVehiculeDto[]>(`${this.urlReservation}`);
+  }
+
   listReservationByUserId(): Observable<ReservationVehiculeDto[]> {
     return this.http.get<ReservationVehiculeDto[]>(`${this.urlReservation}/utilisateur`);
   }
