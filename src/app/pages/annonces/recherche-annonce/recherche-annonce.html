@@ -13,39 +13,39 @@
 
       <div class="row">
         <input type="text" inputmode="numeric" placeholder="N°" [value]="depNumero() ?? ''"
-          (input)="onNumberInput($event, depNumero)" class="w-20" />
+               (input)="onNumberInput($event, depNumero)" class="w-20" />
 
         <input type="text" placeholder="Rue / voie" [value]="depRue()" (input)="onTextInput($event, depRue)"
-          class="flex-1" />
+               class="flex-1" />
       </div>
 
       <div class="row">
         <input type="text" inputmode="numeric" placeholder="Code postal" [value]="depCp()"
-          (input)="onTextInput($event, depCp)" class="w-28" />
+               (input)="onTextInput($event, depCp)" class="w-28" />
 
         <input type="text" placeholder="Ville" [value]="depVille()" (input)="onTextInput($event, depVille)"
-          class="flex-1" />
+               class="flex-1" />
       </div>
     </fieldset>
 
     <!-- Adresse d'arrivée -->
     <fieldset class="field">
-      <legend>Adresse d’arrivée</legend>
+      <legend>Adresse d'arrivée</legend>
 
       <div class="row">
         <input type="text" inputmode="numeric" placeholder="N°" [value]="arrNumero() ?? ''"
-          (input)="onNumberInput($event, arrNumero)" class="w-20" />
+               (input)="onNumberInput($event, arrNumero)" class="w-20" />
 
         <input type="text" placeholder="Rue / voie" [value]="arrRue()" (input)="onTextInput($event, arrRue)"
-          class="flex-1" />
+               class="flex-1" />
       </div>
 
       <div class="row">
         <input type="text" inputmode="numeric" placeholder="Code postal" [value]="arrCp()"
-          (input)="onTextInput($event, arrCp)" class="w-28" />
+               (input)="onTextInput($event, arrCp)" class="w-28" />
 
         <input type="text" placeholder="Ville" [value]="arrVille()" (input)="onTextInput($event, arrVille)"
-          class="flex-1" />
+               class="flex-1" />
       </div>
     </fieldset>
 
@@ -56,17 +56,32 @@
       <div class="row">
         <label class="col">
           <span class="label">Date de départ</span>
-          <input type="date" [value]="dateStr()" (input)="onTextInput($event, dateStr)" />
+          <input
+            type="date"
+            [value]="dateStr()"
+            (input)="onTextInput($event, dateStr)"
+            [min]="todayStr"
+            placeholder="Sélectionnez une date" />
         </label>
 
         <label class="col">
           <span class="label">Heure</span>
-          <input type="time" [value]="timeStr()" (input)="onTextInput($event, timeStr)" />
+          <input
+            type="time"
+            [value]="timeStr()"
+            (input)="onTextInput($event, timeStr)"
+            placeholder="08:00" />
         </label>
 
         <label class="col">
           <span class="label">Flexibilité (± heures)</span>
-          <input type="number" min="0" step="1" [value]="flexHeures()" (input)="onFlexInput($event)" />
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="flexHeures() ?? ''"
+            (input)="onFlexInput($event)"
+            placeholder="2" />
         </label>
       </div>
       @if (dateWarn()) {
@@ -93,38 +108,58 @@
   <div class="table-wrap">
     <table class="table">
       <thead>
-        <tr>
-          <th>Conducteur</th>
-          <th>Départ</th>
-          <th>Arrivée</th>
-          <th>Heure de départ</th>
-          <th>Places dispo</th>
-          <th></th>
-        </tr>
+      <tr>
+        <th>Date de départ</th>
+        <th>Adresse de départ</th>
+        <th>Adresse d'arrivée</th>
+        <th>Conducteur</th>
+        <th>Places dispo</th>
+        <th>Actions</th>
+      </tr>
       </thead>
       <tbody>
-        @for (a of results(); track a['annonce']?.id) {
-        <tr>
-          <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
-          <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
-          <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
-          <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
-          <td>{{ placesDispo(a) }}</td>
-          <td>
-            <button type="button" class="btn small" (click)="openModale(a)">
-              Réserver
-            </button>
-          </td>
-        </tr>
-        }
+      @for (a of results(); track a['annonce']?.id) {
+      <tr>
+        <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
+        <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
+        <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
+        <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
+        <td>{{ placesDispo(a) }}</td>
+        <td class="actions-cell">
+          <button
+            type="button"
+            class="btn-icon"
+            (click)="openDetailModal(a)"
+            title="Voir les détails">
+            ℹ️
+          </button>
+          <button type="button" class="btn small" (click)="openModale(a)">
+            Réserver
+          </button>
+        </td>
+      </tr>
+      }
       </tbody>
     </table>
   </div>
   }
 </section>
 
-<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()" [message]="modaleContent()"
-  confirmLabel="Reserver" cancelLabel="Annuler" (confirm)="confirmModale()"
-  (cancel)="closeModale()"></app-confirm-dialog>
+<app-confirm-dialog
+  [open]="!!annonceAReserver()"
+  [title]="modaleTitle()"
+  [message]="modaleContent()"
+  confirmLabel="Reserver"
+  cancelLabel="Annuler"
+  (confirm)="confirmModale()"
+  (cancel)="closeModale()">
+</app-confirm-dialog>
+
+<app-recherche-annonce-detail-modal
+  [isOpen]="showDetailModal()"
+  [annonce]="selectedAnnonceDetail()"
+  (close)="closeDetailModal()"
+  (reserver)="onReserverFromDetail($event)">
+</app-recherche-annonce-detail-modal>
 
 <app-footer></app-footer>

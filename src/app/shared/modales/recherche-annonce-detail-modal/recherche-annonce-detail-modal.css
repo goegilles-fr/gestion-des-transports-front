@@ -1,0 +1,324 @@
+/* Overlay de la modale */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Container principal - SANS overflow pour éviter l'ascenseur */
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  max-width: 950px;
+  width: 100%;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #0B84A2;
+  background: #f8f9fa;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Body AVEC scroll si nécessaire */
+.modal-body {
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Loading text */
+.loading-text {
+  text-align: center;
+  color: #666;
+  padding: 40px 20px;
+  font-size: 16px;
+}
+
+/* Sections */
+.section-participants,
+.section-trajet,
+.section-vehicule {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.section-participants:last-child,
+.section-trajet:last-child,
+.section-vehicule:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0B84A2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* BLOC PARTICIPANTS */
+.section-participants {
+  background: #E6F7FB;
+  border: 2px solid #0B84A2;
+}
+
+/* Carte conducteur */
+.conducteur-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #0B84A2;
+  box-shadow: 0 2px 8px rgba(11, 132, 162, 0.15);
+  margin-bottom: 16px;
+}
+
+.conducteur-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.conducteur-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conducteur-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.conducteur-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Passagers */
+.passagers-container {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.passagers-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.passager-icon {
+  font-size: 20px;
+}
+
+.passagers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.passager-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: #0B84A2;
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.no-passagers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Statut des places */
+.places-status {
+  margin-left: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.places-status.complet {
+  background-color: #ff4444;
+  color: white;
+}
+
+.places-status.disponible {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* BLOC TRAJET & VÉHICULE */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.info-value.immat {
+  letter-spacing: 0.1em;
+  color: #0B84A2;
+}
+
+/* Footer */
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  flex-shrink: 0;
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn-primary {
+  background: #0B84A2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0a7089;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11, 132, 162, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary:disabled:hover {
+  transform: none;
+  box-shadow: none;
+  background: #ccc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-container {
+    max-width: 95%;
+    margin: 10px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conducteur-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+  }
+}

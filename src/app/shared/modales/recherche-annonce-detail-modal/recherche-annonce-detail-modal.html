@@ -1,0 +1,109 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Détails de l'annonce</h2>
+    </div>
+
+    <div class="modal-body" *ngIf="annonce && !isLoadingData">
+
+      <!-- BLOC 1 : CONDUCTEUR & PASSAGERS -->
+      <section class="section-participants">
+        <h3 class="section-title">Participants</h3>
+
+        <!-- Conducteur avec icône volant -->
+        <div class="conducteur-card">
+          <div class="conducteur-icon">🚗</div>
+          <div class="conducteur-info">
+            <span class="conducteur-label">Conducteur</span>
+            <span class="conducteur-name">{{ getConducteurName() }}</span>
+          </div>
+        </div>
+
+        <!-- Liste des passagers -->
+        <div class="passagers-container" *ngIf="passagers && passagers.length > 0">
+          <div class="passagers-label">
+            <span class="passager-icon">👤</span>
+            <span>Passagers ({{ passagers.length }})</span>
+            <!-- Affichage Complet ou Places disponibles -->
+            <span class="places-status" [class.complet]="isComplet()" [class.disponible]="!isComplet()">
+              {{ getPlacesStatus() }}
+            </span>
+          </div>
+          <div class="passagers-list">
+            <div class="passager-badge" *ngFor="let passager of passagers">
+              {{ passager.prenom }} {{ passager.nom }}
+            </div>
+          </div>
+        </div>
+
+        <div class="no-passagers" *ngIf="!passagers || passagers.length === 0">
+          <span class="passager-icon">👤</span>
+          <span>Aucun passager pour le moment</span>
+          <!-- Affichage des places disponibles quand pas de passagers -->
+          <span class="places-status disponible">
+            {{ getPlacesStatus() }}
+          </span>
+        </div>
+      </section>
+
+      <!-- BLOC 2 : DÉTAILS DU TRAJET -->
+      <section class="section-trajet">
+        <h3 class="section-title">Détails du trajet</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Durée du trajet</span>
+            <span class="info-value">{{ formatDuree(annonce.annonce.dureeTrajet) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Distance</span>
+            <span class="info-value">{{ formatDistance(annonce.annonce.distance) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Émissions CO₂ total pour ce trajet</span>
+            <span class="info-value">{{ calculerCO2Total() }}{{ calculerCO2Total() !== 'Non disponible' ? ' g' : '' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- BLOC 3 : INFOS VÉHICULE -->
+      <section class="section-vehicule" *ngIf="vehicule">
+        <h3 class="section-title">Informations du véhicule</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Immatriculation</span>
+            <span class="info-value immat">{{ vehicule.immatriculation }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Marque</span>
+            <span class="info-value">{{ vehicule.marque }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Modèle</span>
+            <span class="info-value">{{ vehicule.modele }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Type de véhicule</span>
+            <span class="info-value">{{ getTypeVehicule() }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Nombre de places passagers</span>
+            <span class="info-value">{{ getNbPlacesPassagers() }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Loading -->
+    <div class="modal-body" *ngIf="isLoadingData">
+      <p class="loading-text">Chargement des informations...</p>
+    </div>
+
+    <!-- BLOC 4 : ACTIONS -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="onClose()">Fermer</button>
+      <button class="btn-primary" (click)="onReserver()" [disabled]="isComplet()">
+        Réserver une place
+      </button>
+    </div>
+  </div>
+</div>

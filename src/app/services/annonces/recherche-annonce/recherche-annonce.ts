@@ -14,10 +14,10 @@ type AnyDto = Record<string, any>;
 export class RechercheAnnonceService {
   private http = inject(HttpClient);
   private base = environment.apiBaseUrl.replace(/\/$/, '');
-  private urlRecherche = `${this.base}/covoit`;
+  private urlRecherche = `${this.base}/covoit/`;  // AVEC / à la fin
 
   listAnnonces(): Observable<Annonce[]> {
-    const url = `${this.urlRecherche}/`;
+    const url = `${this.urlRecherche}`;  // Pas de / supplémentaire
     return this.http.get<AnyDto[]>(url).pipe(
       map(list => Array.isArray(list) ? list.map(this.normalizeAvecPlacesDto) : []),
       catchError(err => {
@@ -28,7 +28,7 @@ export class RechercheAnnonceService {
   }
 
   reserverPlace(idAnnonce: number): Observable<string> {
-    const url = `${this.urlRecherche}/reserve/${idAnnonce}`;
+    const url = `${this.urlRecherche}reserve/${idAnnonce}`;  // Pas de / avant reserve
     return this.http.post(url, null, {
       responseType: 'text' as const,
     }).pipe(
@@ -47,7 +47,7 @@ export class RechercheAnnonceService {
 
 
   annulerReservation(idAnnonce: number): Observable<void> {
-    const url = `${this.urlRecherche}/reserve/${idAnnonce}`;
+    const url = `${this.urlRecherche}reserve/${idAnnonce}`;  // Pas de / avant reserve
     return this.http.delete<void>(url).pipe(
       catchError(err => {
         console.error('[ANNONCES] DELETE annuler failed:', err);
@@ -57,7 +57,7 @@ export class RechercheAnnonceService {
   }
 
   getConducteur(idAnnonce: number): Observable<Conducteur | null> {
-    const url = `${this.urlRecherche}/${idAnnonce}/participants`;
+    const url = `${this.urlRecherche}${idAnnonce}/participants`;  // Pas de / avant idAnnonce
 
     return this.http.get<Participants>(url).pipe(
       map(dto => {
@@ -72,10 +72,32 @@ export class RechercheAnnonceService {
   }
 
   getParticipants(idAnnonce: number): Observable<Participants | null> {
-    const url = `${this.urlRecherche}/${idAnnonce}/participants`;
+    const url = `${this.urlRecherche}${idAnnonce}/participants`;  // Pas de / avant idAnnonce
     return this.http.get<Participants>(url).pipe(
       catchError(err => {
         console.error('[ANNONCES] GET participants failed:', err);
+        return of(null);
+      })
+    );
+  }
+
+  // Récupérer le véhicule de société
+  getVehiculeSociete(id: number): Observable<any> {
+    const url = `${this.base}/vehicules-entreprise/${id}`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error('[ANNONCES] GET véhicule société failed:', err);
+        return of(null);
+      })
+    );
+  }
+
+  // Récupérer le véhicule personnel du conducteur
+  getVehiculePersoById(utilisateurId: number): Observable<any> {
+    const url = `${this.base}/utilisateurs/${utilisateurId}/vehicule-perso`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error('[ANNONCES] GET véhicule perso failed:', err);
         return of(null);
       })
     );

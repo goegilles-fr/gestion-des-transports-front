@@ -15,11 +15,12 @@ import { catchError, map, tap, finalize } from 'rxjs/operators';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
+import { RechercheAnnonceDetailModalComponent } from '../../../shared/modales/recherche-annonce-detail-modal/recherche-annonce-detail-modal';
 
 @Component({
   selector: 'app-recherche-annonce',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, ConfirmDialog],
+  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, ConfirmDialog, RechercheAnnonceDetailModalComponent],
   templateUrl: './recherche-annonce.html',
   styleUrls: ['./recherche-annonce.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -36,9 +37,12 @@ export class RechercheAnnonceComponent {
   arrCp = signal<string>('');
   arrVille = signal<string>('');
 
-  dateStr = signal<string>(this.todayYMD()); // yyyy-mm-dd
-  timeStr = signal<string>('08:00');         // HH:mm
-  flexHeures = signal<number>(2);               // ± 2h
+  dateStr = signal<string>(''); // Vide au départ (placeholder)
+  timeStr = signal<string>('');  // Vide au départ (placeholder)
+  flexHeures = signal<number | null>(null); // Vide au départ (placeholder)
+
+  // Flag pour savoir si l'utilisateur a déjà interagi avec les champs date/heure
+  private userTouchedDateTime = signal<boolean>(false);
 
   // ---------- Données ----------
   loading = signal<boolean>(false);
@@ -55,10 +59,13 @@ export class RechercheAnnonceComponent {
   conducteurNameByAnnonce = signal<Record<number, string>>({});
 
   // ---------- Confirm Modal ----------
-
   annonceAReserver = signal<Annonce | null>(null);
   modaleTitle = signal<string>('');
   modaleContent = signal<string>('');
+
+  // ---------- Detail Modal (à implémenter) ----------
+  showDetailModal = signal<boolean>(false);
+  selectedAnnonceDetail = signal<Annonce | null>(null);
 
   openModale(annonce: Annonce) {
     this.annonceAReserver.set(annonce);
@@ -70,12 +77,12 @@ export class RechercheAnnonceComponent {
     this.modaleTitle.set(`Réserver une place`);
 
     const lines = [
-      'Confirmez-vous la réservation pour l’annonce suivante :',
+      'Confirmez-vous la réservation pour l\'annonce suivante :',
       '',
       `Adresse de départ :`,
       adresseDepart,
       '',
-      `Adresse d’arrivée :`,
+      `Adresse d'arrivée :`,
       adresseArrivee,
       '',
       `Heure de départ :`,
@@ -95,6 +102,23 @@ export class RechercheAnnonceComponent {
 
   closeModale() {
     this.annonceAReserver.set(null);
+  }
+
+  // Ouvrir la modale de détail
+  openDetailModal(annonce: Annonce) {
+    this.selectedAnnonceDetail.set(annonce);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetailModal() {
+    this.showDetailModal.set(false);
+    this.selectedAnnonceDetail.set(null);
+  }
+
+  // Gérer la réservation depuis la modale de détail
+  onReserverFromDetail(annonce: Annonce) {
+    // Ouvrir la modale de confirmation
+    this.openModale(annonce);
   }
 
   constructor(
@@ -137,8 +161,8 @@ export class RechercheAnnonceComponent {
   }
 
   /**
-   * S’assure que la liste d’annonces ET le profil sont chargés.
-   * Renvoie un Observable<void> que l’on peut .subscribe() avant d’exécuter la recherche.
+   * S'assure que la liste d'annonces ET le profil sont chargés.
+   * Renvoie un Observable<void> que l'on peut .subscribe() avant d'exécuter la recherche.
    */
   private ensureLoaded() {
     const loaders = [
@@ -155,6 +179,7 @@ export class RechercheAnnonceComponent {
   // ====== Recherche (front) ======
   rechercher() {
     this.errorMsg.set('');
+    this.userTouchedDateTime.set(true); // L'utilisateur a cliqué sur rechercher
     this.ensureLoaded().subscribe({
       next: () => this.runSearchCore(),
       error: (e) => {
@@ -204,7 +229,7 @@ export class RechercheAnnonceComponent {
       filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseArrivee, arrQuery));
     }
 
-    // 4) tri par proximité (abs(diff) avec l’heure choisie)
+    // 4) tri par proximité (abs(diff) avec l'heure choisie)
     filtered.sort((a, b) => {
       const da = Math.abs(new Date(a.annonce.heureDepart).getTime() - base.getTime());
       const db = Math.abs(new Date(b.annonce.heureDepart).getTime() - base.getTime());
@@ -219,12 +244,12 @@ export class RechercheAnnonceComponent {
       },
       error: (e) => {
         console.error('[ANNONCES] Exclusion par participants échouée:', e);
-        this.results.set(filtered); // fallback : pas d’exclusion
+        this.results.set(filtered); // fallback : pas d'exclusion
       }
     });
   }
 
-  /** Réserver une place sur l’annonce. */
+  /** Réserver une place sur l'annonce. */
   reserver(item: Annonce) {
     const id = item?.annonce?.id;
     if (id == null) return;
@@ -268,7 +293,7 @@ export class RechercheAnnonceComponent {
             const mine =
               this.samePerson(me!.prenom!, me!.nom!, (p.conducteur as any)?.prenom, (p.conducteur as any)?.nom) ||
               (p.passagers || []).some((x: any) => this.samePerson(me!.prenom!, me!.nom!, x?.prenom, x?.nom));
-            if (mine) continue; // exclure l’annonce
+            if (mine) continue; // exclure l'annonce
           }
 
           kept.push(a);
@@ -326,21 +351,24 @@ export class RechercheAnnonceComponent {
     return d.getTime() < now.getTime();
   });
 
-  // Petit message de warning utilisé dans le template)
-  readonly dateWarn = computed(() =>
-    this.isPastSelected() ? 'La date et l’heure doivent être dans le futur.' : ''
-  );
+  // Message de warning - affiché seulement si l'utilisateur a touché les champs
+  readonly dateWarn = computed(() => {
+    if (!this.userTouchedDateTime()) return '';
+    return this.isPastSelected() ? 'La date et l\'heure doivent être dans le futur.' : '';
+  });
 
   private rangeMinMax = computed(() => {
     const base = this.selectedDateTime();
-    const flex = Number(this.flexHeures() || 0);
+    const flex = Number(this.flexHeures() ?? 2); // Valeur par défaut 2 si null
     if (!base || isNaN(flex)) return { min: null as Date | null, max: null as Date | null };
     const ms = flex * 60 * 60 * 1000;
     return { min: new Date(base.getTime() - ms), max: new Date(base.getTime() + ms) };
   });
 
   placesDispo(a: Annonce) {
-    return Math.max(0, (a?.placesTotales ?? 0) - (a?.placesOccupees ?? 0) - 1);
+    // placesTotales inclut le conducteur, donc on soustrait 1
+    const placesPassagers = (a?.placesTotales ?? 0) - 1;
+    return Math.max(0, placesPassagers - (a?.placesOccupees ?? 0));
   }
 
   formatAdresse(a?: Adresse) {
@@ -350,12 +378,16 @@ export class RechercheAnnonceComponent {
     return parts.join(' ');
   }
 
+  // Format : JJ/MM/AAAA HH:mm
   formatHeureDepart(iso: string) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '—';
-    return d.toLocaleString(undefined, {
-      weekday: 'short', day: '2-digit', month: 'short',
-      hour: '2-digit', minute: '2-digit'
+    return d.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -395,19 +427,26 @@ export class RechercheAnnonceComponent {
     return true;
   }
 
-  // ====== Helpers d’inputs ======
+  // ====== Helpers d'inputs ======
   onTextInput(e: Event, sink: WritableSignal<string>) {
     const v = (e.target as HTMLInputElement).value;
     sink.set(v);
+    // Si c'est la date ou l'heure, marquer comme touché
+    if (sink === this.dateStr || sink === this.timeStr) {
+      this.userTouchedDateTime.set(true);
+    }
   }
+
   onNumberInput(e: Event, sink: WritableSignal<number | null>) {
     const raw = (e.target as HTMLInputElement).value;
     if (raw === '') { sink.set(null); return; }
     const n = Number(raw);
     sink.set(Number.isFinite(n) ? n : null);
   }
+
   onFlexInput(e: Event) {
     const raw = (e.target as HTMLInputElement).value;
+    if (raw === '') { this.flexHeures.set(null); return; }
     const n = Number(raw);
     this.flexHeures.set(!Number.isFinite(n) || n < 0 ? 0 : Math.floor(n));
   }
