@@ -1,59 +1,50 @@
-# GestionDesTransportsFront
+<img width="808" height="510" alt="image" src="https://github.com/user-attachments/assets/67dae871-b0bf-4241-949e-9198e5648636" />
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
+## 📋 Description
 
-## Development server
+Application web de gestion des transports permettant aux collaborateurs de :
+- **Organiser et participer à des covoiturages** entre différentes adresses
+- **Réserver des véhicules de service** pour des déplacements professionnels
+- **Gérer le parc automobile** (pour les administrateurs)
 
-To start a local development server, run:
+## 🛠️ Technologies
 
-```bash
-ng serve
-```
+- **Angular** (standalone components, signals)
+- **TypeScript**
+- **Node.js 20.x**
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🚀 Installation et démarrage
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+**Prérequis :** Node.js 20.x et npm
 
 ```bash
-ng generate --help
+# Installation des dépendances
+npm install
+
+# Lancement en mode développement
+npm start
 ```
 
-## Building
+L'application sera accessible à : `http://localhost:4200`
 
-To build the project run:
+## 🏗️ Build
 
 ```bash
-ng build
+# Build de production
+npm run build
+
+# Les fichiers statiques seront générés dans le dossier dist/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+**Tests E2E (Cypress) :**
 ```bash
-ng test
+# Mode interactif
+npx cypress open
+
+# Mode headless
+npx cypress run
 ```
 
-## Running end-to-end tests
+📖 Pour plus de détails sur les tests Cypress, consultez le [CYPRESS_README.md](./CYPRESS_README.md)
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
