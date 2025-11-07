@@ -1,12 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, WritableSignal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { RechercheAnnonceService } from '../../../services/annonces/recherche-annonce/recherche-annonce';
-import { Annonce, Adresse } from '../../../models/annonce';
+import { Annonce } from '../../../models/annonce';
 import { Participants } from '../../../models/reservation';
-
-// ⬇️ Ajuste le chemin si besoin
 import { ProfilService, UserProfil } from '../../../services/profil/profil';
 
 import { forkJoin, of } from 'rxjs';
@@ -15,36 +13,35 @@ import { catchError, map, tap, finalize } from 'rxjs/operators';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
+import { RechercheAnnonceDetailModalComponent } from '../../../shared/modales/recherche-annonce-detail-modal/recherche-annonce-detail-modal';
+import { AutocompleteVilleComponent } from '../../../shared/autocomplete-ville/autocomplete-ville';
 
 @Component({
   selector: 'app-recherche-annonce',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, ConfirmDialog],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NavbarComponent,
+    FooterComponent,
+    ConfirmDialog,
+    RechercheAnnonceDetailModalComponent,
+    AutocompleteVilleComponent
+  ],
   templateUrl: './recherche-annonce.html',
   styleUrls: ['./recherche-annonce.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class RechercheAnnonceComponent {
+export class RechercheAnnonceComponent implements OnInit {
+  // ---------- Formulaire simplifié (signals) ----------
+  villeDepart = signal<string>('');
+  villeArrivee = signal<string>('');
+  dateStr = signal<string>('');
 
-  /* =========================================================================
-   * 1) FORMULAIRE — inputs contrôlés via signals
-   * ========================================================================= */
-  // Adresse de départ
-  depNumero = signal<number | null>(null);
-  depRue    = signal<string>('');
-  depCp     = signal<string>('');
-  depVille  = signal<string>('');
+  private userTouchedDateTime = signal<boolean>(false);
 
-  // Adresse d’arrivée
-  arrNumero = signal<number | null>(null);
-  arrRue    = signal<string>('');
-  arrCp     = signal<string>('');
-  arrVille  = signal<string>('');
-
-  // Date / heure / flex
-  dateStr    = signal<string>(this.todayYMD()); // yyyy-mm-dd
-  timeStr    = signal<string>('08:00');         // HH:mm
-  flexHeures = signal<number>(2);               // ± 2h
+  // ---------- Liste des villes pour autocomplete ----------
+  villesDisponibles = signal<string[]>([]);
 
   /* =========================================================================
    * 2) ÉTATS D'APPLICATION — chargement / erreurs / données
@@ -58,18 +55,88 @@ export class RechercheAnnonceComponent {
   private userProfil   = signal<UserProfil | null>(null);
   private profilLoaded = false;
 
-  results = signal<Annonce[]>([]); // annonces filtrées pour l’affichage
-
-  // Cache du nom du conducteur par id d’annonce
+  results = signal<Annonce[]>([]);
   conducteurNameByAnnonce = signal<Record<number, string>>({});
 
-  /* =========================================================================
-   * 3) MODALE DE CONFIRMATION — réservation
-   * ========================================================================= */
+  // ---------- Pagination ----------
+  currentPage = signal<number>(1);
+  itemsPerPage = 4;
+
+  // Computed pour les résultats paginés
+  paginatedResults = computed(() => {
+    const all = this.results();
+    const page = this.currentPage();
+    const start = (page - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return all.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    return Math.ceil(this.results().length / this.itemsPerPage);
+  });
+
+  // ---------- Modales ----------
   annonceAReserver = signal<Annonce | null>(null);
   modaleTitle   = signal<string>('');
   modaleContent = signal<string>('');
 
+  showDetailModal = signal<boolean>(false);
+  selectedAnnonceDetail = signal<Annonce | null>(null);
+
+  constructor(
+    private service: RechercheAnnonceService,
+    private profilService: ProfilService,
+  ) {}
+
+  ngOnInit() {
+    // Charger les villes dès le démarrage
+    this.chargerVilles();
+  }
+
+  // Charger la liste des villes depuis le backend
+  chargerVilles() {
+    this.service.getVillesUniques().subscribe({
+      next: (villes) => {
+        this.villesDisponibles.set(villes);
+        console.log('Villes chargées:', villes.length);
+      },
+      error: (err) => {
+        console.error('Erreur chargement villes:', err);
+        this.villesDisponibles.set([]);
+      }
+    });
+  }
+
+  // Échanger les villes (bouton 🔄)
+  echangerVilles() {
+    const temp = this.villeDepart();
+    this.villeDepart.set(this.villeArrivee());
+    this.villeArrivee.set(temp);
+  }
+
+  // Pagination
+  goToPage(page: number) {
+    this.currentPage.set(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  previousPage() {
+    if (this.currentPage() > 1) {
+      this.goToPage(this.currentPage() - 1);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.goToPage(this.currentPage() + 1);
+    }
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
+  }
+
+  // Modales
   openModale(annonce: Annonce) {
     this.annonceAReserver.set(annonce);
 
@@ -80,12 +147,12 @@ export class RechercheAnnonceComponent {
     this.modaleTitle.set('Réserver une place');
 
     const lines = [
-      'Confirmez-vous la réservation pour l’annonce suivante :',
+      'Confirmez-vous la réservation pour l\'annonce suivante :',
       '',
       'Adresse de départ :',
       adresseDepart,
       '',
-      'Adresse d’arrivée :',
+      `Adresse d'arrivée :`,
       adresseArrivee,
       '',
       'Heure de départ :',
@@ -104,17 +171,21 @@ export class RechercheAnnonceComponent {
     this.annonceAReserver.set(null);
   }
 
-  /* =========================================================================
-   * 4) CONSTRUCTEUR — services injectés
-   * ========================================================================= */
-  constructor(
-    private service: RechercheAnnonceService,
-    private profilService: ProfilService,
-  ) { }
+  openDetailModal(annonce: Annonce) {
+    this.selectedAnnonceDetail.set(annonce);
+    this.showDetailModal.set(true);
+  }
 
-  /* =========================================================================
-   * 5) CHARGEMENTS — annonces + profil
-   * ========================================================================= */
+  closeDetailModal() {
+    this.showDetailModal.set(false);
+    this.selectedAnnonceDetail.set(null);
+  }
+
+  onReserverFromDetail(annonce: Annonce) {
+    this.openModale(annonce);
+  }
+
+  // ====== Chargements ======
   private loadAll() {
     return this.service.listAnnonces().pipe(
       tap((data: Annonce[]) => {
@@ -144,10 +215,6 @@ export class RechercheAnnonceComponent {
     );
   }
 
-  /**
-   * Garantit que la liste d’annonces ET le profil sont chargés.
-   * Retourne un Observable<void> pour chaîner avec la recherche.
-   */
   private ensureLoaded() {
     const loaders = [
       this.loadedOnce   ? of(true) : this.loadAll(),
@@ -160,11 +227,23 @@ export class RechercheAnnonceComponent {
     );
   }
 
-  /* =========================================================================
-   * 6) RECHERCHE — filtrage/tri/exclusion
-   * ========================================================================= */
+  // ====== Recherche (simplifiée par ville et date) ======
   rechercher() {
     this.errorMsg.set('');
+    this.userTouchedDateTime.set(true);
+    this.currentPage.set(1); // Réinitialiser la pagination
+    this.results.set([]); // Vider les anciens résultats immédiatement
+
+    const dateVal = this.dateStr();
+    const villeDepQuery = this.villeDepart().trim();
+    const villeArrQuery = this.villeArrivee().trim();
+
+    // Vérifier qu'au moins un critère est renseigné
+    if (!dateVal && !villeDepQuery && !villeArrQuery) {
+      this.errorMsg.set('Veuillez renseigner au moins un critère de recherche (ville de départ, ville d\'arrivée ou date).');
+      return;
+    }
+
     this.ensureLoaded().subscribe({
       next: () => this.runSearchCore(),
       error: (e) => {
@@ -174,55 +253,50 @@ export class RechercheAnnonceComponent {
     });
   }
 
-  /** Noyau : filtrage par fenêtre horaire, adresses, tri, exclusion. */
   private runSearchCore() {
-    const base = this.selectedDateTime();
-    const { min, max } = this.rangeMinMax();
-    if (!base || !min || !max) {
-      this.errorMsg.set('Veuillez renseigner une date, une heure et une flexibilité valides.');
-      this.results.set([]);
-      return;
+    const dateVal = this.dateStr();
+    const villeDepQuery = this.villeDepart().trim();
+    const villeArrQuery = this.villeArrivee().trim();
+
+    let filtered = this.toutes();
+
+    // 1) Filtrer par date (si renseignée)
+    if (dateVal) {
+      const [y, m, day] = dateVal.split('-').map(Number);
+      const dateDebut = new Date(y, m - 1, day, 0, 0, 0, 0);
+      const dateFin = new Date(y, m - 1, day, 23, 59, 59, 999);
+
+      filtered = filtered.filter(a => {
+        const d = new Date(a.annonce.heureDepart);
+        return d >= dateDebut && d <= dateFin;
+      });
     }
 
-    // Requêtes d’adresse (si présentes)
-    const depQuery: Partial<Adresse> = {
-      numero: this.depNumero() ?? undefined,
-      libelle: this.depRue() || undefined,
-      codePostal: this.depCp() || undefined,
-      ville: this.depVille() || undefined,
-    };
-    const arrQuery: Partial<Adresse> = {
-      numero: this.arrNumero() ?? undefined,
-      libelle: this.arrRue() || undefined,
-      codePostal: this.arrCp() || undefined,
-      ville: this.arrVille() || undefined,
-    };
-
-    // 1) Fenêtre horaire
-    let filtered = this.toutes().filter(a => {
-      const d = new Date(a.annonce.heureDepart);
-      return d >= min && d <= max;
-    });
-
-    // 2) Disponibilités (conserve uniquement > 0)
+    // 2) places disponibles
     filtered = filtered.filter(a => this.placesDispo(a) > 0);
 
-    // 3) Adresses (si champs saisis)
-    if (this.hasAnyField(depQuery)) {
-      filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseDepart, depQuery));
-    }
-    if (this.hasAnyField(arrQuery)) {
-      filtered = filtered.filter(a => this.addressMatches(a.annonce.adresseArrivee, arrQuery));
+    // 3) filtrer par ville de départ (si renseignée)
+    if (villeDepQuery) {
+      filtered = filtered.filter(a =>
+        this.normalize(a.annonce.adresseDepart?.ville || '') === this.normalize(villeDepQuery)
+      );
     }
 
-    // 4) Tri par proximité à l’heure cible
+    // 4) filtrer par ville d'arrivée (si renseignée)
+    if (villeArrQuery) {
+      filtered = filtered.filter(a =>
+        this.normalize(a.annonce.adresseArrivee?.ville || '') === this.normalize(villeArrQuery)
+      );
+    }
+
+    // 5) tri par heure de départ
     filtered.sort((a, b) => {
-      const da = Math.abs(new Date(a.annonce.heureDepart).getTime() - base.getTime());
-      const db = Math.abs(new Date(b.annonce.heureDepart).getTime() - base.getTime());
+      const da = new Date(a.annonce.heureDepart).getTime();
+      const db = new Date(b.annonce.heureDepart).getTime();
       return da - db;
     });
 
-    // 5) Exclusion des annonces où l’utilisateur est déjà conducteur/passager
+    // 6) exclusion via participants
     this.excludeMyAnnoncesByName(filtered).subscribe({
       next: ({ annonces, conducteurNames }) => {
         this.results.set(annonces);
@@ -230,14 +304,11 @@ export class RechercheAnnonceComponent {
       },
       error: (e) => {
         console.error('[ANNONCES] Exclusion par participants échouée:', e);
-        this.results.set(filtered); // fallback sans exclusion
+        this.results.set(filtered);
       }
     });
   }
 
-  /* =========================================================================
-   * 7) ACTION — réserver une place
-   * ========================================================================= */
   reserver(item: Annonce) {
     const id = item?.annonce?.id;
     if (id == null) return;
@@ -254,9 +325,7 @@ export class RechercheAnnonceComponent {
     });
   }
 
-  /* =========================================================================
-   * 8) EXCLUSION — matching {prenom, nom} conducteur/passagers
-   * ========================================================================= */
+  // ====== EXCLUSION ======
   private excludeMyAnnoncesByName(list: Annonce[]) {
     const me = this.userProfil();
     const hasName = !!me?.prenom && !!me?.nom;
@@ -296,16 +365,14 @@ export class RechercheAnnonceComponent {
     );
   }
 
-  /* =========================================================================
-   * 9) IDENTITÉ — helpers {prenom, nom}
-   * ========================================================================= */
+  // ====== Helpers ======
   conducteurName(id?: number): string {
     if (id == null) return '';
     const map = this.conducteurNameByAnnonce();
     return map[id] ?? '';
   }
 
-  private N(s?: string | number | null) {
+  private normalize(s?: string): string {
     return String(s ?? '')
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
@@ -314,7 +381,7 @@ export class RechercheAnnonceComponent {
   }
 
   private samePerson(p1?: string, n1?: string, p2?: string, n2?: string) {
-    return !!p1 && !!n1 && !!p2 && !!n2 && this.N(p1) === this.N(p2) && this.N(n1) === this.N(n2);
+    return !!p1 && !!n1 && !!p2 && !!n2 && this.normalize(p1) === this.normalize(p2) && this.normalize(n1) === this.normalize(n2);
   }
 
   private fullName(prenom?: string, nom?: string) {
@@ -324,132 +391,51 @@ export class RechercheAnnonceComponent {
     return s || '';
   }
 
-  /* =========================================================================
-   * 10) COMPUTED — dates et validations
-   * ========================================================================= */
-  private selectedDateTime = computed<Date | null>(() => {
-    const d = this.dateStr();
-    const t = this.timeStr();
-    if (!d || !t) return null;
-    const [y, m, day] = d.split('-').map(Number);
-    const [hh, mm] = t.split(':').map(Number);
-    if ([y, m, day, hh, mm].some(v => Number.isNaN(v))) return null;
-    return new Date(y, m - 1, day, hh, mm, 0, 0);
-  });
-
-  // Exposé au template (attribut [min] du <input type="date">)
+  // ====== Computed ======
   readonly todayStr = this.todayYMD();
 
-  // True si la sélection (date+heure) est passée
   readonly isPastSelected = computed(() => {
-    const d = this.selectedDateTime();
-    if (!d) return false;
-    const now = new Date();
-    return d.getTime() < now.getTime();
+    const dateVal = this.dateStr();
+    if (!dateVal) return false;
+    const [y, m, day] = dateVal.split('-').map(Number);
+    const selectedDate = new Date(y, m - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selectedDate < today;
   });
 
-  // Message d’avertissement présenté sous les champs date/heure
-  readonly dateWarn = computed(() =>
-    this.isPastSelected() ? 'La date et l’heure doivent être dans le futur.' : ''
-  );
-
-  // Intervalle [min, max] autour de la date sélectionnée selon la flexibilité
-  private rangeMinMax = computed(() => {
-    const base = this.selectedDateTime();
-    const flex = Number(this.flexHeures() || 0);
-    if (!base || isNaN(flex)) return { min: null as Date | null, max: null as Date | null };
-    const ms = flex * 60 * 60 * 1000;
-    return { min: new Date(base.getTime() - ms), max: new Date(base.getTime() + ms) };
+  readonly dateWarn = computed(() => {
+    if (!this.userTouchedDateTime()) return '';
+    return this.isPastSelected() ? 'La date doit être dans le futur.' : '';
   });
 
   /* =========================================================================
    * 11) FORMATAGE & DISPONIBILITÉS
    * ========================================================================= */
   placesDispo(a: Annonce) {
-    // Le conducteur compte implicitement 1 place (côté logique globale)
-    return Math.max(0, (a?.placesTotales ?? 0) - (a?.placesOccupees ?? 0) - 1);
+    const placesPassagers = (a?.placesTotales ?? 0) - 1;
+    return Math.max(0, placesPassagers - (a?.placesOccupees ?? 0));
   }
 
-  formatAdresse(a?: Adresse) {
+  formatAdresse(a?: any) {
     if (!a) return '—';
     const parts = [a.numero, a.libelle, a.codePostal, a.ville]
-      .filter((x) => x !== null && x !== undefined && String(x).trim() !== '');
+      .filter((x: any) => x !== null && x !== undefined && String(x).trim() !== '');
     return parts.join(' ');
   }
 
   formatHeureDepart(iso: string) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '—';
-    return d.toLocaleString(undefined, {
-      weekday: 'short', day: '2-digit', month: 'short',
-      hour: '2-digit', minute: '2-digit'
+    return d.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
-  /* =========================================================================
-   * 12) MATCHING ADRESSES — insensible à la casse/accents
-   * ========================================================================= */
-  private hasAnyField(a?: Partial<Adresse>) {
-    if (!a) return false;
-    return !!(a.numero || a.libelle || a.codePostal || a.ville);
-  }
-
-  private addressMatches(cand?: Adresse, query?: Partial<Adresse>) {
-    if (!query || !this.hasAnyField(query)) return true;
-    if (!cand) return false;
-
-    const N = (v: string | number | null | undefined): string =>
-      String(v ?? '')
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
-        .toLowerCase()
-        .trim();
-
-    const eq = (a: string | number | null | undefined, b: string | number | null | undefined) =>
-      N(a) === N(b);
-
-    const contains = (hay: string | number | null | undefined, needle: string | number | null | undefined) =>
-      N(hay).includes(N(needle));
-
-    // numero & codePostal: égalité stricte
-    if (query.numero != null && N(query.numero) !== '') {
-      if (!eq(cand.numero as any, query.numero)) return false;
-    }
-    if (query.codePostal != null && N(query.codePostal) !== '') {
-      if (!eq(cand.codePostal as any, query.codePostal)) return false;
-    }
-
-    // ville & libelle: recherche par inclusion
-    if (query.ville   && !contains(cand.ville   as any, query.ville))   return false;
-    if (query.libelle && !contains(cand.libelle as any, query.libelle)) return false;
-
-    return true;
-  }
-
-  /* =========================================================================
-   * 13) HANDLERS D’ENTRÉE — relient le template aux signals
-   * ========================================================================= */
-  onTextInput(e: Event, sink: WritableSignal<string>) {
-    const v = (e.target as HTMLInputElement).value;
-    sink.set(v);
-  }
-
-  onNumberInput(e: Event, sink: WritableSignal<number | null>) {
-    const raw = (e.target as HTMLInputElement).value;
-    if (raw === '') { sink.set(null); return; }
-    const n = Number(raw);
-    sink.set(Number.isFinite(n) ? n : null);
-  }
-
-  onFlexInput(e: Event) {
-    const raw = (e.target as HTMLInputElement).value;
-    const n = Number(raw);
-    this.flexHeures.set(!Number.isFinite(n) || n < 0 ? 0 : Math.floor(n));
-  }
-
-  /* =========================================================================
-   * 14) UTILITAIRES
-   * ========================================================================= */
   private todayYMD() {
     const d = new Date();
     const y = d.getFullYear();

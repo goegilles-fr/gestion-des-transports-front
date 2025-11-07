@@ -1,276 +1,385 @@
-/* =========================================================
-   Palette & Layout global
-========================================================= */
-:host {
-  /* Palette locale */
-  --teal: #0B84A2;
-  --teal-700: #0B84A2;
-  --teal-600: #0a7089;
-  --teal-100: #E6F7FB;
-
-  --ink-900: #333;
-  --ink-700: #555;
-  --muted:  #666;
-  --danger-bg: #fee;
-  --danger-bd: #f6caca;
-  --danger-fg: #c33;
-
-  display: flex;
-  min-height: 100vh;
+.recherche-container {
+  min-height: calc(100vh - 133px);
   background: #EDEDED;
-  flex-direction: column;
+  padding: 20px;
 }
 
-/* Page container */
-.page {
-  flex: 1 0 auto;
-  max-width: 1400px;
-  margin-inline: auto;
-  width: 100%;
-  padding: 15px 20px 24px;
-  background: #EDEDED;
+.recherche-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
 }
 
-/* =========================================================
-   Titre
-========================================================= */
-.header { text-align: center; }
-.header h1 {
+.recherche-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #333;
+    margin: 0 0 10px 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.recherche-subtitle {
   font-size: 18px;
-  font-weight: 600;
-  letter-spacing: .5px;
-  color: var(--ink-900);
-  margin: 2px 0 14px;
-  text-transform: uppercase;
+  margin: 0;
+  opacity: 0.95;
 }
 
-/* =========================================================
-   Carte formulaire (filtres)
-========================================================= */
-.filters {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
-  border: 2px solid var(--teal);
-  padding: 18px;
+.recherche-form {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Tous les champs sur une seule ligne */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr;
+  gap: 16px;
+  align-items: end;
   margin-bottom: 16px;
-
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px 16px;
 }
 
-/* Fieldset stylé */
-.field {
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #e3eef1;
-  padding: 22px 16px 12px;
-}
-.field legend {
-  position: absolute;
-  inset-block-start: -14px;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  background: var(--teal);
-  color: #fff;
-  border-radius: 14px;
-  padding: 6px 18px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(11,132,162,.15);
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
 }
 
-/* Deux champs par ligne (50/50) */
-.row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 10px;
+.btn-exchange {
+  background: #E6F7FB;
+  border: 2px solid #0B84A2;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  transition: all 0.3s;
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
-.row > * { min-width: 0; }        /* évite la compression des inputs */
 
-/* Annule les classes largeur locales dans la grille */
-.row .w-20,
-.row .w-28,
-.row .flex-1 { width: 100%; }
+.btn-exchange:hover {
+  background: #0B84A2;
+  transform: rotate(180deg);
+}
 
-/* Colonne (label au-dessus) */
-.col {
+.field-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  gap: 8px;
 }
-.label {
-  font-size: 10px;
+
+.form-input {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  border-color: #0B84A2;
+  box-shadow: 0 0 0 3px rgba(11, 132, 162, 0.1);
+}
+
+/* Messages d'erreur */
+.error-message {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #c00;
+  font-size: 14px;
   font-weight: 600;
-  color: #555;
+}
+
+/* Bouton de recherche */
+.btn-rechercher {
+  width: 100%;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #0B84A2 0%, #0a7089 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
   text-transform: uppercase;
 }
 
-/* =========================================================
-   Inputs
-========================================================= */
-input[type="text"],
-input[type="date"],
-input[type="time"],
-input[type="number"] {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
-  font-size: .95rem;
-  color: var(--ink-900);
-  box-sizing: border-box; /* évite le rétrécissement */
+.btn-rechercher:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(11, 132, 162, 0.4);
 }
-input:focus {
-  outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 2px rgba(11,132,162,.12);
+
+.btn-rechercher:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Section résultats */
+.results-section {
+  max-width: 1200px;
+  margin: 20px auto 0;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.results-title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0B84A2;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #0B84A2;
+  border-radius: 6px;
+  color: #0B84A2;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #0B84A2;
+  color: white;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-page {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.pagination-page:hover {
+  border-color: #0B84A2;
+  color: #0B84A2;
+}
+
+.pagination-page.active {
+  background: #0B84A2;
+  border-color: #0B84A2;
+  color: white;
+}
+
+.results-table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #E6F7FB;
 }
 input:focus-visible {
   outline: none;
 }
 
-/* =========================================================
-   Actions / Boutons
-========================================================= */
-.actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  padding-top: 2px;
+th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #0B84A2;
+  border-bottom: 2px solid #0B84A2;
 }
-.btn {
-  appearance: none;
+
+td {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.badge-places {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.badge-places.complet {
+  background: #ff4444;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon {
+  background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s;
+    padding: 4px;
+}
+
+.btn-icon:hover {
+  transform: scale(1.2);
+}
+
+.btn-reserver {
+  padding: 8px 16px;
+  background: #0B84A2;
+  color: white;
   border: none;
   border-radius: 6px;
-  padding: 12px 26px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  background: var(--teal);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(11,132,162,.3);
-  transition: all .2s ease;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
-}
-.btn:hover {
-  background: var(--teal-600);
-  box-shadow: 0 4px 12px rgba(11,132,162,.4);
-  transform: translateY(-1px);
-}
-.btn:active { transform: translateY(0); }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-.btn.small { padding: 8px 16px; font-size: 13px; }
-
-/* =========================================================
-   Messages (alertes, muted)
-========================================================= */
-.warn {
-  grid-column: 1 / -1;
-  background: var(--danger-bg);
-  color: var(--danger-fg);
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  text-align: center;
-  border: 1px solid var(--danger-bd);
-}
-.muted { color: var(--muted); text-align: center; }
-
-/* Petit warning inline (sous "Quand ?") */
-.warn-inline {
-  margin-top: 8px;
-  background: var(--danger-bg);
-  color: var(--danger-fg);
-  border: 1px solid var(--danger-bd);
-  padding: 8px 10px;
-  border-radius: 6px;
+  transition: all 0.2s;
+  text-transform: uppercase;
   font-size: 12px;
-  font-weight: 600;
-}
-.field .warn-inline { grid-column: 1 / -1; }
-
-/* =========================================================
-   Tableau des résultats
-========================================================= */
-.table-wrap {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
+  letter-spacing: 0.5px;
 }
 
-/* En-tête (conserve #0B84A2) */
-.table thead {
-  background: var(--teal);
-  color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-.table thead th {
-  padding: 10px 12px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
-  border-right: 1px solid rgba(255,255,255,.35);
-}
-.table thead th:last-child { border-right: none; }
-
-/* Corps */
-.table tbody tr {
-  border-bottom: 2px solid var(--teal);
-  transition: background-color .2s;
-}
-.table tbody tr:hover { background: #f5f5f5; }
-
-.table tbody td {
-  padding: 8px 12px;
-  font-size: 14px;
-  color: var(--ink-700);
-  border-right: 1px solid var(--teal-100);
-  vertical-align: middle;
-}
-.table tbody td:last-child {
-  border-right: none;
-  text-align: right;
+.btn-reserver:hover:not(:disabled) {
+  background: #0a7089;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(11, 132, 162, 0.3);
 }
 
-/* Alternance légère */
-.table tbody tr td:nth-child(odd) {
-  background: var(--teal-100);
-}
-
-/* Bouton dans le tableau */
-.table .btn.small { box-shadow: 0 2px 8px rgba(11,132,162,.18); }
-.table .btn.small:disabled {
+.btn-reserver:disabled {
   background: #ccc;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-/* =========================================================
-   Responsive
-========================================================= */
-@media (max-width: 1200px) {
-  .filters { grid-template-columns: 1fr; }
-  .actions .btn { width: 100%; }
+/* Centrer la colonne Places dispo */
+th:nth-child(5),
+td:nth-child(5) {
+  text-align: center;
 }
-@media (max-width: 860px) {
-  .row { grid-template-columns: 1fr; } /* 1 champ par ligne en mobile */
-  .table-wrap { overflow-x: auto; }
-  .table { min-width: 900px; }
+
+/* Centrer le titre Actions */
+th:nth-child(6) {
+  text-align: center;
+}
+
+.no-results {
+  max-width: 800px;
+  margin: 40px auto;
+  background: white;
+  border-radius: 16px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.no-results p {
+  font-size: 16px;
+  color: #666;
+  margin: 8px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .recherche-title {
+    font-size: 18px;
+  }
+
+  .recherche-form {
+    padding: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .btn-exchange {
+    margin: 0 auto;
+    transform: rotate(90deg);
+  }
+
+  .btn-exchange:hover {
+    transform: rotate(270deg);
+  }
+
+  .results-section {
+    padding: 16px;
+  }
+
+  .results-title {
+    font-size: 18px;
+  }
+
+  .results-table {
+    overflow-x: scroll;
+  }
+
+  table {
+    min-width: 800px;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .pagination-pages {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
 }
