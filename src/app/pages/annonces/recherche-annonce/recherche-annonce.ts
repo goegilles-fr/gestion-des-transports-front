@@ -43,14 +43,16 @@ export class RechercheAnnonceComponent implements OnInit {
   // ---------- Liste des villes pour autocomplete ----------
   villesDisponibles = signal<string[]>([]);
 
-  // ---------- Données ----------
-  loading = signal<boolean>(false);
+  /* =========================================================================
+   * 2) ÉTATS D'APPLICATION — chargement / erreurs / données
+   * ========================================================================= */
+  loading  = signal<boolean>(false);
   errorMsg = signal<string>('');
 
-  private toutes = signal<Annonce[]>([]);
+  private toutes     = signal<Annonce[]>([]);  // toutes les annonces du back
   private loadedOnce = false;
 
-  private userProfil = signal<UserProfil | null>(null);
+  private userProfil   = signal<UserProfil | null>(null);
   private profilLoaded = false;
 
   results = signal<Annonce[]>([]);
@@ -75,7 +77,7 @@ export class RechercheAnnonceComponent implements OnInit {
 
   // ---------- Modales ----------
   annonceAReserver = signal<Annonce | null>(null);
-  modaleTitle = signal<string>('');
+  modaleTitle   = signal<string>('');
   modaleContent = signal<string>('');
 
   showDetailModal = signal<boolean>(false);
@@ -138,33 +140,30 @@ export class RechercheAnnonceComponent implements OnInit {
   openModale(annonce: Annonce) {
     this.annonceAReserver.set(annonce);
 
-    const adresseDepart = this.formatAdresse(annonce.annonce.adresseDepart);
+    const adresseDepart  = this.formatAdresse(annonce.annonce.adresseDepart);
     const adresseArrivee = this.formatAdresse(annonce.annonce.adresseArrivee);
-    const heureDepart = this.formatHeureDepart(annonce.annonce.heureDepart);
+    const heureDepart    = this.formatHeureDepart(annonce.annonce.heureDepart);
 
-    this.modaleTitle.set(`Réserver une place`);
+    this.modaleTitle.set('Réserver une place');
 
     const lines = [
       'Confirmez-vous la réservation pour l\'annonce suivante :',
       '',
-      `Adresse de départ :`,
+      'Adresse de départ :',
       adresseDepart,
       '',
       `Adresse d'arrivée :`,
       adresseArrivee,
       '',
-      `Heure de départ :`,
-      heureDepart
+      'Heure de départ :',
+      heureDepart,
     ];
-
     this.modaleContent.set(lines.join('\n'));
   }
 
   confirmModale() {
     const annonce = this.annonceAReserver();
-    if (annonce) {
-      this.reserver(annonce);
-    }
+    if (annonce) this.reserver(annonce);
     this.closeModale();
   }
 
@@ -218,7 +217,7 @@ export class RechercheAnnonceComponent implements OnInit {
 
   private ensureLoaded() {
     const loaders = [
-      this.loadedOnce ? of(true) : this.loadAll(),
+      this.loadedOnce   ? of(true) : this.loadAll(),
       this.profilLoaded ? of(true) : this.loadProfil(),
     ];
     this.loading.set(true);
@@ -333,7 +332,7 @@ export class RechercheAnnonceComponent implements OnInit {
 
     const requests = list.map(a =>
       this.service.getParticipants(a.annonce.id).pipe(
-        catchError(() => of(null)),
+        catchError(() => of(null)), // tolérance d’erreur : ignore l’annonce en l’état
         map((p): { a: Annonce; p: Participants | null } => ({ a, p }))
       )
     );
@@ -344,11 +343,13 @@ export class RechercheAnnonceComponent implements OnInit {
         const kept: Annonce[] = [];
 
         for (const { a, p } of rows) {
+          // Enrichit le nom du conducteur si disponible
           if (p?.conducteur) {
             const nomAff = this.fullName((p.conducteur as any)?.prenom, (p.conducteur as any)?.nom);
             if (nomAff) conducteurNames[a.annonce.id] = nomAff;
           }
 
+          // Exclut si l’utilisateur (me) est conducteur ou passager
           if (hasName && p) {
             const mine =
               this.samePerson(me!.prenom!, me!.nom!, (p.conducteur as any)?.prenom, (p.conducteur as any)?.nom) ||
@@ -408,6 +409,9 @@ export class RechercheAnnonceComponent implements OnInit {
     return this.isPastSelected() ? 'La date doit être dans le futur.' : '';
   });
 
+  /* =========================================================================
+   * 11) FORMATAGE & DISPONIBILITÉS
+   * ========================================================================= */
   placesDispo(a: Annonce) {
     const placesPassagers = (a?.placesTotales ?? 0) - 1;
     return Math.max(0, placesPassagers - (a?.placesOccupees ?? 0));

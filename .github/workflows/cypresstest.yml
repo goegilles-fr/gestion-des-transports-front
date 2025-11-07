@@ -1,0 +1,44 @@
+name: Cypress E2E Tests (Manual)
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Wait for deployment to stabilize
+        run: sleep 20
+      
+      - name: Run Cypress tests
+        run: npx cypress run --browser chrome --config video=false
+        env:
+          CYPRESS_TEST_USER_EMAIL: ${{ secrets.CYPRESS_TEST_USER_EMAIL }}
+          CYPRESS_TEST_USER_PASSWORD: ${{ secrets.CYPRESS_TEST_USER_PASSWORD }}
+          CYPRESS_TEST_USER_EMAIL2: ${{ secrets.CYPRESS_TEST_USER_EMAIL2}}
+          CYPRESS_TEST_USER_PASSWORD2: ${{ secrets.CYPRESS_TEST_USER_PASSWORD2 }}
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 30

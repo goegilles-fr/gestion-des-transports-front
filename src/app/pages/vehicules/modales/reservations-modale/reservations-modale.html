@@ -1,0 +1,52 @@
+@if (open) {
+  <div class="modal-backdrop" (click)="onClose()"></div>
+
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="vrm-title">
+    <div class="modal-sheet">
+      <button type="button" class="modal__close" (click)="onClose()" aria-label="Fermer">×</button>
+      <h3 id="vrm-title" class="modal__title">{{ title }}</h3>
+
+      @if (sorted.length > 0) {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>État</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of sorted; track r.id ?? $index) {
+                <tr>
+                  <td>
+                    <time [attr.datetime]="r.dateDebut">{{ r.dateDebut | date:'dd/MM/yyyy HH:mm' }}</time>
+                  </td>
+                  <td>
+                    <time [attr.datetime]="r.dateFin">{{ r.dateFin | date:'dd/MM/yyyy HH:mm' }}</time>
+                  </td>
+                  <td>
+                    <span
+                      class="badge"
+                      [class.badge--ok]="isCurrent(r)"
+                      [class.badge--warn]="isUpcoming(r)"
+                      [class.badge--off]="isPast(r)"
+                    >
+                      {{ isCurrent(r) ? 'En cours' : (isUpcoming(r) ? 'À venir' : 'Passée') }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="empty">Aucune réservation pour ce véhicule.</p>
+      }
+
+      <div class="actions">
+        <button type="button" class="btn" (click)="onClose()">Fermer</button>
+      </div>
+    </div>
+  </div>
+}

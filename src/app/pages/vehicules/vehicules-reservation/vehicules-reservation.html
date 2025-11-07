@@ -1,15 +1,25 @@
 <app-navbar></app-navbar>
 
 <section class="page">
+  <!-- =========================================================
+       EN-TÊTE
+       ========================================================= -->
   <header class="header">
     <h1>Réserver un véhicule d’entreprise</h1>
   </header>
 
-  <!-- Filtres / sélection de plage -->
+  <!-- =========================================================
+       FILTRES / PLAGE DE DATES
+       ========================================================= -->
   <div class="filters">
+    <!-- Date & heure de début -->
     <label class="field">
       <span>Date début :</span>
-      <input type="date" [value]="dateDebutStr()" (change)="dateDebutStr.set($event.target.value)" />
+
+      <input
+        type="date"
+        [value]="dateDebutStr()"
+        (change)="dateDebutStr.set($event.target.value)" />
 
       <span class="label">Heure de début :</span>
       <select #tdeb [value]="timeDebutStr()" (change)="timeDebutStr.set(tdeb.value)">
@@ -19,9 +29,14 @@
       </select>
     </label>
 
+    <!-- Date & heure de fin -->
     <label class="field">
       <span>Date fin</span>
-      <input type="date" [value]="dateFinStr()" (change)="dateFinStr.set($event.target.value)" />
+
+      <input
+        type="date"
+        [value]="dateFinStr()"
+        (change)="dateFinStr.set($event.target.value)" />
 
       <span class="label">Heure de fin :</span>
       <select #tfin [value]="timeFinStr()" (change)="timeFinStr.set(tfin.value)">
@@ -31,12 +46,15 @@
       </select>
     </label>
 
+    <!-- Avertissements de validation -->
     @if (warnMsg()) {
       <p class="warn">{{ warnMsg() }}</p>
     }
   </div>
 
-  <!-- Swiper -->
+  <!-- =========================================================
+       SLIDESHOW DES VÉHICULES (Swiper)
+       ========================================================= -->
   <swiper-container
     #sc
     class="vehicules-swiper"
@@ -46,16 +64,20 @@
     keyboard="true"
     style="--swiper-navigation-color:#222; --swiper-pagination-color:#222; width:100%; height:auto;"
   >
+    <!-- Cas avec résultats -->
     @if (vehiculesDisponible().length > 0) {
       @for (vehicule of vehiculesDisponible(); track vehicule.id ?? $index) {
         <swiper-slide>
           <article class="card">
+            <!-- En-tête carte -->
             <header class="card-header">
               <h3>{{ vehicule.marque }} {{ vehicule.modele }}</h3>
               <span class="immat">{{ vehicule.immatriculation }}</span>
             </header>
 
+            <!-- Corps carte -->
             <div class="card-body">
+              <!-- Photo du véhicule -->
               <img
                 class="photo"
                 [src]="vehicule.photo || 'https://placehold.co/640x360?text=Photo'"
@@ -63,28 +85,39 @@
                 loading="lazy"
               />
 
-              <!-- ✅ Version verticale : 1 info par ligne -->
+              <!-- Caractéristiques (affichage vertical, 1 info par ligne) -->
               <div style="display:flex; flex-direction:column; gap:8px; color:var(--ink-700);">
                 <p style="margin:0; line-height:1.35;">
                   <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Catégorie :</strong>
-                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.categorie ?? '—' }}</span>
+                  <span style="word-break:break-word; white-space:normal;">
+                    {{ vehicule.categorie ?? '—' }}
+                  </span>
                 </p>
+
                 <p style="margin:0; line-height:1.35;">
                   <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Motorisation :</strong>
-                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.motorisation ?? '—' }}</span>
+                  <span style="word-break:break-word; white-space:normal;">
+                    {{ vehicule.motorisation ?? '—' }}
+                  </span>
                 </p>
+
                 <p style="margin:0; line-height:1.35;">
                   <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">CO₂ :</strong>
-                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.co2ParKm ?? '—' }}</span>
+                  <span style="word-break:break-word; white-space:normal;">
+                    {{ vehicule.co2ParKm ?? '—' }}
+                  </span>
                 </p>
+
                 <p style="margin:0; line-height:1.35;">
                   <strong style="color:var(--ink-900); display:inline-block; min-width:130px;">Places :</strong>
-                  <span style="word-break:break-word; white-space:normal;">{{ vehicule.nbPlaces }}</span>
+                  <span style="word-break:break-word; white-space:normal;">
+                    {{ vehicule.nbPlaces }}
+                  </span>
                 </p>
               </div>
-              <!-- /fin version verticale -->
             </div>
 
+            <!-- Pied de carte -->
             <footer class="card-footer">
               <button
                 type="button"
@@ -98,7 +131,9 @@
           </article>
         </swiper-slide>
       }
-    } @else {
+    }
+    <!-- Cas sans résultats -->
+    @else {
       <swiper-slide>
         <div class="empty">Aucun véhicule disponible pour ces dates.</div>
       </swiper-slide>
@@ -106,6 +141,9 @@
   </swiper-container>
 </section>
 
+<!-- =========================================================
+     MODALE DE CONFIRMATION
+     ========================================================= -->
 <app-confirm-dialog
   [open]="confirmOpen()"
   [title]="confirmTitle()"

@@ -221,6 +221,9 @@ table {
 thead {
   background: #E6F7FB;
 }
+input:focus-visible {
+  outline: none;
+}
 
 th {
   padding: 16px;

@@ -1,0 +1,84 @@
+name: Cypress E2E Tests
+
+on:
+  workflow_run:
+    workflows: ["Deploy Angular to Production"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    # Only run if the deploy was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Wait for deployment to stabilize
+        run: sleep 20
+      
+      - name: Run Cypress tests
+        run: npx cypress run --browser chrome --config video=false
+        env:
+          CYPRESS_TEST_USER_EMAIL: ${{ secrets.CYPRESS_TEST_USER_EMAIL }}
+          CYPRESS_TEST_USER_PASSWORD: ${{ secrets.CYPRESS_TEST_USER_PASSWORD }}
+          CYPRESS_TEST_USER_EMAIL2: ${{ secrets.CYPRESS_TEST_USER_EMAIL2}}
+          CYPRESS_TEST_USER_PASSWORD2: ${{ secrets.CYPRESS_TEST_USER_PASSWORD2 }}
+      
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 30
+      
+      - name: Send Discord notification on success
+        if: success()
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "✅ E2E Tests Passed",
+              "description": "All Cypress tests passed successfully on [covoit.goegilles.fr](https://covoit.goegilles.fr/)",
+              "color": 3066993,
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+            }]
+          }
+          EOF
+          )
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
+      
+      - name: Send Discord notification on failure
+        if: failure()
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "❌ E2E Tests Failed",
+              "description": "Some Cypress tests failed. Check the [GitHub Actions logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+              "color": 15158332,
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+            }]
+          }
+          EOF
+          )
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
