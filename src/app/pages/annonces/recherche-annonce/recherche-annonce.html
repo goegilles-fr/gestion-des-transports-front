@@ -1,150 +1,152 @@
 <app-navbar></app-navbar>
 
-<section class="page">
-  <header class="header">
-    <h1>Rechercher un covoiturage</h1>
-  </header>
+<div class="recherche-container">
+  <div class="recherche-header">
+    <h1 class="recherche-title">Rechercher un covoiturage</h1>
+  </div>
 
-  <!-- Formulaire de recherche -->
-  <div class="filters">
-    <!-- Adresse de départ -->
-    <fieldset class="field">
-      <legend>Adresse de départ</legend>
-
-      <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°" [value]="depNumero() ?? ''"
-               (input)="onNumberInput($event, depNumero)" class="w-20" />
-
-        <input type="text" placeholder="Rue / voie" [value]="depRue()" (input)="onTextInput($event, depRue)"
-               class="flex-1" />
+  <div class="recherche-form">
+    <!-- Tous les champs sur une seule ligne -->
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">Départ</label>
+        <app-autocomplete-ville
+          placeholder="Ville de départ"
+          [villes]="villesDisponibles()"
+          [value]="villeDepart()"
+          (valueChange)="villeDepart.set($event)"
+        ></app-autocomplete-ville>
       </div>
 
-      <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="depCp()"
-               (input)="onTextInput($event, depCp)" class="w-28" />
+      <button type="button" class="btn-exchange" (click)="echangerVilles()" title="Échanger départ et arrivée">
+        🔄
+      </button>
 
-        <input type="text" placeholder="Ville" [value]="depVille()" (input)="onTextInput($event, depVille)"
-               class="flex-1" />
-      </div>
-    </fieldset>
-
-    <!-- Adresse d'arrivée -->
-    <fieldset class="field">
-      <legend>Adresse d'arrivée</legend>
-
-      <div class="row">
-        <input type="text" inputmode="numeric" placeholder="N°" [value]="arrNumero() ?? ''"
-               (input)="onNumberInput($event, arrNumero)" class="w-20" />
-
-        <input type="text" placeholder="Rue / voie" [value]="arrRue()" (input)="onTextInput($event, arrRue)"
-               class="flex-1" />
+      <div class="field-group">
+        <label class="field-label">Arrivée</label>
+        <app-autocomplete-ville
+          placeholder="Ville d'arrivée"
+          [villes]="villesDisponibles()"
+          [value]="villeArrivee()"
+          (valueChange)="villeArrivee.set($event)"
+        ></app-autocomplete-ville>
       </div>
 
-      <div class="row">
-        <input type="text" inputmode="numeric" placeholder="Code postal" [value]="arrCp()"
-               (input)="onTextInput($event, arrCp)" class="w-28" />
-
-        <input type="text" placeholder="Ville" [value]="arrVille()" (input)="onTextInput($event, arrVille)"
-               class="flex-1" />
+      <div class="field-group">
+        <label class="field-label">Date de départ</label>
+        <input
+          type="date"
+          class="form-input"
+          [value]="dateStr()"
+          (input)="dateStr.set($any($event.target).value)"
+          [min]="todayStr"
+          placeholder="JJ/MM/AAAA"
+        />
       </div>
-    </fieldset>
-
-    <!-- Date / heure / flexibilité -->
-    <fieldset class="field">
-      <legend>Quand ?</legend>
-
-      <div class="row">
-        <label class="col">
-          <span class="label">Date de départ</span>
-          <input
-            type="date"
-            [value]="dateStr()"
-            (input)="onTextInput($event, dateStr)"
-            [min]="todayStr"
-            placeholder="Sélectionnez une date" />
-        </label>
-
-        <label class="col">
-          <span class="label">Heure</span>
-          <input
-            type="time"
-            [value]="timeStr()"
-            (input)="onTextInput($event, timeStr)"
-            placeholder="08:00" />
-        </label>
-
-        <label class="col">
-          <span class="label">Flexibilité (± heures)</span>
-          <input
-            type="number"
-            min="0"
-            step="1"
-            [value]="flexHeures() ?? ''"
-            (input)="onFlexInput($event)"
-            placeholder="2" />
-        </label>
-      </div>
-      @if (dateWarn()) {
-      <p class="warn-inline">{{ dateWarn() }}</p>
-      }
-    </fieldset>
-
-
-    <div class="actions">
-      <button type="button" class="btn" (click)="rechercher()" [disabled]="isPastSelected()">Rechercher</button>
     </div>
 
-    @if (errorMsg()) {
-    <p class="warn">{{ errorMsg() }}</p>
-    }
+    <!-- Message d'erreur -->
+    <div class="error-message" *ngIf="dateWarn()">
+      ⚠️ {{ dateWarn() }}
+    </div>
+    <div class="error-message" *ngIf="errorMsg()">
+      ⚠️ {{ errorMsg() }}
+    </div>
+
+    <!-- Bouton de recherche -->
+    <button
+      type="button"
+      class="btn-rechercher"
+      (click)="rechercher()"
+      [disabled]="loading()"
+    >
+      {{ loading() ? 'Recherche en cours...' : 'RECHERCHER' }}
+    </button>
   </div>
 
   <!-- Résultats -->
-  @if (loading()) {
-  <p class="muted">Chargement…</p>
-  } @else if (results().length === 0) {
-  <p class="muted">Aucune annonce ne correspond aux critères.</p>
-  } @else {
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Date de départ</th>
-        <th>Adresse de départ</th>
-        <th>Adresse d'arrivée</th>
-        <th>Conducteur</th>
-        <th>Places dispo</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      @for (a of results(); track a['annonce']?.id) {
-      <tr>
-        <td>{{ formatHeureDepart(a['annonce'].heureDepart || '') }}</td>
-        <td>{{ formatAdresse(a['annonce'].adresseDepart) }}</td>
-        <td>{{ formatAdresse(a['annonce'].adresseArrivee) }}</td>
-        <td>{{ conducteurName(a['annonce'].id) || '—' }}</td>
-        <td>{{ placesDispo(a) }}</td>
-        <td class="actions-cell">
-          <button
-            type="button"
-            class="btn-icon"
-            (click)="openDetailModal(a)"
-            title="Voir les détails">
-            ℹ️
-          </button>
-          <button type="button" class="btn small" (click)="openModale(a)">
-            Réserver
-          </button>
-        </td>
-      </tr>
-      }
-      </tbody>
-    </table>
-  </div>
-  }
-</section>
+  <div class="results-section" *ngIf="results().length > 0">
+    <h2 class="results-title">{{ results().length }} annonce(s) trouvée(s)</h2>
 
+    <div class="results-table">
+      <table>
+        <thead>
+        <tr>
+          <th>Date de départ</th>
+          <th>Ville de départ</th>
+          <th>Ville d'arrivée</th>
+          <th>Conducteur</th>
+          <th>Places dispo</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let a of paginatedResults()">
+          <td>{{ formatHeureDepart(a.annonce.heureDepart) }}</td>
+          <td>{{ a.annonce.adresseDepart.ville || '—' }}</td>
+          <td>{{ a.annonce.adresseArrivee.ville || '—' }}</td>
+          <td>{{ conducteurName(a.annonce.id) }}</td>
+          <td>
+              <span class="badge-places" [class.complet]="placesDispo(a) === 0">
+                {{ placesDispo(a) }}
+              </span>
+          </td>
+          <td class="actions-cell">
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="openDetailModal(a)"
+              title="Voir les détails">
+              ℹ️
+            </button>
+            <button
+              type="button"
+              class="btn-reserver"
+              (click)="openModale(a)"
+              [disabled]="placesDispo(a) === 0">
+              Réserver
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages() > 1">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage() === 1">
+        ◀ Précédent
+      </button>
+
+      <div class="pagination-pages">
+        <button
+          *ngFor="let page of pages"
+          class="pagination-page"
+          [class.active]="page === currentPage()"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage() === totalPages()">
+        Suivant ▶
+      </button>
+    </div>
+  </div>
+
+  <div class="no-results" *ngIf="!loading() && results().length === 0 && errorMsg() === ''">
+    <p>Aucune annonce ne correspond à votre recherche.</p>
+    <p>Essayez de modifier vos critères ou d'augmenter la flexibilité horaire.</p>
+  </div>
+</div>
+
+<!-- Modale de confirmation -->
 <app-confirm-dialog
   [open]="!!annonceAReserver()"
   [title]="modaleTitle()"
@@ -155,6 +157,7 @@
   (cancel)="closeModale()">
 </app-confirm-dialog>
 
+<!-- Modale de détail -->
 <app-recherche-annonce-detail-modal
   [isOpen]="showDetailModal()"
   [annonce]="selectedAnnonceDetail()"

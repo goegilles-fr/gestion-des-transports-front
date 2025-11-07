@@ -14,7 +14,7 @@ type AnyDto = Record<string, any>;
 export class RechercheAnnonceService {
   private http = inject(HttpClient);
   private base = environment.apiBaseUrl.replace(/\/$/, '');
-  private urlRecherche = `${this.base}/covoit/`;  // AVEC / à la fin
+  private urlRecherche = `${this.base}/covoit/`;
 
   listAnnonces(): Observable<Annonce[]> {
     const url = `${this.urlRecherche}`;  // Pas de / supplémentaire
@@ -28,7 +28,7 @@ export class RechercheAnnonceService {
   }
 
   reserverPlace(idAnnonce: number): Observable<string> {
-    const url = `${this.urlRecherche}reserve/${idAnnonce}`;  // Pas de / avant reserve
+    const url = `${this.urlRecherche}reserve/${idAnnonce}`;
     return this.http.post(url, null, {
       responseType: 'text' as const,
     }).pipe(
@@ -47,7 +47,7 @@ export class RechercheAnnonceService {
 
 
   annulerReservation(idAnnonce: number): Observable<void> {
-    const url = `${this.urlRecherche}reserve/${idAnnonce}`;  // Pas de / avant reserve
+    const url = `${this.urlRecherche}reserve/${idAnnonce}`;
     return this.http.delete<void>(url).pipe(
       catchError(err => {
         console.error('[ANNONCES] DELETE annuler failed:', err);
@@ -57,7 +57,7 @@ export class RechercheAnnonceService {
   }
 
   getConducteur(idAnnonce: number): Observable<Conducteur | null> {
-    const url = `${this.urlRecherche}${idAnnonce}/participants`;  // Pas de / avant idAnnonce
+    const url = `${this.urlRecherche}${idAnnonce}/participants`;
 
     return this.http.get<Participants>(url).pipe(
       map(dto => {
@@ -72,7 +72,7 @@ export class RechercheAnnonceService {
   }
 
   getParticipants(idAnnonce: number): Observable<Participants | null> {
-    const url = `${this.urlRecherche}${idAnnonce}/participants`;  // Pas de / avant idAnnonce
+    const url = `${this.urlRecherche}${idAnnonce}/participants`;
     return this.http.get<Participants>(url).pipe(
       catchError(err => {
         console.error('[ANNONCES] GET participants failed:', err);
@@ -99,6 +99,34 @@ export class RechercheAnnonceService {
       catchError(err => {
         console.error('[ANNONCES] GET véhicule perso failed:', err);
         return of(null);
+      })
+    );
+  }
+
+  // Récupérer toutes les villes uniques depuis les annonces
+  getVillesUniques(): Observable<string[]> {
+    return this.listAnnonces().pipe(
+      map(annonces => {
+        const villes = new Set<string>();
+
+        annonces.forEach(annonce => {
+          const villeDepart = annonce.annonce?.adresseDepart?.ville;
+          const villeArrivee = annonce.annonce?.adresseArrivee?.ville;
+
+          if (villeDepart && typeof villeDepart === 'string') {
+            villes.add(villeDepart.trim());
+          }
+          if (villeArrivee && typeof villeArrivee === 'string') {
+            villes.add(villeArrivee.trim());
+          }
+        });
+
+        // Retourner un tableau trié
+        return Array.from(villes).sort();
+      }),
+      catchError(err => {
+        console.error('[ANNONCES] GET villes uniques failed:', err);
+        return of([]);
       })
     );
   }

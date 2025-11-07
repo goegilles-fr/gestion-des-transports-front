@@ -1,0 +1,23 @@
+<div class="autocomplete-container">
+  <input
+    type="text"
+    class="autocomplete-input"
+    [placeholder]="placeholder"
+    [(ngModel)]="inputValue"
+    (input)="onInput($event)"
+    (keydown)="onKeyDown($event)"
+    autocomplete="off"
+  />
+
+  <div class="autocomplete-dropdown" *ngIf="showDropdown">
+    <div
+      *ngFor="let ville of filteredVilles; let i = index"
+      class="autocomplete-item"
+      [class.selected]="i === selectedIndex"
+      (click)="selectVille(ville)"
+    >
+      <span class="ville-icon">📍</span>
+      {{ ville }}
+    </div>
+  </div>
+</div>
