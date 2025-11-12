@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, RegisterRequest } from '../../../services/auth/auth';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -65,7 +66,7 @@ export class RegisterComponent {
       this.authService.register(registerData).subscribe({
         next: (response) => {
           // Redirection vers la page de login
-          this.router.navigate(['/login']);
+          this.router.navigate([routesPath.login]);
         },
         error: (error) => {
           this.errorMessage = this.getErrorMessage(error);
@@ -103,7 +104,7 @@ export class RegisterComponent {
 
   onCancel() {
     // Retour à la page de login
-    this.router.navigate(['/login']);
+    this.router.navigate([routesPath.login]);
   }
 
   private markFormGroupTouched() {

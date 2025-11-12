@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-mdp-reset',
@@ -79,6 +80,6 @@ export class MdpReset implements OnInit {
    * Redirige vers la page de connexion
    */
   allerConnexion(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate([routesPath.login]);
   }
 }

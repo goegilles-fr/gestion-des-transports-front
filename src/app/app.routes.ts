@@ -12,57 +12,26 @@ import { MdpReset } from './pages/auth/mdp-reset/mdp-reset';
 import { MdpChange } from './pages/auth/mdp-change/mdp-change';
 import { Utilisateurs } from './pages/admin/utilisateurs/utilisateurs';
 import { RechercheAnnonceComponent } from './pages/annonces/recherche-annonce/recherche-annonce';
+import { VehiculesList } from './pages/vehicules/vehicules-list/vehicules-list';
+import { VehiculesReservation } from './pages/vehicules/vehicules-reservation/vehicules-reservation';
+import { VehiculeEntrepriseList } from './pages/vehicules/vehicules-entreprise-list/vehicules-entreprise-list';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'mdp', component: Mdp },
-  { path: 'reset-password', component: MdpReset },
-  {
-    path: 'mdp-change',
-    component: MdpChange,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'profil',
-    component: ProfilComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'mes-annonces',
-    component: MesAnnoncesComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'annonces/create',
-    component: CreateAnnonceComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-  path: 'utilisateurs',
-  component: Utilisateurs,
-  canActivate: [AuthGuard]
- },
- {
-  path: 'covoiturages',
-  component: RechercheAnnonceComponent,
-  canActivate: [AuthGuard]
- },
- {
-  path: 'mes-reservations',
-  component: MesReservationsComponent,
-  canActivate: [AuthGuard]
- },
-  {
-    path: 'vehicules',
-    loadChildren: () =>
-      import('./pages/vehicules/vehicules-routes').then(m => m.VEHICULES_ROUTES)
-  },
+  { path: 'restorepass', component: MdpReset },
+  { path: 'mdp-change', component: MdpChange, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'profil', component: ProfilComponent, canActivate: [AuthGuard] },
+  { path: 'mycovoits', component: MesAnnoncesComponent, canActivate: [AuthGuard] },
+  { path: 'createcovoit', component: CreateAnnonceComponent, canActivate: [AuthGuard] },
+  { path: 'myreservations', component: MesReservationsComponent, canActivate: [AuthGuard] },
+  { path: 'searchcovoit', component: RechercheAnnonceComponent, canActivate: [AuthGuard] },
+  { path: 'mycars', component: VehiculesList, canActivate: [AuthGuard] },
+  { path: 'searchcar', component: VehiculesReservation, canActivate: [AuthGuard] },
+  { path: 'admin/users', component: Utilisateurs, canActivate: [AuthGuard] },
+  { path: 'admin/cars', component: VehiculeEntrepriseList, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/login' } // wildcard vers login
 ];

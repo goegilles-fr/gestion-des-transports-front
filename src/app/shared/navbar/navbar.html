@@ -1,18 +1,18 @@
 <header class="dashboard-header">
   <div class="header-left">
     <div class="logo-container">
-      <img src="images/covoit-logo.png" alt="Logo" class="logo">
+      <img src="images/covoit-logo.png" alt="Logo" class="logo" (click)="goToDashboard()">
     </div>
 
       <nav class="main-nav">
-      <button class="nav-btn" routerLink="/dashboard" routerLinkActive="active">Accueil</button>
-      <button class="nav-btn" routerLink="/mes-reservations" routerLinkActive="active">Réservations</button>
-      <button class="nav-btn" routerLink="/mes-annonces" routerLinkActive="active">Annonces</button>
-      <button class="nav-btn" routerLink="/vehicules" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Véhicules</button>
+      <button class="nav-btn" (click)="goToDashboard()" routerLinkActive="active">Accueil</button>
+      <button class="nav-btn" (click)="goToReservations()" routerLinkActive="active">Réservations</button>
+      <button class="nav-btn" (click)="goToAnnonces()" routerLinkActive="active">Annonces</button>
+      <button class="nav-btn" (click)="goToVehicules()" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Véhicules</button>
       @if (currentUser$ | async; as user) {
         @if (estAdministrateur(user)) {
-          <button class="nav-btn" routerLink="/vehicules/admin" routerLinkActive="active">Véhicules de société</button>
-          <button class="nav-btn" routerLink="/utilisateurs" routerLinkActive="active">Utilisateurs</button>
+          <button class="nav-btn" (click)="goToAdminCars()" routerLinkActive="active">Véhicules de société</button>
+          <button class="nav-btn" (click)="goToAdminUsers()" routerLinkActive="active">Utilisateurs</button>
         }
       }
     </nav>

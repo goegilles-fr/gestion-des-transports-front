@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { AuthService, LoginRequest } from '../../../services/auth/auth';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -31,7 +32,7 @@ export class LoginComponent implements OnInit {
     });
 
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate([routesPath.dashboard]);
     }
   }
 
@@ -54,7 +55,7 @@ export class LoginComponent implements OnInit {
           take(1) // Prend seulement la première valeur
         ).subscribe((user: any) => {
           this.loading = false;
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([routesPath.dashboard]);
         });
       },
       error: (error: any) => {
@@ -91,7 +92,7 @@ export class LoginComponent implements OnInit {
   }
 
   goToRegister(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate([routesPath.register]);
   }
 
   // Getters pour le template

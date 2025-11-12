@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth/auth';
 import { NavbarComponent } from '../../shared/navbar/navbar';
 import { FooterComponent } from '../../shared/footer/footer';
 import { DashboardService, Covoiturage } from '../../services/dashboard/dashboard';
+import { routesPath } from '../../../environments/environment';
 
 // Interfaces pour les données
 interface Reservation {
@@ -108,7 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (user: any) => {
           if (!user) {
-            this.router.navigate(['/login']);
+            this.router.navigate([routesPath.login]);
             return;
           }
 
@@ -158,7 +159,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
           if (error.status === 401 || error.status === 403) {
             this.authService.logout();
-            this.router.navigate(['/login']);
+            this.router.navigate([routesPath.login]);
           }
         }
       });
@@ -213,7 +214,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate([routesPath.login]);
   }
 
   setActiveTab(tab: string): void {
@@ -256,31 +257,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Navigation
   goToVehicules(): void {
-    this.router.navigate(['/vehicules']);
+    this.router.navigate([routesPath.mycars]);
   }
 
   goToCovoiturages(): void {
-    this.router.navigate(['/covoiturages']);
+    this.router.navigate([routesPath.annonces]);
   }
 
   goToReservations(): void {
-    this.router.navigate(['/reservations']);
+    this.router.navigate([routesPath.reservations]);
   }
 
   goToAnnonces(): void {
-    this.router.navigate(['/annonces']);
+    this.router.navigate([routesPath.annonces]);
   }
 
   rechercherCovoiturage(): void {
-    this.router.navigate(['/covoiturages']);
+    this.router.navigate([routesPath.searchCovoit]);
   }
 
   posterAnnonce(): void {
-    this.router.navigate(['/annonces/create']);
+    this.router.navigate([routesPath.createAnnonce]);
   }
 
   reserverVehicule(): void {
-    this.router.navigate(['/vehicules/reservation']);
+    this.router.navigate([routesPath.searchCar]);
   }
 
   refreshData(): void {

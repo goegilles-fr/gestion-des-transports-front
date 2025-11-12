@@ -11,6 +11,7 @@ import { EditAnnonceModalComponent } from '../modales/edit-annonce-modal/edit-an
 import { AuthService } from '../../../services/auth/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-mes-annonces',
@@ -280,7 +281,7 @@ export class MesAnnoncesComponent implements OnInit {
   }
 
   posterAnnonce(): void {
-    this.router.navigate(['/annonces/create']);
+    this.router.navigate([routesPath.createAnnonce]);
   }
 
   // Helpers pour l'affichage
