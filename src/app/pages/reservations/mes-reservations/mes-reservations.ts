@@ -32,7 +32,7 @@ export class MesReservationsComponent implements OnInit {
 
   // Propriétés de pagination
   currentPage = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 5;
   pagedReservations: any[] = [];
 
   constructor(

@@ -59,7 +59,7 @@ export class VehiculesList implements OnInit {
 
   // -- Pagination
   page = signal(1);
-  readonly pageSize = 5;
+  readonly pageSize = 3;
 
   // -- Modales : suppression / édition
   reservationToDelete = signal<ReservationVehiculeDto | null>(null);

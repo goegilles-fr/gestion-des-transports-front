@@ -1,37 +1,48 @@
 <app-navbar></app-navbar>
 
 <div class="recherche-container">
+  <!-- En-tête -->
   <div class="recherche-header">
-    <h1 class="recherche-title">Rechercher un covoiturage</h1>
+    <h1 class="recherche-title">RECHERCHER UN COVOITURAGE</h1>
   </div>
 
-  <div class="recherche-form">
-    <!-- Tous les champs sur une seule ligne -->
+  <!-- Formulaire de recherche -->
+  <form class="recherche-form" (ngSubmit)="rechercher()">
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMsg()" class="error-message">
+      {{ errorMsg() }}
+    </div>
+
+    <!-- Ligne unique avec tous les champs -->
     <div class="form-row">
+      <!-- Ville de départ -->
       <div class="field-group">
-        <label class="field-label">Départ</label>
+        <label class="field-label">Ville de départ</label>
         <app-autocomplete-ville
-          placeholder="Ville de départ"
           [villes]="villesDisponibles()"
           [value]="villeDepart()"
           (valueChange)="villeDepart.set($event)"
-        ></app-autocomplete-ville>
+          placeholder="Entrez une ville">
+        </app-autocomplete-ville>
       </div>
 
-      <button type="button" class="btn-exchange" (click)="echangerVilles()" title="Échanger départ et arrivée">
+      <!-- Bouton d'échange -->
+      <button type="button" class="btn-exchange" (click)="echangerVilles()" title="Échanger les villes">
         🔄
       </button>
 
+      <!-- Ville d'arrivée -->
       <div class="field-group">
-        <label class="field-label">Arrivée</label>
+        <label class="field-label">Ville d'arrivée</label>
         <app-autocomplete-ville
-          placeholder="Ville d'arrivée"
           [villes]="villesDisponibles()"
           [value]="villeArrivee()"
           (valueChange)="villeArrivee.set($event)"
-        ></app-autocomplete-ville>
+          placeholder="Entrez une ville">
+        </app-autocomplete-ville>
       </div>
 
+      <!-- Date -->
       <div class="field-group">
         <label class="field-label">Date de départ</label>
         <input
@@ -40,70 +51,59 @@
           [value]="dateStr()"
           (input)="dateStr.set($any($event.target).value)"
           [min]="todayStr"
-          placeholder="JJ/MM/AAAA"
         />
+        <small *ngIf="dateWarn()" style="color: #c00; font-size: 12px;">{{ dateWarn() }}</small>
       </div>
     </div>
 
-    <!-- Message d'erreur -->
-    <div class="error-message" *ngIf="dateWarn()">
-      ⚠️ {{ dateWarn() }}
-    </div>
-    <div class="error-message" *ngIf="errorMsg()">
-      ⚠️ {{ errorMsg() }}
-    </div>
-
     <!-- Bouton de recherche -->
-    <button
-      type="button"
-      class="btn-rechercher"
-      (click)="rechercher()"
-      [disabled]="loading()"
-    >
-      {{ loading() ? 'Recherche en cours...' : 'RECHERCHER' }}
+    <button type="submit" class="btn-rechercher" [disabled]="loading() || !!dateWarn()">
+      {{ loading() ? 'Recherche en cours...' : 'Rechercher' }}
     </button>
-  </div>
+  </form>
 
-  <!-- Résultats -->
-  <div class="results-section" *ngIf="results().length > 0">
-    <h2 class="results-title">{{ results().length }} annonce(s) trouvée(s)</h2>
+  <!-- Section des résultats -->
+  <div *ngIf="results().length > 0" class="results-section">
+    <h2 class="results-title">Résultats de la recherche ({{ results().length }})</h2>
 
     <div class="results-table">
       <table>
         <thead>
         <tr>
-          <th>Date de départ</th>
-          <th>Ville de départ</th>
-          <th>Ville d'arrivée</th>
+          <th>Heure de départ</th>
+          <th>Adresse de départ</th>
+          <th>Adresse d'arrivée</th>
           <th>Conducteur</th>
           <th>Places dispo</th>
           <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let a of paginatedResults()">
-          <td>{{ formatHeureDepart(a.annonce.heureDepart) }}</td>
-          <td>{{ a.annonce.adresseDepart.ville || '—' }}</td>
-          <td>{{ a.annonce.adresseArrivee.ville || '—' }}</td>
-          <td>{{ conducteurName(a.annonce.id) }}</td>
+        <tr *ngFor="let item of paginatedResults()">
+          <td>{{ formatHeureDepart(item.annonce.heureDepart) }}</td>
+          <td>{{ formatAdresse(item.annonce.adresseDepart) }}</td>
+          <td>{{ formatAdresse(item.annonce.adresseArrivee) }}</td>
+          <td>{{ conducteurName(item.annonce.id) || '—' }}</td>
           <td>
-              <span class="badge-places" [class.complet]="placesDispo(a) === 0">
-                {{ placesDispo(a) }}
+              <span
+                class="badge-places"
+                [class.complet]="placesDispo(item) === 0">
+                {{ placesDispo(item) }}
               </span>
           </td>
           <td class="actions-cell">
             <button
               type="button"
               class="btn-icon"
-              (click)="openDetailModal(a)"
+              (click)="openDetailModal(item)"
               title="Voir les détails">
               ℹ️
             </button>
             <button
               type="button"
               class="btn-reserver"
-              (click)="openModale(a)"
-              [disabled]="placesDispo(a) === 0">
+              (click)="openModale(item)"
+              [disabled]="placesDispo(item) === 0">
               Réserver
             </button>
           </td>
@@ -113,17 +113,19 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pagination" *ngIf="totalPages() > 1">
+    <div class="pagination">
       <button
+        type="button"
         class="pagination-btn"
         (click)="previousPage()"
         [disabled]="currentPage() === 1">
-        ◀ Précédent
+        ← Précédent
       </button>
 
       <div class="pagination-pages">
         <button
           *ngFor="let page of pages"
+          type="button"
           class="pagination-page"
           [class.active]="page === currentPage()"
           (click)="goToPage(page)">
@@ -132,27 +134,29 @@
       </div>
 
       <button
+        type="button"
         class="pagination-btn"
         (click)="nextPage()"
         [disabled]="currentPage() === totalPages()">
-        Suivant ▶
+        Suivant →
       </button>
     </div>
   </div>
 
-  <div class="no-results" *ngIf="!loading() && results().length === 0 && errorMsg() === ''">
-    <p>Aucune annonce ne correspond à votre recherche.</p>
-    <p>Essayez de modifier vos critères et relancez votre recherche.</p>
+  <!-- Message si aucun résultat -->
+  <div *ngIf="!loading() && results().length === 0 && (villeDepart() || villeArrivee() || dateStr())" class="no-results">
+    <p><strong>Aucun covoiturage trouvé</strong></p>
+    <p>Essayez de modifier vos critères de recherche.</p>
   </div>
 </div>
+
+<app-footer></app-footer>
 
 <!-- Modale de confirmation -->
 <app-confirm-dialog
   [open]="!!annonceAReserver()"
   [title]="modaleTitle()"
-  [message]="modaleContent()"
-  confirmLabel="Reserver"
-  cancelLabel="Annuler"
+  [content]="modaleContent()"
   (confirm)="confirmModale()"
   (cancel)="closeModale()">
 </app-confirm-dialog>
@@ -164,5 +168,3 @@
   (close)="closeDetailModal()"
   (reserver)="onReserverFromDetail($event)">
 </app-recherche-annonce-detail-modal>
-
-<app-footer></app-footer>

@@ -60,7 +60,7 @@ export class RechercheAnnonceComponent implements OnInit {
 
   // ---------- Pagination ----------
   currentPage = signal<number>(1);
-  itemsPerPage = 4;
+  itemsPerPage = 3;
 
   // Computed pour les résultats paginés
   paginatedResults = computed(() => {
