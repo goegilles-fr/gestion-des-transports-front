@@ -148,7 +148,7 @@
 /* Groupes de formulaire */
 .form-group {
   margin-bottom: 10px;
-  height: 48px;
+  min-height: 48px;
   display: flex;
   flex-direction: column;
 }
@@ -157,11 +157,11 @@
   display: flex;
   gap: 8px;
   margin-bottom: 10px;
-  height: 48px;
+  min-height: 48px;
 }
 
 .form-spacer {
-  height: 48px;
+  min-height: 48px;
   margin-bottom: 10px;
 }
 
@@ -381,4 +381,32 @@
     font-size: 11px;
     padding: 5px 12px;
   }
+}
+
+.password-checklist {
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .9rem;
+}
+
+.password-checklist li {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: #c62828;           /* rouge par défaut */
+  margin: .2rem 0;
+}
+
+.password-checklist li::before {
+  content: "•";
+  font-weight: bold;
+}
+
+.password-checklist li.ok {
+  color: #2e7d32;          /* vert quand OK */
+}
+
+.password-checklist li.ok::before {
+  content: "✓";
 }

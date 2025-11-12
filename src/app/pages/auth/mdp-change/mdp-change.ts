@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth';
 import { routesPath } from '../../../../environments/environment';
+import { passwordPolicyValidator } from '../../../shared/validators/password.validator';
 
 @Component({
   selector: 'app-mdp-change',
@@ -34,7 +35,7 @@ export class MdpChange implements OnInit {
    */
   private initialiserFormulaire(): void {
     this.formulaireMotDePasse = this.constructeurFormulaire.group({
-      nouveauMotDePasse: ['', [Validators.required, Validators.minLength(6)]],
+      nouveauMotDePasse: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255), passwordPolicyValidator()]],
       confirmationMotDePasse: ['', [Validators.required]]
     }, {
       validators: this.motsDePasseCorrespondent

@@ -257,8 +257,13 @@
 }
 
 @keyframes fa-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -317,4 +322,35 @@
   .cancel-btn {
     width: 100%;
   }
+}
+
+.password-checklist {
+  margin: .5rem 0 0;
+  padding: 0;
+  padding-bottom: 1rem;
+  list-style: none;
+  font-size: .9rem;
+}
+
+.password-checklist li {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: #c62828;
+  /* rouge par défaut */
+  margin: .2rem 0;
+}
+
+.password-checklist li::before {
+  content: "•";
+  font-weight: bold;
+}
+
+.password-checklist li.ok {
+  color: #2e7d32;
+  /* vert quand OK */
+}
+
+.password-checklist li.ok::before {
+  content: "✓";
 }
