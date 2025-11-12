@@ -74,10 +74,9 @@
 /* Conteneur de la carte/tableau */
 .reservations-table-container {
   background: white;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
 }
 
 /* Tableau des réservations */
@@ -242,8 +241,11 @@
   gap: 12px;
   align-items: center;
   justify-content: center;
-  padding: 10px 0;
+  padding: 12px 0;
   background: white;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
 }
 
 .pager {

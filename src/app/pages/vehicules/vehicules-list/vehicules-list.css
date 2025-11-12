@@ -65,10 +65,11 @@ app-footer {
 /* ==========================================================================
    Titres / panneaux
    ========================================================================== */
-.panel { margin-bottom: var(--spacing-8); }
+/*.panel { margin-bottom: var(--spacing-8); }**/
 
 .panel__title {
-  margin: 0.1rem 0 1.8rem 0;
+  margin: 0.1rem 0 1.5rem 0;
+  margin: 0.1rem 0 1.2rem 0;
   text-align: center;
   text-transform: uppercase;
   font-size: 18px;
@@ -152,6 +153,35 @@ app-footer {
 }
 
 /* ==========================================================================
+   ALIGNEMENTS SPÉCIFIQUES DES COLONNES
+   ========================================================================== */
+/* TABLEAU 1 (MON VÉHICULE PERSONNEL) - table--vehicule */
+/* Colonne "Nombre de places" (4ème colonne) - CENTRÉ */
+.table--vehicule thead th:nth-child(4),
+.table--vehicule tbody td:nth-child(4) {
+  text-align: center;
+}
+
+/* Colonne "CO₂/km" (5ème colonne) - ALIGNÉ À DROITE */
+.table--vehicule thead th:nth-child(5),
+.table--vehicule tbody td:nth-child(5) {
+  text-align: right;
+}
+
+/* TABLEAU 2 (RÉSERVATIONS) - table--reservations */
+/* Colonne "Nombre de places" (4ème colonne) - CENTRÉ */
+.table--reservations thead th:nth-child(4),
+.table--reservations tbody td:nth-child(4) {
+  text-align: center;
+}
+
+/* Colonne "CO₂/km" (5ème colonne) - ALIGNÉ À DROITE */
+.table--reservations thead th:nth-child(5),
+.table--reservations tbody td:nth-child(5) {
+  text-align: right;
+}
+
+/* ==========================================================================
    Colonnes spécifiques
    ========================================================================== */
 .photo-cell {
@@ -166,7 +196,23 @@ app-footer {
   background: #f8f8f8;
 }
 
-.actions-col { width: 110px; text-align: center; }
+.actions-col {
+  width: 110px;
+  text-align: center;
+}
+
+/* Forcer le centrage vertical et horizontal pour la colonne actions du premier tableau */
+.table--vehicule tbody td.actions-col {
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* Forcer le centrage vertical et horizontal pour la colonne actions du tableau réservations */
+.table--reservations tbody td.actions-col {
+  vertical-align: middle;
+  text-align: center;
+}
+
 .actions-cell {
   display: flex;
   flex-direction: row;
@@ -178,13 +224,13 @@ app-footer {
 }
 
 /* ==========================================================================
-   Boutons d’action (icônes)
+   Boutons d'action (icônes)
    ========================================================================== */
 .icon-btn {
   width: 32px;
   height: 32px;
   padding: 0;
-  margin: 0 2px;
+  margin: 0 auto; /* Centrage horizontal du bouton dans sa cellule */
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -206,7 +252,7 @@ app-footer {
 }
 .icon-btn svg { width: 20px; height: 20px; fill: var(--ink-700); }
 
-/* Émojis/icônes “texte” */
+/* Émojis/icônes "texte" */
 .icon-edit,
 .icon-delete {
   display: block;
@@ -220,7 +266,7 @@ app-footer {
 .delete-btn { color: #e74c3c; }
 .delete-btn:hover:not(:disabled) { color: #c0392b; }
 
-/* Cellule vide “état vide” */
+/* Cellule vide "état vide" */
 .table tbody td.empty {
   text-align: center;
   color: var(--ink-500);
@@ -300,7 +346,7 @@ app-footer {
 .cta {
   display: flex;
   justify-content: center;
-  margin: var(--spacing-7) 0 var(--spacing-2);
+  margin: var(--spacing-2) 0 var(--spacing-2);
 }
 .btn-primary {
   appearance: none;

@@ -14,7 +14,7 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px;
+  padding: 10px 20px 5px 20px;
   display: flex;
   flex-direction: column;
   background: #EDEDED;
@@ -30,19 +30,17 @@
   letter-spacing: 0.5px;
   color: #333;
   margin-top: 0.1rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 0.5rem;
   text-align: center;
   text-transform: uppercase;
 }
-
-.panel { margin-bottom: 28px; }
 
 /* =========================================================
    Filtres
    ========================================================= */
 .filters-container,
 .filters {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -110,7 +108,7 @@
   border-radius: 8px;
   overflow: auto;
   box-shadow: 0 2px 8px rgba(0,0,0,.1);
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   max-height: 600px;
 }
 
@@ -179,7 +177,22 @@
 }
 
 /* =========================================================
-   Actions / Boutons d’icônes
+   ALIGNEMENTS SPÉCIFIQUES DES COLONNES
+   ========================================================= */
+/* Colonne "Nombre de places" (4ème colonne) - CENTRÉ */
+.table thead th:nth-child(4),
+.table tbody td:nth-child(4) {
+  text-align: center;
+}
+
+/* Colonne "CO₂/km" (5ème colonne) - ALIGNÉ À DROITE */
+.table thead th:nth-child(5),
+.table tbody td:nth-child(5) {
+  text-align: right;
+}
+
+/* =========================================================
+   Actions / Boutons d'icônes
    ========================================================= */
 .actions-col { width: 110px; text-align: center; }
 
@@ -269,7 +282,7 @@
 /* CTA principal — COULEUR FIXE #0B84A2 */
 .cta {
   display: flex; justify-content: center;
-  margin: 22px 0 8px;
+  margin: 10px 0 8px;
 }
 .btn-primary {
   appearance: none; border: none; border-radius: 6px;
