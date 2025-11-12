@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { AuthService, RegisterRequest } from '../../../services/auth/auth';
 import { routesPath } from '../../../../environments/environment';
+import { passwordPolicyValidator } from '../../../shared/validators/password.validator';
 
 @Component({
   selector: 'app-register',
@@ -27,7 +28,7 @@ export class RegisterComponent {
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255), passwordPolicyValidator()]],
 
       // Adresse
       numero: ['', [Validators.required]],

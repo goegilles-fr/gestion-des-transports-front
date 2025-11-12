@@ -19,9 +19,9 @@
       <h2>CRÉATION DE COMPTE</h2>
 
       @if (errorMessage) {
-        <div class="api-error-message">
-          {{ errorMessage }}
-        </div>
+      <div class="api-error-message">
+        {{ errorMessage }}
+      </div>
       }
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
@@ -36,101 +36,84 @@
 
               <!-- Nom -->
               <div class="form-group">
-                <input
-                  type="text"
-                  id="nom"
-                  formControlName="nom"
-                  placeholder="NOM"
-                  class="form-input"
+                <input type="text" id="nom" formControlName="nom" placeholder="NOM" class="form-input"
                   [class.error]="nom?.invalid && nom?.touched">
                 @if (nom?.invalid && nom?.touched) {
-                  <div class="error-message">
-                    @if (nom?.errors?.['required']) {
-                      <span>Le nom est obligatoire</span>
-                    }
-                    @if (nom?.errors?.['maxlength']) {
-                      <span>Le nom ne peut pas dépasser 255 caractères</span>
-                    }
-                  </div>
+                <div class="error-message">
+                  @if (nom?.errors?.['required']) {
+                  <span>Le nom est obligatoire</span>
+                  }
+                  @if (nom?.errors?.['maxlength']) {
+                  <span>Le nom ne peut pas dépasser 255 caractères</span>
+                  }
+                </div>
                 }
               </div>
 
               <!-- Prénom -->
               <div class="form-group">
-                <input
-                  type="text"
-                  id="prenom"
-                  formControlName="prenom"
-                  placeholder="Prénom"
-                  class="form-input"
+                <input type="text" id="prenom" formControlName="prenom" placeholder="Prénom" class="form-input"
                   [class.error]="prenom?.invalid && prenom?.touched">
                 @if (prenom?.invalid && prenom?.touched) {
-                  <div class="error-message">
-                    @if (prenom?.errors?.['required']) {
-                      <span>Le prénom est obligatoire</span>
-                    }
-                    @if (prenom?.errors?.['maxlength']) {
-                      <span>Le prénom ne peut pas dépasser 255 caractères</span>
-                    }
-                  </div>
+                <div class="error-message">
+                  @if (prenom?.errors?.['required']) {
+                  <span>Le prénom est obligatoire</span>
+                  }
+                  @if (prenom?.errors?.['maxlength']) {
+                  <span>Le prénom ne peut pas dépasser 255 caractères</span>
+                  }
+                </div>
                 }
               </div>
 
               <!-- Email -->
               <div class="form-group">
-                <input
-                  type="email"
-                  id="email"
-                  formControlName="email"
-                  placeholder="john@exemple.com"
-                  class="form-input"
+                <input type="email" id="email" formControlName="email" placeholder="john@exemple.com" class="form-input"
                   [class.error]="email?.invalid && email?.touched">
                 @if (email?.invalid && email?.touched) {
-                  <div class="error-message">
-                    @if (email?.errors?.['required']) {
-                      <span>L'email est obligatoire</span>
-                    }
-                    @if (email?.errors?.['email']) {
-                      <span>L'email doit être valide</span>
-                    }
-                    @if (email?.errors?.['maxlength']) {
-                      <span>L'email ne peut pas dépasser 255 caractères</span>
-                    }
-                  </div>
+                <div class="error-message">
+                  @if (email?.errors?.['required']) {
+                  <span>L'email est obligatoire</span>
+                  }
+                  @if (email?.errors?.['email']) {
+                  <span>L'email doit être valide</span>
+                  }
+                  @if (email?.errors?.['maxlength']) {
+                  <span>L'email ne peut pas dépasser 255 caractères</span>
+                  }
+                </div>
                 }
               </div>
 
               <!-- Mot de passe -->
               <div class="form-group">
                 <div class="password-container">
-                  <input
-                    [type]="showPassword ? 'text' : 'password'"
-                    id="password"
-                    formControlName="password"
-                    placeholder="Mot de passe"
-                    class="form-input password-input"
+                  <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                    placeholder="Mot de passe" class="form-input password-input"
                     [class.error]="password?.invalid && password?.touched">
-                  <button
-                    type="button"
-                    class="password-toggle"
-                    (click)="togglePasswordVisibility()"
+                  <button type="button" class="password-toggle" (click)="togglePasswordVisibility()"
                     aria-label="Afficher/masquer le mot de passe">
                     <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
                   </button>
                 </div>
-                @if (password?.invalid && password?.touched) {
-                  <div class="error-message">
-                    @if (password?.errors?.['required']) {
-                      <span>Le mot de passe est requis</span>
-                    }
-                    @if (password?.errors?.['minlength']) {
-                      <span>Le mot de passe doit contenir au moins 6 caractères</span>
-                    }
-                    @if (password?.errors?.['maxlength']) {
-                      <span>Le mot de passe ne peut pas dépasser 255 caractères</span>
-                    }
-                  </div>
-                }
+                <div class="password-checklist">
+                  <ul>
+                    <li [class.ok]="password?.value && !password?.errors?.['minlength'] && !password?.errors?.['maxlength']">6 à 255
+                      caractères</li>
+                  </ul>
+                  <ul>
+                    <li [class.ok]="password?.value && !password?.errors?.['passwordPolicy']?.['lowercase']">1 minuscule</li>
+                  </ul>
+                  <ul>
+                    <li [class.ok]="password?.value && !password?.errors?.['passwordPolicy']?.['uppercase']">1 majuscule</li>
+                  </ul>
+                  <ul>
+                    <li [class.ok]="password?.value && !password?.errors?.['passwordPolicy']?.['digit']">1 chiffre</li>
+                  </ul>
+                  <ul>
+                    <li [class.ok]="password?.value && !password?.errors?.['passwordPolicy']?.['special']">1 caractères special</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -145,82 +128,62 @@
               <!-- Numéro et Rue -->
               <div class="form-row">
                 <div class="form-group numero-width">
-                  <input
-                    type="text"
-                    id="numero"
-                    formControlName="numero"
-                    placeholder="N°"
-                    class="form-input"
+                  <input type="text" id="numero" formControlName="numero" placeholder="N°" class="form-input"
                     [class.error]="numero?.invalid && numero?.touched">
                   @if (numero?.invalid && numero?.touched) {
-                    <div class="error-message">
-                      @if (numero?.errors?.['required']) {
-                        <span>Le numéro est obligatoire</span>
-                      }
-                      @if (numero?.errors?.['min']) {
-                        <span>Le numéro doit être un nombre positif</span>
-                      }
-                    </div>
+                  <div class="error-message">
+                    @if (numero?.errors?.['required']) {
+                    <span>Le numéro est obligatoire</span>
+                    }
+                    @if (numero?.errors?.['min']) {
+                    <span>Le numéro doit être un nombre positif</span>
+                    }
+                  </div>
                   }
                 </div>
 
                 <div class="form-group rue-width">
-                  <input
-                    type="text"
-                    id="libelle"
-                    formControlName="libelle"
-                    placeholder="Avenue des lilas"
-                    class="form-input"
-                    [class.error]="libelle?.invalid && libelle?.touched">
+                  <input type="text" id="libelle" formControlName="libelle" placeholder="Avenue des lilas"
+                    class="form-input" [class.error]="libelle?.invalid && libelle?.touched">
                   @if (libelle?.invalid && libelle?.touched) {
-                    <div class="error-message">
-                      @if (libelle?.errors?.['required']) {
-                        <span>Le libellé de l'adresse est requis</span>
-                      }
-                      @if (libelle?.errors?.['minlength']) {
-                        <span>Le libellé doit contenir au moins 3 caractères</span>
-                      }
-                    </div>
+                  <div class="error-message">
+                    @if (libelle?.errors?.['required']) {
+                    <span>Le libellé de l'adresse est requis</span>
+                    }
+                    @if (libelle?.errors?.['minlength']) {
+                    <span>Le libellé doit contenir au moins 3 caractères</span>
+                    }
+                  </div>
                   }
                 </div>
               </div>
 
               <!-- Code postal -->
               <div class="form-group">
-                <input
-                  type="text"
-                  id="codePostal"
-                  formControlName="codePostal"
-                  placeholder="34000"
-                  class="form-input"
+                <input type="text" id="codePostal" formControlName="codePostal" placeholder="34000" class="form-input"
                   [class.error]="codePostal?.invalid && codePostal?.touched">
                 @if (codePostal?.invalid && codePostal?.touched) {
-                  <div class="error-message">
-                    @if (codePostal?.errors?.['required']) {
-                      <span>Le code postal est obligatoire</span>
-                    }
-                    @if (codePostal?.errors?.['pattern']) {
-                      <span>Le code postal doit contenir exactement 5 chiffres</span>
-                    }
-                  </div>
+                <div class="error-message">
+                  @if (codePostal?.errors?.['required']) {
+                  <span>Le code postal est obligatoire</span>
+                  }
+                  @if (codePostal?.errors?.['pattern']) {
+                  <span>Le code postal doit contenir exactement 5 chiffres</span>
+                  }
+                </div>
                 }
               </div>
 
               <!-- Ville -->
               <div class="form-group">
-                <input
-                  type="text"
-                  id="ville"
-                  formControlName="ville"
-                  placeholder="MONTPELLIER"
-                  class="form-input"
+                <input type="text" id="ville" formControlName="ville" placeholder="MONTPELLIER" class="form-input"
                   [class.error]="ville?.invalid && ville?.touched">
                 @if (ville?.invalid && ville?.touched) {
-                  <div class="error-message">
-                    @if (ville?.errors?.['required']) {
-                      <span>La ville est obligatoire</span>
-                    }
-                  </div>
+                <div class="error-message">
+                  @if (ville?.errors?.['required']) {
+                  <span>La ville est obligatoire</span>
+                  }
+                </div>
                 }
               </div>
 
@@ -233,20 +196,14 @@
 
         <!-- Boutons -->
         <div class="form-buttons">
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="registerForm.invalid || isLoading">
+          <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isLoading">
             @if (isLoading) {
-              <span>CRÉATION EN COURS...</span>
+            <span>CRÉATION EN COURS...</span>
             } @else {
-              <span>VALIDER</span>
+            <span>VALIDER</span>
             }
           </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="onCancel()">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">
             ANNULER
           </button>
         </div>
