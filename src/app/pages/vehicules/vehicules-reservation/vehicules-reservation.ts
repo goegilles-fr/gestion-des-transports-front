@@ -106,98 +106,80 @@ export class VehiculesReservation implements AfterViewInit {
     return 1.1;                // mobile
   }
 
-  /**
-   * Initialise Swiper avec une configuration sans loop,
-   * et positionne explicitement sur la première slide.
-   */
-  private safeInitSwiper(): void {
-    const el = this.swiperContainer?.nativeElement as any;
-    if (!el) return;
+/**
+ * Initialise Swiper avec LOOP activé et 3 slides visibles (effet carousel)
+ */
+private safeInitSwiper(): void {
+  const el = this.swiperContainer?.nativeElement as any;
+  if (!el) return;
 
-    const count = (el.querySelectorAll('swiper-slide')?.length ?? 0);
-    if (count === 0) return;
+  const count = (el.querySelectorAll('swiper-slide')?.length ?? 0);
+  if (count === 0) return;
 
-    // Nettoyer d’éventuels attributs HTML conflictuels
-    el.removeAttribute?.('loop');
-    el.removeAttribute?.('slides-per-view');
+  // Nettoyer d'éventuels attributs HTML conflictuels
+  el.removeAttribute?.('loop');
+  el.removeAttribute?.('slides-per-view');
 
-    const perView = this.desiredPerView();
+  const params = {
+    // ✅ LOOP ACTIVÉ
+    loop: true,
 
-    const params = {
-      // Défilement
-      slidesPerView: perView,
-      slidesPerGroup: 1,            // glisse d'1 slide à la fois → évite les “sauts”
-      centeredSlides: true,
-      centeredSlidesBounds: false,
-      centerInsufficientSlides: true,
-      spaceBetween: 12,
-      speed: 350,
-      watchSlidesProgress: true,
+    // ✅ 3 SLIDES VISIBLES (1 centrale + 2 sur les côtés)
+    slidesPerView: 3,
+    centeredSlides: true,
+    spaceBetween: 30,
 
-      // Contrôles
-      navigation: true,
-      pagination: { clickable: true },
-      keyboard: { enabled: true },
+    // Navigation et contrôles
+    navigation: true,
+    pagination: {
+      clickable: true,
+      dynamicBullets: true
+    },
+    keyboard: { enabled: true },
 
-      // Pas de loop (choix actuel)
-      loop: false,
+    // Animation fluide
+    speed: 600,
+    effect: 'slide',
 
-      // Observateurs
-      observer: true,
-      observeParents: true,
+    // Observateurs
+    observer: true,
+    observeParents: true,
 
-      // Responsive
-      breakpoints: {
-        768:  { slidesPerView: 1.6, spaceBetween: 16 },
-        1024: { slidesPerView: 2.2, spaceBetween: 24 },
+    // Responsive
+    breakpoints: {
+      320: {
+        slidesPerView: 1,
+        spaceBetween: 20
       },
-    } as const;
-
-    this.log('init params =', params, 'count =', count);
-    Object.assign(el, params);
-
-    // Initialisation du web component
-    el.initialize();
-    this.swiperInitialized = true;
-    this.lastSlidesCount = count;
-
-    // Positionner explicitement sur la 1re vraie slide
-    const swiper = el.swiper;
-    if (!swiper) return;
-
-    const placeFirst = () => {
-      if (swiper.params.loop) swiper.slideToLoop(0, 0, false);
-      else swiper.slideTo(0, 0, false);
-      this.updateSwiper(swiper);
-      this.log('placed first; loop=', swiper.params.loop, 'pv=', swiper.params.slidesPerView);
-    };
-    requestAnimationFrame(placeFirst);
-
-    // Recalibrage sur resize/breakpoints
-    const rebuild = () => {
-      const c  = (el.querySelectorAll('swiper-slide')?.length ?? 0);
-      const pv = this.desiredPerView();
-
-      swiper.params.slidesPerView = pv;
-      // On garde loop=false par choix (mais on conserve la logique si tu réactives loop)
-      const allowLoop = false;
-      swiper.params.loop   = allowLoop;
-      swiper.params.rewind = !allowLoop;
-
-      if (allowLoop) {
-        swiper.loopDestroy(true);
-        swiper.loopCreate();
-        swiper.slideToLoop(swiper.realIndex ?? 0, 0, false);
-      } else {
-        swiper.slideTo(swiper.activeIndex ?? 0, 0, false);
+      768: {
+        slidesPerView: 2,
+        spaceBetween: 25
+      },
+      1024: {
+        slidesPerView: 3,
+        spaceBetween: 30
       }
-      this.updateSwiper(swiper);
-      this.log('rebuild:', { c, pv, allowLoop });
-    };
+    },
+  } as const;
 
-    swiper.on('resize', rebuild);
-    swiper.on('breakpoint', rebuild);
-  }
+  this.log('init params =', params, 'count =', count);
+  Object.assign(el, params);
+
+  // Initialisation du web component
+  el.initialize();
+  this.swiperInitialized = true;
+  this.lastSlidesCount = count;
+
+  // Positionner sur la première slide
+  const swiper = el.swiper;
+  if (!swiper) return;
+
+  requestAnimationFrame(() => {
+    swiper.slideToLoop(0, 0, false);
+    this.updateSwiper(swiper);
+    this.log('Swiper initialized with loop; slides count =', count);
+  });
+}
 
   /** Met à jour tailles, classes, nav & pagination (sans altérer l’index courant). */
   private updateSwiper(swiper: any): void {
