@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth';
 import { Utilisateur } from '../../models/utilisateur.model';
+import { routesPath } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -38,6 +39,30 @@ export class NavbarComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate([routesPath.login]);
+  }
+
+  goToDashboard() {
+    this.router.navigate([routesPath.dashboard]);
+  }
+
+  goToReservations() {
+    this.router.navigate([routesPath.reservations]);
+  }
+
+  goToAnnonces() {
+    this.router.navigate([routesPath.annonces]);
+  }
+
+  goToVehicules() {
+    this.router.navigate([routesPath.mycars]);
+  }
+
+  goToAdminCars() {
+    this.router.navigate([routesPath.adminCars]);
+  }
+
+  goToAdminUsers() {
+    this.router.navigate([routesPath.adminUsers]);
   }
 }

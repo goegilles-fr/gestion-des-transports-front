@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth/auth';
 import { NavbarComponent } from '../../shared/navbar/navbar';
 import { FooterComponent } from '../../shared/footer/footer';
 import { ProfilService, UserProfil, ProfilUpdateRequest } from '../../services/profil/profil';
+import { routesPath } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profil',
@@ -73,7 +74,7 @@ export class ProfilComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (user) => {
           if (!user) {
-            this.router.navigate(['/login']);
+            this.router.navigate([routesPath.login]);
             return;
           }
 
@@ -82,7 +83,7 @@ export class ProfilComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Erreur utilisateur:', error);
-          this.router.navigate(['/login']);
+          this.router.navigate([routesPath.login]);
         }
       });
   }
@@ -209,7 +210,7 @@ export class ProfilComponent implements OnInit, OnDestroy {
 
   logout(): void {
       this.authService.logout();
-      this.router.navigate(['/login']);
+      this.router.navigate([routesPath.login]);
   }
 
   navigateTo(route: string): void {

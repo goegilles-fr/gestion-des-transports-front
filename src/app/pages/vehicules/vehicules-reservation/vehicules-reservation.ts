@@ -16,6 +16,7 @@ import { ReservationVehiculeDto } from '../../../core/models/reservation-dto';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { NavbarComponent } from '../../../shared/navbar/navbar';
 import { FooterComponent } from '../../../shared/footer/footer';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-vehicules-reservation',
@@ -356,7 +357,7 @@ du ${deb} ${hdeb} au ${fin} ${hfin} ?`;
       next: () => {
         this.confirmOpen.set(false);
         this.vehiculeToReserve.set(null);
-        this.router.navigate(['/vehicules']);
+        this.router.navigate([routesPath.mycars]);
       },
       error: (e) => console.error(e),
     });

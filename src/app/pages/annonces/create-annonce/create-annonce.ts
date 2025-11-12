@@ -11,6 +11,7 @@ import {
   VehiculeEntreprise,
   AnnonceRequest
 } from '../../../services/annonces/create-annonce/create-annonce';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-create-annonce',
@@ -237,7 +238,7 @@ export class CreateAnnonceComponent implements OnInit {
 
         // Redirection après 2 secondes
         setTimeout(() => {
-          this.router.navigate(['/covoiturages']);
+          this.router.navigate([routesPath.annonces]);
         }, 2000);
       },
       error: (error) => {
@@ -263,6 +264,6 @@ export class CreateAnnonceComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate([routesPath.dashboard]);
   }
 }

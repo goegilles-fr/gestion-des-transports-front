@@ -10,6 +10,7 @@ import { ReservationDetailModalComponent } from '../../../shared/modales/reserva
 import { AuthService } from '../../../services/auth/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-mes-reservations',
@@ -293,7 +294,7 @@ export class MesReservationsComponent implements OnInit {
 
   // Rediriger vers la page de recherche de covoiturage
   rechercherCovoiturage(): void {
-    this.router.navigate(['/covoiturages']);
+    this.router.navigate([routesPath.searchCovoit]);
   }
 
   // Calculer le nombre total de pages

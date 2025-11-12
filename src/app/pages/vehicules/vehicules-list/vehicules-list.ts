@@ -18,6 +18,7 @@ import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { VehiculeEdit } from "../modales/vehicule-edit/vehicule-edit";
 import { InformationModale } from '../../../shared/modales/information-modale/information-modale';
+import { routesPath } from '../../../../environments/environment';
 
 // Types
 type ReservationRow = ReservationVehiculeDto & { vehicule?: VehiculeDTO | null };
@@ -497,6 +498,6 @@ export class VehiculesList implements OnInit {
   // ============================================================================
 
   goToReservation() {
-    this.router.navigate(['/vehicules/reservation']);
+    this.router.navigate([routesPath.searchCar]);
   }
 }

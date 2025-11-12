@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-mdp-change',
@@ -73,7 +74,7 @@ export class MdpChange implements OnInit {
         
         // Rediriger vers le profil après 2 secondes
         setTimeout(() => {
-          this.router.navigate(['/profil']);
+          this.router.navigate([routesPath.profil]);
         }, 2000);
       },
       error: (erreur: any) => {
@@ -101,7 +102,7 @@ export class MdpChange implements OnInit {
    * Annule et retourne au profil
    */
   annuler(): void {
-    this.router.navigate(['/profil']);
+    this.router.navigate([routesPath.profil]);
   }
 
   /**

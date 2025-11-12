@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth';
+import { routesPath } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-mdp',
@@ -67,7 +68,7 @@ export class Mdp implements OnInit {
    * Retourne à la page de connexion
    */
   retourConnexion(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate([routesPath.login]);
   }
 
   /**
