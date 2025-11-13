@@ -86,6 +86,26 @@
   box-shadow: 0 0 0 3px rgba(11,132,162,.1);
 }
 
+.filter input[type="text"] {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  transition: all .3s ease;
+  background: #fff;
+  color: #333;
+  min-width: 180px;
+  height: 36px;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.filter input[type="text"]:focus {
+  outline: none;
+  border-color: #0B84A2;
+  box-shadow: 0 0 0 3px rgba(11,132,162,.1);
+}
+
 /* Lien de réinitialisation */
 .link-reset {
   background: transparent;

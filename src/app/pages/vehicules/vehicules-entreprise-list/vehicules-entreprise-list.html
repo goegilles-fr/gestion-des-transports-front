@@ -11,8 +11,7 @@
     <div class="filters">
       <label class="filter">
         <span>Statut&nbsp;:</span>
-
-        <select [ngModel]="selected()" (ngModelChange)="selected.set($event)">
+        <select [ngModel]="selectedStatut()" (ngModelChange)="selectedStatut.set($event)">
           <option [ngValue]="'ALL'">Tous</option>
           @for (statut of STATUTS; track $index) {
             <option [ngValue]="statut">
@@ -20,6 +19,19 @@
             </option>
           }
         </select>
+
+        <span>Marque&nbsp;:</span>
+        <select [ngModel]="selectedMarque()" (ngModelChange)="selectedMarque.set($event)">
+          <option [ngValue]="'ALL'">Tous</option>
+          @for (marque of MARQUES; track $index) {
+            <option [ngValue]="marque">
+              {{ marque }}
+            </option>
+          }
+        </select>
+
+        <span>Immatriculation&nbsp;:</span>
+        <input type="text" [ngModel]="immatFilter()" (ngModelChange)="immatFilter.set($event)"/>
 
         <button type="button" class="link-reset" (click)="resetFilter()">
           réinitialiser
@@ -38,6 +50,7 @@
             <th>Immatriculation</th>
             <th>Nombre de places</th>
             <th>CO₂/km</th>
+            <th>Catégorie</th>
             <th>Motorisation</th>
             <th>Photo</th>
             <th class="actions-col">Actions</th>
@@ -54,6 +67,7 @@
               <td class="immat">{{ vehicule.immatriculation }}</td>
               <td>{{ vehicule.nbPlaces }}</td>
               <td>{{ vehicule.co2ParKm }}</td>
+              <td>{{ vehicule.categorie }}</td>
               <td>{{ vehicule.motorisation }}</td>
 
               <td class="photo-cell">

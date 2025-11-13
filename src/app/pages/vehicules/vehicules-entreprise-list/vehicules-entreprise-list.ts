@@ -56,9 +56,48 @@ export class VehiculeEntrepriseList {
   cantDeleteInfoTitle = signal<string>('');
   cantDeleteInfoMessage = signal<string>('');
 
-  // Filtre statut
+  // Filtre
   STATUTS: StatutVehicule[] = ['EN_SERVICE', 'EN_REPARATION', 'HORS_SERVICE'];
-  selected = signal<'ALL' | StatutVehicule>('ALL');
+  selectedStatut = signal<'ALL' | StatutVehicule>('ALL');
+
+  MARQUES: string[] = [
+    "Alfa Romeo",
+    "Alpine",
+    "Aston Martin",
+    "Audi",
+    "BMW",
+    "BYD",
+    "Citroën",
+    "Dacia",
+    "Fiat",
+    "Ford",
+    "Honda",
+    "Hyundai",
+    "Jeep",
+    "Kia",
+    "Mazda",
+    "Mercedes-Benz",
+    "Mini",
+    "Nissan",
+    "Opel",
+    "Peugeot",
+    "Porsche",
+    "Renault",
+    "SEAT",
+    "Škoda",
+    "Smart",
+    "Subaru",
+    "Suzuki",
+    "Tesla",
+    "Toyota",
+    "Volkswagen",
+    "Volvo"
+  ];
+
+  selectedMarque = signal<string>('ALL');
+
+  immatFilter = signal<string>('');
+
 
   // Pagination
   page = signal<number>(1);
@@ -66,7 +105,9 @@ export class VehiculeEntrepriseList {
 
   // Quand le filtre change, on revient page 1
   resetOnFilterChange = effect(() => {
-    this.selected();       // lecture du signal pour déclencher l’effet
+    this.selectedStatut();       // lecture du signal pour déclencher l’effet
+    this.selectedMarque();
+    this.immatFilter();
     this.page.set(1);
   }, { allowSignalWrites: true });
 
@@ -75,9 +116,13 @@ export class VehiculeEntrepriseList {
    * ============================================================ */
   // Liste filtrée selon statut
   filtered = computed(() => {
-    const s = this.selected();
+    const s = this.selectedStatut();
+    const m = this.selectedMarque();
+    const i = this.immatFilter();
     const list = this.vehicules();
-    return s === 'ALL' ? list : list.filter(v => v.statut === s);
+    const listImmat = list.filter(v => v.immatriculation.toLowerCase().startsWith(i.toLowerCase()));
+    const listMarque = m === 'ALL' ? listImmat : listImmat.filter(v => v.marque === m);
+    return s === 'ALL' ? listMarque : listMarque.filter(v => v.statut === s);
   });
 
   // Pagination dérivée
@@ -101,7 +146,9 @@ export class VehiculeEntrepriseList {
     this.page.set(Math.max(1, Math.min(t, n)));
   }
   resetFilter() {
-    this.selected.set('ALL');
+    this.selectedStatut.set('ALL');
+    this.selectedMarque.set('ALL');
+    this.immatFilter.set('');
   }
 
   /* ============================================================
