@@ -13,14 +13,14 @@ describe('Covoit - Test de connexion', () => {
     cy.get('button.submit-btn').click()
     
     // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
+    cy.url().should('include', '/accueil')
     
     // Vérifier que l'utilisateur est bien connecté
     cy.contains('Mon tableau de bord', { matchCase: false }).should('exist')
     cy.contains('Cypress Test-user-2', { matchCase: false }).should('exist')
 
     // Vérifier qu'il n'y a pas d'annonces
-    cy.visit('/mes-annonces')
+    cy.visit('/covoits')
     cy.wait(1000)
     cy.contains('Vous n\'avez pas d\'annonce à venir.').should('be.visible')
     
@@ -30,7 +30,7 @@ describe('Covoit - Test de connexion', () => {
     cy.contains('pas encore de véhicule personnel.').should('be.visible')
 
      // Vérifier qu'il n'y a pas de réservations
-    cy.visit('/mes-reservations')
+    cy.visit('/reservations')
     cy.wait(1000)
     cy.contains('pas encore réservé de covoiturage.').should('be.visible')
 

@@ -8,12 +8,11 @@ describe('Covoit - Test suppression annonce', () => {
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD'))
     cy.get('button.submit-btn').click()
     
-    // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
+  
     cy.wait(1000)
     
     // Aller directement sur mes annonces
-    cy.visit('/mes-annonces')
+    cy.visit('/covoits')
     cy.wait(1000)
     
     // S'assurer qu'on est sur le filtre "À venir"

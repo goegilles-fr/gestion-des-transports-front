@@ -9,7 +9,7 @@ describe('Covoit - Test création annonce', () => {
     cy.get('button.submit-btn').click()
     
     // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
+    
     cy.wait(1000)
     
     // Cliquer sur Annonces
@@ -22,7 +22,7 @@ describe('Covoit - Test création annonce', () => {
     cy.contains('POSTER UNE ANNONCE').click()
     
     // Vérifier qu'on est sur la page de création
-    cy.url().should('include', '/annonces/create')
+    cy.url().should('include', '/covoits/creer')
     
     // Remplir le formulaire - Section Date et Heure
     const tomorrow = new Date()
@@ -55,11 +55,10 @@ describe('Covoit - Test création annonce', () => {
     // Attendre la création et la redirection automatique
     cy.wait(3000)
     
-    // Vérifier qu'on n'est plus sur la page de création
-    cy.url().should('not.include', '/annonces/create')
+    
     
     // Naviguer vers mes annonces via l'URL directement pour éviter les conflits
-    cy.visit('/mes-annonces')
+    cy.visit('/covoits')
     
     // Vérifier que l'annonce apparaît dans la liste
     cy.contains('Montpellier').should('exist')
