@@ -3,18 +3,19 @@ export const environment = {
   apiBaseUrl: 'https://dev.goegilles.fr/api'
 };
 export const routesPath = {
-  login: 'login',
-  register: 'register',
-  mdp: 'mdp',
-  restorepassword: 'restorepassword',
-  dashboard: 'dashboard',
+  login: 'connexion',
+  register: 'inscription',
+  mdp: 'motdepasse',
+  restorepassword: 'motdepasse/recuperation',
+  editpassword: 'motdepasse/modification',
+  dashboard: 'acceuil',
   profil: 'profil',
-  annonces: 'mycovoits',
-  createAnnonce: 'createcovoit',
-  reservations: 'myreservations',
-  searchCovoit: 'searchcovoit',
-  mycars: 'mycars',
-  searchCar: 'searchcar',
-  adminUsers: 'admin/users',
-  adminCars: 'admin/cars'
+  annonces: 'covoits',
+  createAnnonce: 'covoits/creer',
+  reservations: 'reservations',
+  searchCovoit: 'reservations/rechercher',
+  mycars: 'vehicules',
+  searchCar: 'vehicules/rechercher',
+  adminUsers: 'admin/utilisateurs',
+  adminCars: 'admin/vehicules'
 }
