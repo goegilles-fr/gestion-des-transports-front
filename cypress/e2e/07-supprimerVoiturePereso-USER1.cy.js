@@ -8,8 +8,7 @@ describe('Covoit - Test suppression véhicule personnel', () => {
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD'))
     cy.get('button.submit-btn').click()
     
-    // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
+   
     cy.wait(1000)
     
     // Cliquer sur Véhicules

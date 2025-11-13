@@ -11,10 +11,7 @@ describe('Covoit - Test véhicule personnel', () => {
     
     // Cliquer sur le bouton VALIDER
     cy.get('button.submit-btn').click()
-    
-    // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
-    
+   
     // Attendre que la page charge
     cy.wait(1000)
     

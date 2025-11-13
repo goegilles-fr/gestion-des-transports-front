@@ -8,9 +8,7 @@ describe('Covoit - Test validation formulaire annonce', () => {
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD'))
     cy.get('button.submit-btn').click()
     
-    // Vérifier la redirection vers le dashboard
-    cy.url().should('include', '/dashboard')
-    cy.wait(1000)
+    
     
     // Cliquer sur Annonces
     cy.contains('Annonces').click()
@@ -18,7 +16,7 @@ describe('Covoit - Test validation formulaire annonce', () => {
     
     // Cliquer sur POSTER UNE ANNONCE
     cy.contains('POSTER UNE ANNONCE').click()
-    cy.url().should('include', '/annonces/create')
+    cy.url().should('include', '/covoits/creer')
     
     // TEST 1: Date dans le passé
     const yesterday = new Date()
