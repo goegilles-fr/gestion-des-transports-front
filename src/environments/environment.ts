@@ -8,7 +8,7 @@ export const routesPath = {
   mdp: 'motdepasse',
   restorepassword: 'motdepasse/recuperation',
   editpassword: 'motdepasse/modification',
-  dashboard: 'acceuil',
+  dashboard: 'accueil',
   profil: 'profil',
   annonces: 'covoits',
   createAnnonce: 'covoits/creer',
