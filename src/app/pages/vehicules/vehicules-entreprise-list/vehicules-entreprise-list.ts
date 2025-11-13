@@ -12,6 +12,10 @@ import { FooterComponent } from '../../../shared/footer/footer';
 import { ConfirmDialog } from '../../../shared/modales/confirm-dialog/confirm-dialog';
 import { InformationModale } from '../../../shared/modales/information-modale/information-modale';
 import { ReservationsModale } from '../modales/reservations-modale/reservations-modale';
+import { UtilisateursService } from '../../../services/utilisateurs/utilisateurs.service';
+import { Utilisateur } from '../../../models/utilisateur.model';
+
+type ReservationWithUser = ReservationVehiculeDto & { utilisateurNomComplet: string };
 
 @Component({
   selector: 'app-vehicule-entreprise-list',
@@ -25,7 +29,7 @@ export class VehiculeEntrepriseList {
   /* ============================================================
    * 1) Injections & construction
    * ============================================================ */
-  constructor(private vehiculeService: Vehicules) {
+  constructor(private vehiculeService: Vehicules, private utilisateurService: UtilisateursService) {
     // Chargement initial de l’ensemble des véhicules d’entreprise
     this.vehiculeService.listEntreprise().subscribe({
       next: (vehicules) => this.vehicules.set(vehicules),
@@ -42,6 +46,14 @@ export class VehiculeEntrepriseList {
         console.error(e);
       },
     });
+
+    // Chargement des utilisateurs
+    this.utilisateurService.obtenirTousLesUtilisateurs().subscribe({
+      next: (utilisateurs) => this.utilisateurs.set(utilisateurs),
+      error: (e) => {
+        console.error(e);
+      },
+    });
   }
 
   /* ============================================================
@@ -50,6 +62,7 @@ export class VehiculeEntrepriseList {
   // Liste brute
   vehicules = signal<VehiculeDTO[]>([]);
   reservations = signal<ReservationVehiculeDto[]>([]);
+  utilisateurs = signal<Utilisateur[]>([]);
 
   // -- Modale information suppression impossible
   cantDeleteInfoOpen = signal<boolean>(false)
@@ -158,7 +171,7 @@ export class VehiculeEntrepriseList {
   vehiculeToEdit = signal<VehiculeDTO | null>(null);
   modaleTitle = signal<string>('');
   creationVehicule = signal<boolean>(false);
-  vehiculeReservations = signal<ReservationVehiculeDto[] | null>(null);
+  vehiculeReservations = signal<ReservationWithUser[] | null>([]);
   selectedVehicule = signal<VehiculeDTO | null>(null);
 
   openCreate() {
@@ -175,8 +188,24 @@ export class VehiculeEntrepriseList {
 
   openInformation(vehicule: VehiculeDTO) {
     this.selectedVehicule.set(vehicule);
+
+    // 1) Filtrer les réservations du véhicule
     const reservations = this.reservations().filter(r => r.vehiculeId === vehicule.id);
-    this.vehiculeReservations.set(reservations);
+
+    // 2) Construire une map id → "Prénom Nom" à partir du signal utilisateurs
+    const users = this.utilisateurs();
+    const userMap = new Map(users.map(u => [u.id, `${u.prenom} ${u.nom}`]));
+
+    // 3) Enrichir les réservations avec le nom complet
+    const enriched = reservations.map(r => ({
+      ...r,
+      utilisateurNomComplet: r.utilisateurId ? userMap.get(r.utilisateurId) : 'Utilisateur inconnu',
+    })) as ReservationWithUser[];
+
+    // 4) Pousser dans le signal
+    this.vehiculeReservations.set(enriched);
+
+    // 5) Titre
     this.modaleTitle.set(`RÉSERVATIONS DU VÉHICULE ${vehicule.marque} ${vehicule.modele} (${vehicule.immatriculation})`);
   }
 

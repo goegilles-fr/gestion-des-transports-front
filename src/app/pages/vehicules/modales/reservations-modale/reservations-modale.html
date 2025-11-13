@@ -11,6 +11,7 @@
           <table class="table">
             <thead>
               <tr>
+                <th>Responsable</th>
                 <th>Début</th>
                 <th>Fin</th>
                 <th>État</th>
@@ -19,6 +20,9 @@
             <tbody>
               @for (r of sorted; track r.id ?? $index) {
                 <tr>
+                  <td>
+                    {{ r.utilisateurNomComplet }}
+                  </td>
                   <td>
                     <time [attr.datetime]="r.dateDebut">{{ r.dateDebut | date:'dd/MM/yyyy HH:mm' }}</time>
                   </td>
