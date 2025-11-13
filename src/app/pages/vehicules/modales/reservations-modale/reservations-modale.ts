@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservationVehiculeDto } from '../../../../core/models/reservation-dto';
 
+type ReservationWithUser = ReservationVehiculeDto & { utilisateurNomComplet: string };
+
 @Component({
   selector: 'app-reservations-modale',
   standalone: true,
@@ -17,13 +19,13 @@ export class ReservationsModale {
   @Input() title: string = 'Réservations du véhicule';
 
   /** Liste brute des réservations à afficher */
-  @Input() reservations: ReservationVehiculeDto[] = [];
+  @Input() reservations: ReservationWithUser[] = [];
 
   /** Fermeture demandée (click croix, overlay, bouton fermer) */
   @Output() close = new EventEmitter<void>();
 
   /** Réservations triées par date de début ascendante */
-  get sorted(): ReservationVehiculeDto[] {
+  get sorted(): ReservationWithUser[] {
     return [...(this.reservations ?? [])].sort(
       (a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime()
     );
