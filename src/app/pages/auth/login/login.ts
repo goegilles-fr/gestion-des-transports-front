@@ -95,6 +95,10 @@ export class LoginComponent implements OnInit {
     this.router.navigate([routesPath.register]);
   }
 
+  goToRestoration() {
+    this.router.navigate([routesPath.restorepassword])
+  }
+
   // Getters pour le template
   get errorMessage(): string | null {
     return this.error;
