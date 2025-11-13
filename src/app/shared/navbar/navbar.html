@@ -1,18 +1,18 @@
 <header class="dashboard-header">
   <div class="header-left">
     <div class="logo-container">
-      <img src="images/covoit-logo.png" alt="Logo" class="logo" (click)="goToDashboard()">
+      <img src="images/covoit-logo.png" alt="Logo" class="logo" (click)="goTo(routesPath.dashboard)">
     </div>
 
       <nav class="main-nav">
-      <button class="nav-btn" (click)="goToDashboard()" routerLinkActive="active">Accueil</button>
-      <button class="nav-btn" (click)="goToReservations()" routerLinkActive="active">Réservations</button>
-      <button class="nav-btn" (click)="goToAnnonces()" routerLinkActive="active">Annonces</button>
-      <button class="nav-btn" (click)="goToVehicules()" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Véhicules</button>
+      <button class="nav-btn" (click)="goTo(routesPath.dashboard)" [disabled]="isActive(routesPath.dashboard)" [class.active]="isActive(routesPath.dashboard)">Accueil</button>
+      <button class="nav-btn" (click)="goTo(routesPath.reservations)" [disabled]="isActive(routesPath.reservations)" [class.active]="isActive(routesPath.reservations)">Réservations</button>
+      <button class="nav-btn" (click)="goTo(routesPath.annonces)" [disabled]="isActive(routesPath.annonces)" [class.active]="isActive(routesPath.annonces)">Annonces</button>
+      <button class="nav-btn" (click)="goTo(routesPath.mycars)" [disabled]="isActive(routesPath.mycars)" [class.active]="isActive(routesPath.mycars)">Véhicules</button>
       @if (currentUser$ | async; as user) {
         @if (estAdministrateur(user)) {
-          <button class="nav-btn" (click)="goToAdminCars()" routerLinkActive="active">Véhicules de société</button>
-          <button class="nav-btn" (click)="goToAdminUsers()" routerLinkActive="active">Utilisateurs</button>
+          <button class="nav-btn" (click)="goTo(routesPath.adminCars)" [disabled]="isActive(routesPath.adminCars)" [class.active]="isActive(routesPath.adminCars)">Véhicules de société</button>
+          <button class="nav-btn" (click)="goTo(routesPath.adminUsers)" [disabled]="isActive(routesPath.adminUsers)" [class.active]="isActive(routesPath.adminUsers)">Utilisateurs</button>
         }
       }
     </nav>
