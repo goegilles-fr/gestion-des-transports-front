@@ -16,6 +16,8 @@ export class NavbarComponent implements OnInit {
   currentUser$;
   showMenu = false;
 
+  public routesPath = routesPath;
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -42,27 +44,18 @@ export class NavbarComponent implements OnInit {
     this.router.navigate([routesPath.login]);
   }
 
-  goToDashboard() {
-    this.router.navigate([routesPath.dashboard]);
-  }
+  isActive(path: string): boolean {
+  return this.router.isActive(path, {
+    paths: 'exact',
+    matrixParams: 'ignored',
+    queryParams: 'ignored',
+    fragment: 'ignored',
+  });
+}
 
-  goToReservations() {
-    this.router.navigate([routesPath.reservations]);
+goTo(path: string) {
+  if (!this.isActive(path)) {
+    this.router.navigate([path]);
   }
-
-  goToAnnonces() {
-    this.router.navigate([routesPath.annonces]);
-  }
-
-  goToVehicules() {
-    this.router.navigate([routesPath.mycars]);
-  }
-
-  goToAdminCars() {
-    this.router.navigate([routesPath.adminCars]);
-  }
-
-  goToAdminUsers() {
-    this.router.navigate([routesPath.adminUsers]);
-  }
+}
 }
