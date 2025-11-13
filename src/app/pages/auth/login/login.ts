@@ -96,7 +96,7 @@ export class LoginComponent implements OnInit {
   }
 
   goToRestoration() {
-    this.router.navigate([routesPath.restorepassword])
+    this.router.navigate([routesPath.mdp])
   }
 
   // Getters pour le template

@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CreateAnnonceService, VehiculePersonnel, VehiculeEntreprise, ReservationVehicule, AnnonceRequest } from '../../../../services/annonces/create-annonce/create-annonce';
 import { Annonce } from '../../../../models/annonce';
+import { routesPath } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-edit-annonce-modal',
@@ -46,7 +47,8 @@ export class EditAnnonceModalComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private createAnnonceService: CreateAnnonceService
+    private createAnnonceService: CreateAnnonceService,
+    private router: Router
   ) {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
@@ -287,5 +289,9 @@ export class EditAnnonceModalComponent implements OnInit, OnChanges {
 
   onCancel(): void {
     this.onClose();
+  }
+
+  goToVehiculeReservation() {
+    this.router.navigate([routesPath.searchCar])
   }
 }

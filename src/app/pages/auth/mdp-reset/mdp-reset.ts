@@ -82,4 +82,8 @@ export class MdpReset implements OnInit {
   allerConnexion(): void {
     this.router.navigate([routesPath.login]);
   }
+
+  goToMotdepasse() {
+    this.router.navigate([routesPath.mdp])
+  }
 }

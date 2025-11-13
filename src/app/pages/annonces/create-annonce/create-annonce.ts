@@ -266,4 +266,8 @@ export class CreateAnnonceComponent implements OnInit {
   onCancel(): void {
     this.router.navigate([routesPath.dashboard]);
   }
+
+  goToVehiculeReservation(){
+    this.router.navigate([routesPath.searchCar])
+  }
 }
