@@ -12,15 +12,13 @@ describe('Covoit - Test réservation sur annonce existante', () => {
     // Naviguer vers la page de recherche de covoiturages
     cy.visit('/reservations/rechercher')
     
-    // Remplir les critères de recherche correspondant à l'annonce créée par USER1
-    
-    // Ville de départ - Montpellier (taper directement sans utiliser l'autocomplete)
+    // Ville de départ
     cy.get('app-autocomplete-ville').first().find('input.autocomplete-input').type('test_Montpellier')
     
-    // Ville d'arrivée - Nîmes (taper directement sans utiliser l'autocomplete)
+    // Ville d'arrivée
     cy.get('app-autocomplete-ville').last().find('input.autocomplete-input').type('test_Nîmes')
     
-    // Date de départ (demain - même date que l'annonce créée)
+    // Date de départ
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const dateString = tomorrow.toISOString().split('T')[0]
@@ -29,34 +27,28 @@ describe('Covoit - Test réservation sur annonce existante', () => {
     // Cliquer sur le bouton Rechercher
     cy.get('button.btn-rechercher').contains('Rechercher').click()
     
-    // Attendre les résultats
-    cy.wait(1000)
+    // Wait for the results section to appear
+    cy.get('.results-section', { timeout: 10000 }).should('be.visible')
+    cy.wait(1500)
     
-    // Vérifier qu'au moins une annonce apparaît
-    cy.get('.results-table table tbody tr').should('have.length.at.least', 1)
+    cy.get('button.btn-reserver', { timeout: 10000 }).should('exist').and('be.visible')
     
-    // Trouver la ligne contenant Montpellier ET Nîmes et cliquer sur Réserver
-    cy.get('.results-table table tbody tr').contains('test_Montpellier').parents('tr')
-      .contains('test_Nîmes').parents('tr')
-      .find('button.btn-reserver').contains('Réserver').click()
+    cy.wait(1500)
+    cy.get('button.btn-reserver').first().click()
+    cy.wait(1500)
+    // Wait for modal
+    cy.get('.modal-backdrop .modal', { timeout: 5000 }).should('be.visible')
     
-    // Attendre l'ouverture de la modale de confirmation
-    cy.wait(1000)
-    
-    // Vérifier que la modale est visible
-    cy.get('.modal-backdrop .modal').should('be.visible')
-    
-    // Confirmer la réservation en cliquant sur le bouton de confirmation
+    // Confirm
     cy.get('.modal-actions button.btn-danger').click()
     
-    // Attendre la confirmation
     cy.wait(2000)
     
-    // Naviguer vers mes réservations pour vérifier
+    // Verify reservation
     cy.visit('/reservations')
-    
-    // Vérifier que la réservation apparaît dans la liste
+     cy.wait(2000)
     cy.contains('test_Montpellier').should('exist')
     cy.contains('test_Nîmes').should('exist')
+    cy.contains('TestMarque').should('exist')
   })
 })

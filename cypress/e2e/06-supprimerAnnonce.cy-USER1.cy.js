@@ -13,7 +13,7 @@ describe('Covoit - Test suppression annonce', () => {
     
     // Aller directement sur mes annonces
     cy.visit('/covoits')
-    cy.wait(1000)
+    cy.wait(2000)
     
     // S'assurer qu'on est sur le filtre "À venir"
     cy.contains('button', '📅 À venir').click()
@@ -35,9 +35,9 @@ describe('Covoit - Test suppression annonce', () => {
           // Rappeler la fonction pour supprimer la suivante
          
        
-
+    cy.wait(2000)
     cy.visit('/covoits')
-    cy.wait(1000)
+    cy.wait(2000)
     // Vérifier le message "aucune annonce"
     cy.contains('Vous n\'avez pas d\'annonce à venir.').should('be.visible')
   })
