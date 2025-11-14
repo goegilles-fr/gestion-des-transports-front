@@ -10,7 +10,7 @@ describe('Covoit - Test création annonce', () => {
     
     // Vérifier la redirection vers le dashboard
     
-    cy.wait(1000)
+    cy.wait(1500)
     
     // Cliquer sur Annonces
     cy.contains('Annonces').click()
@@ -38,13 +38,13 @@ describe('Covoit - Test création annonce', () => {
     cy.get('input#numeroDepart').type('10')
     cy.get('input#libelleDepart').type('Rue de Test Départ')
     cy.get('input#codePostalDepart').type('34000')
-    cy.get('input#villeDepart').type('Montpellier')
+    cy.get('input#villeDepart').type('test_Montpellier')
     
     // Adresse d'arrivée
     cy.get('input#numeroArrivee').type('25')
     cy.get('input#libelleArrivee').type('Avenue de Test Arrivée')
     cy.get('input#codePostalArrivee').type('34090')
-    cy.get('input#villeArrivee').type('Nîmes')
+    cy.get('input#villeArrivee').type('test_Nîmes')
     
     // Sélectionner le véhicule personnel (si disponible)
     cy.get('.vehicule-checkbox-inline').first().check()
@@ -53,7 +53,7 @@ describe('Covoit - Test création annonce', () => {
     cy.contains('button', 'CRÉER L\'ANNONCE').click()
     
     // Attendre la création et la redirection automatique
-    cy.wait(3000)
+    cy.wait(1300)
     
     
     

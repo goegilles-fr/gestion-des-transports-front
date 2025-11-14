@@ -1,7 +1,7 @@
 describe('Covoit - Test de connexion', () => {
   it('devrait se connecter avec succès en tant qu\'administrateur', () => {
     // Visiter la page de connexion
-    cy.visit('/login')
+    cy.visit('/connexion')
     
     // Remplir le champ email
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))
@@ -11,6 +11,7 @@ describe('Covoit - Test de connexion', () => {
     
     // Cliquer sur le bouton VALIDER
     cy.get('button.submit-btn').click()
+    cy.wait(500)
     
     // Vérifier la redirection vers le dashboard
     cy.url().should('include', '/accueil')

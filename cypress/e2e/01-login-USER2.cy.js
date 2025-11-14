@@ -11,7 +11,7 @@ describe('Covoit - Test de connexion', () => {
     
     // Cliquer sur le bouton VALIDER
     cy.get('button.submit-btn').click()
-    
+    cy.wait(500)
     // Vérifier la redirection vers le dashboard
     cy.url().should('include', '/accueil')
     

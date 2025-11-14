@@ -8,6 +8,7 @@ describe('Covoit - Test vérification finale', () => {
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD'))
     
     cy.get('button.submit-btn').click()
+    cy.wait(500)
     // Vérifier la redirection vers le dashboard
     cy.url().should('include', '/accueil')
     

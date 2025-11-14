@@ -9,7 +9,7 @@ describe('Covoit - Test suppression annonce', () => {
     cy.get('button.submit-btn').click()
     
   
-    cy.wait(1000)
+    cy.wait(500)
     
     // Aller directement sur mes annonces
     cy.visit('/covoits')
@@ -17,18 +17,14 @@ describe('Covoit - Test suppression annonce', () => {
     
     // S'assurer qu'on est sur le filtre "À venir"
     cy.contains('button', '📅 À venir').click()
-    cy.wait(500)
+    cy.wait(1500)
     
-    // Fonction récursive pour supprimer toutes les annonces
-    const deleteAllAnnonces = () => {
-      cy.get('body').then($body => {
-        // Vérifier s'il y a des boutons de suppression
-        if ($body.find('.delete-btn').length > 0) {
+   
           // Cliquer sur le premier bouton de suppression
           cy.get('.delete-btn').first().click()
           
           // Attendre que le modal s'ouvre
-          cy.wait(500)
+          cy.wait(1500)
           
           // Cliquer sur CONFIRMER dans le modal
           cy.contains('button', 'Confirmer').click()
@@ -37,16 +33,11 @@ describe('Covoit - Test suppression annonce', () => {
           cy.wait(2000)
           
           // Rappeler la fonction pour supprimer la suivante
-          deleteAllAnnonces()
-        } else {
-          cy.log('Toutes les annonces ont été supprimées')
-        }
-      })
-    }
-    
-    // Lancer la suppression
-    deleteAllAnnonces()
-    
+         
+       
+
+    cy.visit('/covoits')
+    cy.wait(1000)
     // Vérifier le message "aucune annonce"
     cy.contains('Vous n\'avez pas d\'annonce à venir.').should('be.visible')
   })

@@ -9,7 +9,7 @@ describe('Covoit - Test suppression véhicule personnel', () => {
     cy.get('button.submit-btn').click()
     
    
-    cy.wait(1000)
+    cy.wait(500)
     
     // Cliquer sur Véhicules
     cy.contains('Véhicules').click()
@@ -22,15 +22,15 @@ describe('Covoit - Test suppression véhicule personnel', () => {
     cy.get('button.icon-btn').contains('🗑️').click()
     
     // Attendre que le modal s'ouvre
-    cy.wait(500)
+    cy.wait(1500)
     
     // Cliquer sur Supprimer dans le modal
     cy.contains('button', 'Supprimer').click()
     
     // Attendre la suppression et recharger la page
-    cy.wait(3000)
+    cy.wait(1300)
     cy.reload()
-    cy.wait(1000)
+    cy.wait(1300)
     
     // Vérifier que le bouton "Déclarer mon véhicule personnel" réapparaît
     cy.contains('Déclarer mon véhicule personnel').should('exist')

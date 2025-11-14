@@ -7,7 +7,7 @@ describe('Covoit - Test Nettoyage USER 2', () => {
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL2'))
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD2'))
     cy.get('button.submit-btn').click()
-    
+    cy.wait(500)
     // Vérifier la redirection vers le dashboard
     cy.url().should('include', '/accueil')
     

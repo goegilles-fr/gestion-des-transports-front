@@ -7,12 +7,12 @@ describe('Covoit - Test validation formulaire annonce', () => {
     cy.get('input#username').type(Cypress.env('TEST_USER_EMAIL'))
     cy.get('input#password').type(Cypress.env('TEST_USER_PASSWORD'))
     cy.get('button.submit-btn').click()
-    
+    cy.wait(500)
     
     
     // Cliquer sur Annonces
     cy.contains('Annonces').click()
-    cy.wait(500)
+    cy.wait(1500)
     
     // Cliquer sur POSTER UNE ANNONCE
     cy.contains('POSTER UNE ANNONCE').click()
