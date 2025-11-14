@@ -171,7 +171,7 @@ export class VehiculeEntrepriseList {
   vehiculeToEdit = signal<VehiculeDTO | null>(null);
   modaleTitle = signal<string>('');
   creationVehicule = signal<boolean>(false);
-  vehiculeReservations = signal<ReservationWithUser[] | null>([]);
+  vehiculeReservations = signal<ReservationWithUser[] | null>(null);
   selectedVehicule = signal<VehiculeDTO | null>(null);
 
   openCreate() {
