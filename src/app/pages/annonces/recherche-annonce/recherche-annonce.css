@@ -1,47 +1,72 @@
-.recherche-container {
-  min-height: calc(100vh - 133px);
+/* =========================================================
+ * 1) Layout global
+ * =======================================================*/
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background: #EDEDED;
-  padding: 20px;
 }
 
-.recherche-header {
-  text-align: center;
-  color: white;
-  margin-bottom: 20px;
+.recherche-container {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  background: #EDEDED;
 }
 
+/* =========================================================
+ * 2) Titres & messages
+ * =======================================================*/
 .recherche-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: #333;
-  margin: 0 0 10px 0;
+  margin-top: 0.1rem;
+  margin-bottom: 10px;
   text-align: center;
   text-transform: uppercase;
 }
 
-.recherche-subtitle {
-  font-size: 18px;
-  margin: 0;
-  opacity: 0.95;
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
 }
 
+/* =========================================================
+ * 3) Formulaire de recherche
+ * =======================================================*/
 .recherche-form {
   max-width: 1000px;
-  margin: 0 auto;
-  background: white;
+  margin: 0 auto 15px;
+  background: #fff;
   border-radius: 16px;
   padding: 20px 24px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
 
-/* Tous les champs sur une seule ligne */
 .form-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr 1fr; /* Départ | ↔ | Arrivée | Date */
   gap: 16px;
   align-items: end;
   margin-bottom: 16px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .field-label {
@@ -49,6 +74,21 @@
   font-weight: 600;
   color: #333;
   margin-bottom: 4px;
+}
+
+.form-input {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s;
+  background: #fff;
+}
+
+.form-input:focus {
+  border-color: #0B84A2;
+  box-shadow: 0 0 0 3px rgba(11,132,162,0.1);
 }
 
 .btn-exchange {
@@ -72,44 +112,11 @@
   transform: rotate(180deg);
 }
 
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-input {
-  padding: 12px 16px;
-  font-size: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  outline: none;
-  transition: all 0.3s;
-}
-
-.form-input:focus {
-  border-color: #0B84A2;
-  box-shadow: 0 0 0 3px rgba(11, 132, 162, 0.1);
-}
-
-/* Messages d'erreur */
-.error-message {
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  color: #c00;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* Bouton de recherche */
 .btn-rechercher {
   width: 100%;
   padding: 16px 32px;
   background: linear-gradient(135deg, #0B84A2 0%, #0a7089 100%);
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 18px;
@@ -122,21 +129,24 @@
 
 .btn-rechercher:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(11, 132, 162, 0.4);
+  box-shadow: 0 8px 20px rgba(11,132,162,0.4);
 }
 
 .btn-rechercher:disabled {
-  opacity: 0.6;
+  opacity: .6;
   cursor: not-allowed;
 }
 
-/* Section résultats */
+/* =========================================================
+ * 4) Section résultats (carte blanche englobante)
+ *    -> Contient le titre, le tableau et la pagination
+ * =======================================================*/
 .results-section {
   max-width: 1200px;
   margin: 20px auto 0;
-  background: white;
+  background: #fff;
   border-radius: 16px;
-  padding: 24px;
+  padding: 24px; /* Le titre est dedans */
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -145,127 +155,105 @@
   font-size: 20px;
   font-weight: 700;
   color: #0B84A2;
+  text-align: center;
 }
 
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+/* =========================================================
+ * 5) Tableau des annonces (aligné sur mes-reservations)
+ * =======================================================*/
+.annonces-table-container {
+  width: 100%;
+  margin: 0;          /* pas de marge parasite */
+  border-radius: 8px;
+  overflow: hidden;   /* garde les arrondis avec thead sticky */
 }
 
-.pagination-btn {
-  padding: 10px 18px;
-  background: #0B84A2;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #0a7089;
-  transform: translateY(-1px);
-}
-
-.pagination-btn:disabled {
-  background: #ccc;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.pagination-pages {
-  display: flex;
-  gap: 6px;
-}
-
-.pagination-page {
-  min-width: 40px;
-  height: 40px;
-  background: white;
-  border: 2px solid #0B84A2;
-  border-radius: 6px;
-  color: #0B84A2;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-}
-
-.pagination-page:hover {
-  background: #E6F7FB;
-}
-
-.pagination-page.active {
-  background: #0B84A2;
-  color: white;
-}
-
-.results-table {
-  overflow-x: auto;
-}
-
-table {
+/* IMPORTANT : on cible le véritable <table> */
+.annonces-table table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* colonnes stables */
 }
 
-thead {
-  background: #E6F7FB;
+/* En-tête */
+.annonces-table thead {
+  background-color: #0B84A2;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-input:focus-visible {
-  outline: none;
-}
-
-th {
-  padding: 16px;
-  text-align: left;
-  font-weight: 700;
-  color: #0B84A2;
-  border-bottom: 2px solid #0B84A2;
-}
-
-td {
-  padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.badge-places {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #4CAF50;
-  color: white;
-  border-radius: 12px;
+.annonces-table thead th {
+  padding: 10px 12px;
+  text-align: center;
   font-weight: 600;
   font-size: 14px;
+  border-right: 1px solid rgba(255,255,255,0.3);
+  vertical-align: middle;
 }
 
-.badge-places.complet {
-  background: #ff4444;
+.annonces-table thead th:last-child {
+  border-right: none;
 }
 
+/* Corps */
+.annonces-table tbody tr {
+  border-bottom: 2px solid #0B84A2;
+  transition: background-color .2s;
+}
+
+.annonces-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.annonces-table tbody td {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #555;
+  border-right: 1px solid #E6F7FB;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.annonces-table tbody td:last-child {
+  border-right: none;
+}
+
+/* Alternance des cellules impaires */
+.annonces-table tbody td:nth-child(odd) {
+  background-color: #E6F7FB;
+}
+
+.annonces-table tbody tr:hover td {
+  filter: brightness(0.97);
+}
+
+/* Colonne “Places dispo” (colonne 5) centrée */
+.annonces-table thead th:nth-child(5),
+.annonces-table tbody td:nth-child(5) {
+  text-align: center;
+}
+
+/* Colonne “Actions” centrée */
 .actions-cell {
   display: flex;
   gap: 8px;
   align-items: center;
   justify-content: center;
 }
+
+/* Badges / Boutons d’action */
+.badge-places {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #4CAF50;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.badge-places.complet { background: #ff4444; }
 
 .btn-icon {
   background: transparent;
@@ -275,10 +263,7 @@ tbody tr:hover {
   transition: all 0.2s;
   padding: 4px;
 }
-
-.btn-icon:hover {
-  transform: scale(1.2);
-}
+.btn-icon:hover { transform: scale(1.2); }
 
 .btn-reserver {
   padding: 8px 16px;
@@ -293,109 +278,89 @@ tbody tr:hover {
   font-size: 12px;
   letter-spacing: 0.5px;
 }
-
 .btn-reserver:hover:not(:disabled) {
   background: #0a7089;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(11, 132, 162, 0.3);
+  box-shadow: 0 4px 8px rgba(11,132,162,0.3);
 }
-
 .btn-reserver:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
 
-/* Centrer la colonne Places dispo */
-th:nth-child(5),
-td:nth-child(5) {
-  text-align: center;
+/* =========================================================
+ * 6) Pagination (style mes-reservations)
+ * =======================================================*/
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-top: 16px;  /* espacement sous le tableau */
 }
 
-/* Centrer le titre Actions */
-th:nth-child(6) {
-  text-align: center;
+.pager {
+  padding: 8px 16px;
+  background: #0B84A2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pager:hover:not(:disabled) {
+  background: #0a7089;
+  transform: translateY(-1px);
+}
+.pager:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
+.pager__info {
+  font-size: 14px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* =========================================================
+ * 7) État “aucun résultat”
+ * =======================================================*/
 .no-results {
-  max-width: 800px;
-  margin: 40px auto;
-  background: white;
-  border-radius: 16px;
-  padding: 48px 32px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 60px 20px;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  color: #777;
+  font-style: italic;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
-.no-results p {
-  font-size: 16px;
-  color: #666;
-  margin: 8px 0;
-}
+/* =========================================================
+ * 8) Responsive
+ * =======================================================*/
+@media (max-width: 860px) {
+  .recherche-container { padding: 15px; }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .recherche-title {
-    font-size: 18px;
-  }
-
-  .recherche-form {
-    padding: 16px;
-  }
+  .recherche-form { padding: 16px; }
 
   .form-row {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .btn-exchange {
-    margin: 0 auto;
-    transform: rotate(90deg);
-  }
+  .btn-exchange { margin: 0 auto; transform: rotate(90deg); }
+  .btn-exchange:hover { transform: rotate(270deg); }
 
-  .btn-exchange:hover {
-    transform: rotate(270deg);
-  }
-
-  .results-section {
-    padding: 16px;
-  }
-
-  .results-title {
-    font-size: 18px;
-  }
-
-  .results-table {
-    overflow-x: scroll;
-  }
-
-  table {
-    min-width: 800px;
-  }
-
-  .actions-cell {
-    flex-direction: column;
-  }
-
-  .pagination {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .pagination-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .pagination-pages {
-    order: 3;
-    flex-basis: 100%;
-    justify-content: center;
-    margin-top: 8px;
-  }
-
-  .pagination-page {
-    min-width: 36px;
-    height: 36px;
-    font-size: 13px;
-  }
+  /* Scroll horizontal en petit écran */
+  .annonces-table-container { overflow-x: auto; }
+  .annonces-table table { min-width: 900px; }
 }

@@ -18,11 +18,8 @@
       <!-- Ville de départ -->
       <div class="field-group">
         <label class="field-label">Ville de départ</label>
-        <app-autocomplete-ville
-          [villes]="villesDisponibles()"
-          [value]="villeDepart()"
-          (valueChange)="villeDepart.set($event)"
-          placeholder="Entrez une ville">
+        <app-autocomplete-ville [villes]="villesDisponibles()" [value]="villeDepart()"
+          (valueChange)="villeDepart.set($event)" placeholder="Entrez une ville">
         </app-autocomplete-ville>
       </div>
 
@@ -34,24 +31,16 @@
       <!-- Ville d'arrivée -->
       <div class="field-group">
         <label class="field-label">Ville d'arrivée</label>
-        <app-autocomplete-ville
-          [villes]="villesDisponibles()"
-          [value]="villeArrivee()"
-          (valueChange)="villeArrivee.set($event)"
-          placeholder="Entrez une ville">
+        <app-autocomplete-ville [villes]="villesDisponibles()" [value]="villeArrivee()"
+          (valueChange)="villeArrivee.set($event)" placeholder="Entrez une ville">
         </app-autocomplete-ville>
       </div>
 
       <!-- Date -->
       <div class="field-group">
         <label class="field-label">Date de départ</label>
-        <input
-          type="date"
-          class="form-input"
-          [value]="dateStr()"
-          (input)="dateStr.set($any($event.target).value)"
-          [min]="todayStr"
-        />
+        <input type="date" class="form-input" [value]="dateStr()" (input)="dateStr.set($any($event.target).value)"
+          [min]="todayStr" />
         <small *ngIf="dateWarn()" style="color: #c00; font-size: 12px;">{{ dateWarn() }}</small>
       </div>
     </div>
@@ -66,85 +55,56 @@
   <div *ngIf="results().length > 0" class="results-section">
     <h2 class="results-title">Résultats de la recherche ({{ results().length }})</h2>
 
-    <div class="results-table">
-      <table>
-        <thead>
-        <tr>
-          <th>Heure de départ</th>
-          <th>Adresse de départ</th>
-          <th>Adresse d'arrivée</th>
-          <th>Conducteur</th>
-          <th>Places dispo</th>
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let item of paginatedResults()">
-          <td>{{ formatHeureDepart(item.annonce.heureDepart) }}</td>
-          <td>{{ formatAdresse(item.annonce.adresseDepart) }}</td>
-          <td>{{ formatAdresse(item.annonce.adresseArrivee) }}</td>
-          <td>{{ conducteurName(item.annonce.id) || '—' }}</td>
-          <td>
-              <span
-                class="badge-places"
-                [class.complet]="placesDispo(item) === 0">
-                {{ placesDispo(item) }}
-              </span>
-          </td>
-          <td class="actions-cell">
-            <button
-              type="button"
-              class="btn-icon"
-              (click)="openDetailModal(item)"
-              title="Voir les détails">
-              ℹ️
-            </button>
-            <button
-              type="button"
-              class="btn-reserver"
-              (click)="openModale(item)"
-              [disabled]="placesDispo(item) === 0">
-              Réserver
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <div class="annonces-table-container">
+      <div class="annonces-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Heure de départ</th>
+              <th>Adresse de départ</th>
+              <th>Adresse d'arrivée</th>
+              <th>Conducteur</th>
+              <th>Places dispo</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of paginatedResults()">
+              <td>{{ formatHeureDepart(item.annonce.heureDepart) }}</td>
+              <td>{{ formatAdresse(item.annonce.adresseDepart) }}</td>
+              <td>{{ formatAdresse(item.annonce.adresseArrivee) }}</td>
+              <td>{{ conducteurName(item.annonce.id) || '—' }}</td>
+              <td>
+                <span class="badge-places" [class.complet]="placesDispo(item) === 0">
+                  {{ placesDispo(item) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button type="button" class="btn-icon" (click)="openDetailModal(item)" title="Voir les détails">
+                  ℹ️
+                </button>
+                <button type="button" class="btn-reserver" (click)="openModale(item)"
+                  [disabled]="placesDispo(item) === 0">
+                  Réserver
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Pagination -->
     <div class="pagination">
-      <button
-        type="button"
-        class="pagination-btn"
-        (click)="previousPage()"
-        [disabled]="currentPage() === 1">
-        ← Précédent
-      </button>
-
-      <div class="pagination-pages">
-        <button
-          *ngFor="let page of pages"
-          type="button"
-          class="pagination-page"
-          [class.active]="page === currentPage()"
-          (click)="goToPage(page)">
-          {{ page }}
-        </button>
-      </div>
-
-      <button
-        type="button"
-        class="pagination-btn"
-        (click)="nextPage()"
-        [disabled]="currentPage() === totalPages()">
-        Suivant →
-      </button>
+      <button type="button" class="pager" (click)="previousPage()" [disabled]="currentPage() === 1">Précédent</button>
+      <span class="pager__info">Page {{ currentPage() }} / {{ totalPages() }}</span>
+      <button type="button" class="pager" (click)="nextPage()" [disabled]="currentPage() === totalPages()">Suivant</button>
     </div>
   </div>
 
   <!-- Message si aucun résultat -->
-  <div *ngIf="!loading() && results().length === 0 && (villeDepart() || villeArrivee() || dateStr())" class="no-results">
+  <div *ngIf="!loading() && results().length === 0 && (villeDepart() || villeArrivee() || dateStr())"
+    class="no-results">
     <p><strong>Aucun covoiturage trouvé</strong></p>
     <p>Essayez de modifier vos critères de recherche.</p>
   </div>
@@ -153,18 +113,11 @@
 <app-footer></app-footer>
 
 <!-- Modale de confirmation -->
-<app-confirm-dialog
-  [open]="!!annonceAReserver()"
-  [title]="modaleTitle()"
-  [content]="modaleContent()"
-  (confirm)="confirmModale()"
-  (cancel)="closeModale()">
+<app-confirm-dialog [open]="!!annonceAReserver()" [title]="modaleTitle()" [content]="modaleContent()"
+  (confirm)="confirmModale()" (cancel)="closeModale()">
 </app-confirm-dialog>
 
 <!-- Modale de détail -->
-<app-recherche-annonce-detail-modal
-  [isOpen]="showDetailModal()"
-  [annonce]="selectedAnnonceDetail()"
-  (close)="closeDetailModal()"
-  (reserver)="onReserverFromDetail($event)">
+<app-recherche-annonce-detail-modal [isOpen]="showDetailModal()" [annonce]="selectedAnnonceDetail()"
+  (close)="closeDetailModal()" (reserver)="onReserverFromDetail($event)">
 </app-recherche-annonce-detail-modal>
