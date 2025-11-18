@@ -59,6 +59,34 @@ export class Utilisateurs implements OnInit {
     this.chargerUtilisateurs();
   }
 
+  // Pagination
+  page = signal(1);
+  readonly pageSize = 7;
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.utilisateursFiltres().length / this.pageSize)));
+
+  pagedUtilisateurs = computed(() => {
+    const start = (this.page() - 1) * this.pageSize;
+    return this.utilisateursFiltres().slice(start, start + this.pageSize);
+  });
+
+  nextPage() {
+    if(this.page() < this.totalPages()) {
+      this.page.update(n => n + 1);
+    }
+  }
+
+  prevPage() {
+    if(this.page() > 1) {
+      this.page.update(n => n - 1);
+    }
+  }
+
+  goToPage(n: number) {
+    const t = this.totalPages();
+    this.page.set(Math.max(1, Math.min(t, n)));
+  }
+
   /**
    * Charge tous les utilisateurs depuis l'API
    */
