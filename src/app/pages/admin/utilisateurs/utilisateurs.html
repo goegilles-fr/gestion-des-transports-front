@@ -6,97 +6,93 @@
 
     <!-- Message d'erreur -->
     @if (messageErreur()) {
-      <div class="error-message">
-        {{ messageErreur() }}
-      </div>
+    <div class="error-message">
+      {{ messageErreur() }}
+    </div>
     }
 
     <!-- Loader -->
     @if (estEnChargement()) {
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Chargement des utilisateurs...</p>
-      </div>
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des utilisateurs...</p>
+    </div>
     }
 
     <!-- Zone de recherche et filtre -->
     @if (!estEnChargement()) {
-      <div class="filters-container">
-        <div class="search-box">
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Rechercher par nom ou prénom..."
-            [value]="rechercheTexte()"
-            (input)="mettreAJourRecherche($any($event.target).value)"
-          />
-        </div>
-
-        <div class="checkbox-container">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [checked]="afficherSeulementNonVerifies()"
-              (change)="basculerFiltreNonVerifies($any($event.target).checked)"
-            />
-            <span>En attente de vérification</span>
-          </label>
-        </div>
+    <div class="filters-container">
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Rechercher par nom ou prénom..." [value]="rechercheTexte()"
+          (input)="mettreAJourRecherche($any($event.target).value)" />
       </div>
 
-      <!-- Tableau des utilisateurs -->
-      @if (utilisateursFiltres().length > 0) {
-        <div class="utilisateurs-table-container">
-          <table class="utilisateurs-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Email</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (utilisateur of utilisateursFiltres(); track utilisateur.id) {
-                <tr>
-                  <td>{{ utilisateur.nom }}</td>
-                  <td>{{ utilisateur.prenom }}</td>
-                  <td>{{ utilisateur.email }}</td>
-                  <td>{{ obtenirStatut(utilisateur) }}</td>
-                  <td class="actions-cell">
-                    <button
-                      class="action-btn verify-btn"
-                      (click)="gererActionVerificationBannissement(utilisateur)"
-                      [title]="obtenirTitreAction(utilisateur)">
-                      {{ obtenirIconeAction(utilisateur) }}
-                    </button>
-                    <button
-                      class="action-btn delete-btn"
-                      (click)="supprimerUtilisateur(utilisateur)"
-                      title="Supprimer">
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <div class="no-utilisateurs">
-          <p>Aucun utilisateur trouvé.</p>
-        </div>
-      }
+      <div class="checkbox-container">
+        <label class="checkbox-label">
+          <input type="checkbox" [checked]="afficherSeulementNonVerifies()"
+            (change)="basculerFiltreNonVerifies($any($event.target).checked)" />
+          <span>En attente de vérification</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    @if (pagedUtilisateurs().length > 0) {
+    <div class="utilisateurs-table-container">
+      <table class="utilisateurs-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (utilisateur of pagedUtilisateurs(); track utilisateur.id) {
+          <tr>
+            <td>{{ utilisateur.nom }}</td>
+            <td>{{ utilisateur.prenom }}</td>
+            <td>{{ utilisateur.email }}</td>
+            <td>{{ obtenirStatut(utilisateur) }}</td>
+            <td class="actions-cell">
+              <button class="action-btn verify-btn" (click)="gererActionVerificationBannissement(utilisateur)"
+                [title]="obtenirTitreAction(utilisateur)">
+                {{ obtenirIconeAction(utilisateur) }}
+              </button>
+              <button class="action-btn delete-btn" (click)="supprimerUtilisateur(utilisateur)" title="Supprimer">
+                🗑️
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      <!-- Pagination -->
+      <div class="pagination" role="navigation" aria-label="Pagination des réservations">
+        <button type="button" class="pager" (click)="prevPage()" [disabled]="page() === 1">
+          Précédent
+        </button>
+
+        <span class="pager__info">
+          Page {{ page() }} / {{ totalPages() }}
+        </span>
+
+        <button type="button" class="pager" (click)="nextPage()" [disabled]="page() === totalPages()">
+          Suivant
+        </button>
+      </div>
+    </div>
+    } @else {
+    <div class="no-utilisateurs">
+      <p>Aucun utilisateur trouvé.</p>
+    </div>
+    }
     }
   </main>
-<app-confirm-dialog
-    [open]="dialogueOuvert()"
-    [title]="dialogueTitre()"
-    [message]="dialogueMessage()"
-    [confirmLabel]="dialogueLabelConfirmer()"
-    [cancelLabel]="dialogueLabelAnnuler()"
-    (confirm)="confirmerAction()"
+  <app-confirm-dialog [open]="dialogueOuvert()" [title]="dialogueTitre()" [message]="dialogueMessage()"
+    [confirmLabel]="dialogueLabelConfirmer()" [cancelLabel]="dialogueLabelAnnuler()" (confirm)="confirmerAction()"
     (cancel)="fermerDialogue()">
   </app-confirm-dialog>
   <app-footer></app-footer>
