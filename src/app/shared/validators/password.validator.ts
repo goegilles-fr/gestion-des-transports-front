@@ -2,7 +2,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 /**
  * Règles :
- * - longueur 6–64
+ * - longueur 12–255
  * - ≥1 minuscule, ≥1 majuscule, ≥1 chiffre, ≥1 caractère spécial (non alphanumérique)
  */
 export function passwordPolicyValidator(): ValidatorFn {
@@ -19,6 +19,8 @@ export function passwordPolicyValidator(): ValidatorFn {
 
     const errors: Record<string, any> = {};
     
+    if (v.length < 12) errors['minLength'] = true;
+    if (v.length > 255) errors['maxLength'] = true;
     if (!LOWER.test(v))   errors['lowercase'] = true;
     if (!UPPER.test(v))   errors['uppercase'] = true;
     if (!DIGIT.test(v))   errors['digit'] = true;
