@@ -98,7 +98,7 @@
                 </div>
                 <div class="password-checklist">
                   <ul>
-                    <li [class.ok]="password?.value && !password?.errors?.['minlength'] && !password?.errors?.['maxlength']">6 à 255
+                    <li [class.ok]="password?.value && !password?.errors?.['passwordPolicy']?.['minLength'] && !password?.errors?.['passwordPolicy']?.['maxLength']">12 à 255
                       caractères</li>
                   </ul>
                   <ul>

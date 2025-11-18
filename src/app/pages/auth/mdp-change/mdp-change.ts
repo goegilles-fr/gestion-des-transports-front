@@ -35,7 +35,7 @@ export class MdpChange implements OnInit {
    */
   private initialiserFormulaire(): void {
     this.formulaireMotDePasse = this.constructeurFormulaire.group({
-      nouveauMotDePasse: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255), passwordPolicyValidator()]],
+      nouveauMotDePasse: ['', [Validators.required, passwordPolicyValidator()]],
       confirmationMotDePasse: ['', [Validators.required]]
     }, {
       validators: this.motsDePasseCorrespondent

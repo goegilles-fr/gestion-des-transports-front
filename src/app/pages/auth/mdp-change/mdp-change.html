@@ -36,8 +36,8 @@
       <div class="password-checklist">
         <ul>
           <li
-            [class.ok]="nouveauMotDePasse?.value && !nouveauMotDePasse?.errors?.['minlength'] && !nouveauMotDePasse?.errors?.['maxlength']">
-            6 à 255
+            [class.ok]="nouveauMotDePasse?.value && !nouveauMotDePasse?.errors?.['passwordPolicy']?.['minLength'] && !nouveauMotDePasse?.errors?.['passwordPolicy']?.['maxLength']">
+            12 à 255
             caractères</li>
         </ul>
         <ul>

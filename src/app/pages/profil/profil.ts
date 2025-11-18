@@ -213,8 +213,8 @@ export class ProfilComponent implements OnInit, OnDestroy {
       this.router.navigate([routesPath.login]);
   }
 
-  navigateTo(route: string): void {
-      this.router.navigate([route]);
+  goToMdpChange() {
+    this.router.navigate([routesPath.editpassword])
   }
 
   private markFormGroupTouched(): void {
