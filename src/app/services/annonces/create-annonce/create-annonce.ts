@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Adresse {
-  id: number;
+  id: number | null;
   numero: number;
   libelle: string;
   codePostal: string;
@@ -46,7 +46,7 @@ export interface VehiculeEntreprise {
 }
 
 export interface AnnonceRequest {
-  id: number;
+  id: number | null;
   heureDepart: string;
   dureeTrajet?: number;
   distance?: number;
