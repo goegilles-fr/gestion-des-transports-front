@@ -202,17 +202,17 @@ export class CreateAnnonceComponent implements OnInit {
     const formValue = this.annonceForm.value;
     const dateTimeDepart = `${formValue.dateDepart}T${formValue.heureDepart}:00.000Z`;
     const annonceRequest: AnnonceRequest  = {
-      id: 0,
+      id: null,
       heureDepart: dateTimeDepart,
       adresseDepart: {
-        id: 0,
+        id: null,
         numero: Number(formValue.numeroDepart),
         libelle: formValue.libelleDepart,
         codePostal: formValue.codePostalDepart,
         ville: formValue.villeDepart
       },
       adresseArrivee: {
-        id: 0,
+        id: null,
         numero: Number(formValue.numeroArrivee),
         libelle: formValue.libelleArrivee,
         codePostal: formValue.codePostalArrivee,
