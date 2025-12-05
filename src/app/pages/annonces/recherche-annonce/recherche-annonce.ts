@@ -260,6 +260,10 @@ export class RechercheAnnonceComponent implements OnInit {
 
     let filtered = this.toutes();
 
+    // Filtrer les annonces deja passées
+    const now = Date.now();
+    filtered = filtered.filter(a => new Date(a.annonce.heureDepart).getTime() >= now);
+
     // 1) Filtrer par date (si renseignée)
     if (dateVal) {
       const [y, m, day] = dateVal.split('-').map(Number);
